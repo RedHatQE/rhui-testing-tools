@@ -1,0 +1,58 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "RHUI with 1 CDS 1 CLI",
+
+  "Parameters" : {
+    "KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type" : "String"
+    }
+  },
+
+  "Resources" : {
+    "master": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : "ami-2ea50247",
+        "InstanceType" : "m1.small",
+        "KeyName" : { "Ref" : "KeyName" },
+	"Tags" : [{"Key": "Role", "Value": "Master"},{"Key": "Hostname", "Value": "master.example.com"}]
+        }
+    },
+    "rhua": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : "ami-cc5af9a5",
+        "InstanceType" : "m1.large",
+        "KeyName" : { "Ref" : "KeyName" },
+	"Tags" : [{"Key": "Role", "Value": "RHUA"},{"Key": "Hostname", "Value": "rhua.example.com"}]
+      }
+    },
+    "cds1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : "ami-cc5af9a5",
+        "InstanceType" : "m1.large",
+        "KeyName" : { "Ref" : "KeyName" },
+	"Tags" : [{"Key": "Role", "Value": "CDS"},{"Key": "Hostname", "Value": "cds1.example.com"}]
+      }
+    },
+    "cli1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : "ami-cc5af9a5",
+        "InstanceType" : "m1.small",
+        "KeyName" : { "Ref" : "KeyName" },
+	"Tags" : [{"Key": "Role", "Value": "CLI"},{"Key": "Hostname", "Value": "cli1.example.com"}]
+      }
+    }
+  },
+
+  "Outputs" : {
+    "IPMaster": {
+      "Value": { "Fn::GetAtt" : [ "master", "PublicIp" ] },
+      "Description": "master.example.com IP"
+    }
+  }
+}
