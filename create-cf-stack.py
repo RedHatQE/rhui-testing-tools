@@ -261,7 +261,7 @@ while not is_complete:
 instances = []
 for res in con_cf.describe_stack_resources(STACK_ID):
     # we do care about instances only
-    if res.resource_type == 'AWS::EC2::Instance':
+    if res.resource_type == 'AWS::EC2::Instance' and res.physical_resource_id:
         logging.info("Instance " + res.physical_resource_id + " created")
         instances.append(res.physical_resource_id)
 
