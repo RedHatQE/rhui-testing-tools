@@ -8,6 +8,7 @@ import tempfile
 import logging
 import os
 import random
+import string
 
 class Instance(SSHClient):
     '''
@@ -52,14 +53,22 @@ class RHUI_Instance(Instance):
         self.version="1.0"
 
     def setup(self):
+        logging.info("Setting up RHUI instance "+self.hostname)
         remote_iso="/root/"+os.path.basename(self.iso)
+        logging.debug("Will mount " + self.iso + " to /mnt")
         self.run_sync("umount /mnt")
         self.sftp.put(self.iso, remote_iso)
         self.run_sync("mount -o loop " + remote_iso + " /mnt", True)
+        # Setting up iptables
+        logging.debug("Will allow tcp connection to ports 5674, 443")
+        self.run_sync("iptables -I INPUT -p tcp --destination-port 443 -j ACCEPT", True)
+        self.run_sync("iptables -I INPUT -p tcp --destination-port 5674 -j ACCEPT", True)
+        self.run_sync("service iptables save", True)
 
     def set_confrpm_name(self, name):
         if name[-1:] == "\n":
             name = name[:-1]
+        logging.debug("Setting up conf rpm name to " + name + " for "+self.hostname)
         self.confrpm = name
 
 
@@ -68,17 +77,21 @@ class RHUA(RHUI_Instance):
     Class to represent RHUA instance
     '''
     def setup(self, cds_list):
+        logging.info("Setting up RHUA instance "+self.hostname)
         answersfile = tempfile.NamedTemporaryFile(delete=False)
         capassword = ''.join(random.choice(string.ascii_lowercase) for x in range(10))
         RHUI_Instance.setup(self)
+        logging.debug("Running /mnt/install_RHUA.sh")
         self.run_sync("cd /mnt && ./install_RHUA.sh", True)
         self.run_sync("mkdir /etc/rhui/pem ||:", True)
         self.run_sync("mkdir /etc/rhui/confrpm ||:", True)
         # Creating CA
+        logging.debug("Creating CA")
         self.run_sync("echo " + capassword + " > /etc/rhui/pem/ca.pwd", True)
         self.run_sync("echo 10 > /etc/rhui/pem/ca.srl", True)
         self.run_sync("openssl req  -new -x509 -extensions v3_ca -keyout /etc/rhui/pem/ca.key -subj \"/C=US/ST=NC/L=Raleigh/CN="+self.hostname+" CA\" -out /etc/rhui/pem/ca.crt -days 365 -passout \"pass:" + capassword + "\"", True)
         # Creating answers file
+        logging.debug("Creating answers file "+answersfile.name)
         answersfile.write("[general]\n")
         answersfile.write("version: " + self.version + "\n")
         answersfile.write("dest_dir: /etc/rhui/confrpm\n")
@@ -87,9 +100,11 @@ class RHUA(RHUI_Instance):
         answersfile.write("qpid_nss_db: /etc/rhui/qpid/nss\n")
         for server in [self]+cds_list:
             # Creating server certs for RHUA and CDSs
+            logging.debug("Creating cert for "+server.hostname)
             self.run_sync("openssl genrsa -out /etc/rhui/pem/" + server.hostname + ".key 2048", True)
             self.run_sync("openssl req -new -key /etc/rhui/pem/" + server.hostname + ".key -subj \"/C=US/ST=NC/L=Raleigh/CN=" + server.hostname + "\" -out /etc/rhui/pem/" + server.hostname + ".csr", True)
             self.run_sync("openssl x509 -req -days 365 -CA /etc/rhui/pem/ca.crt -CAkey /etc/rhui/pem/ca.key -passin \"pass:" + capassword + "\" -in /etc/rhui/pem/" + server.hostname + ".csr -out /etc/rhui/pem/" + server.hostname + ".crt", True)
+            logging.debug("Adding " + server.hostname + " to answers")
             if server.__class__==RHUA:
                 answersfile.write("[rhua]\n")
             else:
@@ -101,24 +116,37 @@ class RHUA(RHUI_Instance):
             answersfile.write("ca_cert: /etc/rhui/pem/ca.crt\n")
         answersfile.close()
         # Creating configuration RPMs
+        logging.debug("Putting answers to /etc/rhui/answers on " + server.hostname)
         self.sftp.put(answersfile.name, "/etc/rhui/answers")
+        logging.debug("Running rhui-installer")
         self.run_sync("rhui-installer /etc/rhui/answers", True)
         for server in [self]+cds_list:
             #Setting conf RPM names
             rpmname = self.run_sync("ls -1 /etc/rhui/confrpm/" + server.hostname + "-" + self.version + "-*.rpm | head -1")
             server.set_confrpm_name(rpmname)
         # Installing RHUA
+        logging.debug("Installing RHUI conf rpm")
         self.run_sync("rpm -e " + self.hostname)
         self.run_sync("rpm -i " + self.confrpm, True)
+        logging.info("RHUA " + self.hostname + " setup finished")
 
 class CDS(RHUI_Instance):
     '''
     Class to represent CDS instance
     '''
     def setup(self, rhua):
+        logging.info("Setting up CDS instance "+self.hostname + " associated with RHUA "+rhua.hostname)
         RHUI_Instance.setup(self)
         self.run_sync("cd /mnt && ./install_CDS.sh", True)
-        pass
+        rpmfile = tempfile.NamedTemporaryFile(delete=False)
+        rpmfile.close()
+        logging.debug("will transfer " + self.confrpm + " from RHUA to " + rpmfile.name)
+        rhua.sftp.get(self.confrpm,rpmfile.name)
+        logging.debug("will transfer " + rpmfile.name + " to CDS " + rpmfile.name)
+        self.sftp.put(rpmfile.name,rpmfile.name)
+        logging.debug("will install " + rpmfile.name + " on CDS")
+        self.run_sync("rpm -i " + rpmfile.name)
+        logging.info("CDS " + self.hostname + " setup finished")
 
 class CLI(Instance):
     '''
