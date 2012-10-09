@@ -11,12 +11,29 @@
   },
 
   "Resources" : {
+    "RHUIsecuritygroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "RHUI security group",
+        "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" }, { "IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0" }, { "IpProtocol" : "tcp", "FromPort" : "5674", "ToPort" : "5674", "CidrIp" : "0.0.0.0/0" } ]
+        }
+    },
+
+    "SSHsecuritygroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "SSH security group",
+        "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" } ]
+        }
+    },
+
     "master": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
         "ImageId" : "ami-2ea50247",
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
 	"Tags" : [{"Key": "Role", "Value": "Master"},{"Key": "Hostname", "Value": "master.example.com"}]
         }
     },
@@ -26,6 +43,7 @@
         "ImageId" : "ami-cc5af9a5",
         "InstanceType" : "m1.large",
         "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
 	"Tags" : [{"Key": "Role", "Value": "RHUA"},{"Key": "Hostname", "Value": "rhua.example.com"}]
       }
     },
@@ -35,6 +53,7 @@
         "ImageId" : "ami-cc5af9a5",
         "InstanceType" : "m1.large",
         "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
 	"Tags" : [{"Key": "Role", "Value": "CDS"},{"Key": "Hostname", "Value": "cds1.example.com"}]
       }
     },
@@ -44,6 +63,7 @@
         "ImageId" : "ami-cc5af9a5",
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
 	"Tags" : [{"Key": "Role", "Value": "CLI"},{"Key": "Hostname", "Value": "cli1.example.com"}]
       }
     }
