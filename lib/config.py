@@ -16,8 +16,8 @@ class ConfiguredObjectParser(object):
         is assumed to have a attribute_names attribute. The very
         first attribute is considered the section name"""
         from ConfigParser import ConfigParser
-        #if not IConfiguredObject.implementedBy(type):
-        #    raise TypeError("Seems %s doesn't implement the interface IConfiguredObject" % object_type)
+        if not IConfiguredObject.implementedBy(object_type):
+            raise TypeError("Seems %s doesn't implement the interface IConfiguredObject" % object_type)
         self.object_type = object_type
         self.config = ConfigParser(allow_no_value=True)
 
