@@ -63,6 +63,10 @@ class Keeper(object):
         log.msg("enganging", logLevel=log.logging.DEBUG)
         from twisted.internet import reactor
         reactor.addReader(self)
+    def send(self, other):
+        self.session.send(other)
+    def sendline(self, other):
+        self.session.sendline(other)
 
 
 
@@ -90,6 +94,6 @@ if __name__ == '__main__':
     def call_back():
         log.msg("call_back: stopping")
         reactor.stop()
-    k = Keeper(pexpect.spawn('/bin/bash -c "echo Ahoj"'), [h], err_back=err_back,
+    k = Keeper(pexpect.spawn('/bin/bash '), [h], err_back=err_back,
             call_back=call_back)
     reactor.run()
