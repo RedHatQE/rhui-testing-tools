@@ -76,9 +76,9 @@ if __name__ == '__main__':
     import pexpect, sys
     log.startLogging(sys.stderr, setStdout=False)
     class Handler(object):
-        expressions = ['.*']
+        expressions = [pexpect.EOF, '.*']
         keeper = None
-        def __init__(self, expressions=['.*']):
+        def __init__(self, expressions=[pexpect.EOF, '.*']):
             self.expressions = expressions
         def call_back(self, index):
             log.msg("matched: %r" % self.expressions[index])
@@ -94,6 +94,6 @@ if __name__ == '__main__':
     def call_back():
         log.msg("call_back: stopping")
         reactor.stop()
-    k = Keeper(pexpect.spawn('/bin/bash '), [h], err_back=err_back,
+    k = Keeper(pexpect.spawn('/bin/bash -c "echo Ahoj"'), [h], err_back=err_back,
             call_back=call_back)
     reactor.run()

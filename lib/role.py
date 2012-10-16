@@ -4,16 +4,16 @@ from config import IConfiguredObject
 
 class Role(object):
     implements(IConfiguredObject)
-    attribute_names = ['name', 'host']
+    attribute_names = ['name', 'Host']
     name = None
-    host = None
+    Host = None
 
-    def __init__(self, name=None, host=None):
+    def __init__(self, name=None, Host=None):
         self.name = name
-        self.host = host
+        self.Host = Host
 
     def __repr__(self):
-        return "Role(name=%r, host=%r)" % (self.name, self.host)
+        return "Role(name=%r, Host=%r)" % (self.name, self.Host)
 
 
 class RolesConfigParser(object):

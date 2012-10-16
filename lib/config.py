@@ -16,8 +16,8 @@ class ConfiguredObjectParser(object):
         is assumed to have a attribute_names attribute. The very
         first attribute is considered the section name"""
         from ConfigParser import ConfigParser
-        if not IConfiguredObject.implementedBy(object_type):
-            raise TypeError("Seems %s doesn't implement the interface IConfiguredObject" % object_type)
+        #if not IConfiguredObject.implementedBy(object_type):
+        #   raise TypeError("Seems %r doesn't implement the interface IConfiguredObject" % object_type)
         self.object_type = object_type
         self.config = ConfigParser(allow_no_value=True)
 
@@ -57,3 +57,38 @@ class ConfiguredObjectParser(object):
 
     def write(self, file_object):
         self.config.write(file_object)
+
+class ConfigMash(object):
+    path='./conf'
+    def __init__(self, types=[]):
+        self.map = {}
+        self.types = types
+        for t in types:
+            cop = ConfiguredObjectParser(t)
+            self.map[t.__name__] = {}
+            cop.read("%s/%ss.cfg" % (self.path, t.__name__))
+            for obj in cop.objects:
+                self.add(obj)
+    def __repr__(self):
+        return "ConfigMash(types=%r).map=%r" % (self.map.keys(), self.map)
+    def add(self, obj):
+        self.map[type(obj).__name__][obj.name] = obj
+        try:
+            for t in self.types:
+                others = self.map[t.__name__]
+                for other in others.values():
+                    if hasattr(other, type(obj).__name__):
+                        if getattr(other, type(obj).__name__) == obj.name:
+                            setattr(other, type(obj).__name__, obj)
+        except KeyError:
+            pass
+    def all(self, type_object):
+        return self.map[type_object.__name__].values()
+
+
+if __name__ == '__main__':
+    from host import Host
+    from role import Role
+    cfg = ConfigMash([Role, Host])
+    print cfg.map['Role']['rhua']
+    print cfg.all(Role)
