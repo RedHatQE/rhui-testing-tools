@@ -6,3 +6,5 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(mes
 rs = rhuilib.RHUIsetup()
 rs.setupFromRolesfile()
 rs.RHUA.initialRun()
+for cds in rs.CDS:
+    rs.RHUA.addCds("Cluster1", cds.hostname)

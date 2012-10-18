@@ -61,19 +61,41 @@ class RHUA(Instance):
 
     def initialRun(self, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", days="", username="admin", password="admin"):
         self.enter("rhui-manager")
-        self.expect("Full path to the new signing CA certificate:")
-        self.enter(crt)
-        self.expect("Full path to the new signing CA certificate private key:")
-        self.enter(key)
-        self.expect("regenerated using rhui-manager.*:")
-        self.enter(days)
-        self.expect("Enter pass phrase for.*:")
-        self.enter(self.getCaPassword())
-        self.expect("RHUI Username:")
-        self.enter(username)
-        self.expect("RHUI Password:")
-        self.enter(password)
+        state = self.expect_list([(re.compile(".*Full path to the new signing CA certificate:.*",re.DOTALL),1), (re.compile(".*rhui \(home\) =>.*",re.DOTALL),2)])
+        if state == 1:
+            self.enter(crt)
+            self.expect("Full path to the new signing CA certificate private key:")
+            self.enter(key)
+            self.expect("regenerated using rhui-manager.*:")
+            self.enter(days)
+            self.expect("Enter pass phrase for.*:")
+            self.enter(self.getCaPassword())
+            self.expect("RHUI Username:")
+            self.enter(username)
+            self.expect("RHUI Password:")
+            self.enter(password)
+            self.expect("rhui \(home\) =>")
+        else:
+            # initial step was already performed by someone
+            self.enter("q")
+
+    def addCds(self, cluster, cdsname, hostname="", displayname=""):
+        self.enter("rhui-manager")
         self.expect("rhui \(home\) =>")
+        self.enter("c")
+        self.expect("rhui \(cds\) =>")
+        self.enter("a")
+        self.expect("Hostname of the CDS to register:")
+        self.enter(cdsname)
+        self.expect("Client hostname \(hostname clients will use to connect to the CDS\).*:")
+        self.enter(hostname)
+        self.expect("Display name for the CDS.*:")
+        self.enter(displayname)
+        self.expect("Enter a CDS cluster name:")
+        self.enter(cluster)
+        self.expect("Proceed\? \(y/n\)")
+        self.enter("y")
+        self.expect("rhui \(cds\) =>")
         self.enter("q")
 
 
@@ -98,12 +120,15 @@ class RHUIsetup():
         self.CLI = []
     
     def setRHUA(self, hostname, username="root", key_filename=None):
+        logging.debug("Adding RHUA with hostname " + hostname)
         self.RHUA = RHUA(hostname, username, key_filename)
     
     def addCDS(self, hostname, username="root", key_filename=None):
+        logging.debug("Adding CDS with hostname " + hostname)
         self.CDS.append(CDS(hostname, username, key_filename))
 
     def addCLI(self, hostname, username="root", key_filename=None):
+        logging.debug("Adding CLI with hostname " + hostname)
         self.CLI.append(CDS(hostname, username, key_filename))
 
     def setupFromRolesfile(self, rolesfile="/etc/testing_roles"):
@@ -112,9 +137,9 @@ class RHUIsetup():
             [Role, Hostname, PublicIP, PrivateIP] = line.split('\t')
             if Role.upper()=="RHUA":
                 self.setRHUA(Hostname)
-            elif Role.upper=="CDS":
+            elif Role.upper()=="CDS":
                 self.addCDS(Hostname)
-            elif Role.upper=="CLI":
+            elif Role.upper()=="CLI":
                 self.addCLI(Hostname)
         fd.close()
 
