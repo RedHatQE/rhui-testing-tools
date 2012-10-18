@@ -20,23 +20,24 @@
                      '^': *HOME_SCREEN
                      '<': *HOME_SCREEN
                      'h': *HOME_SCREEN
-                     'l': &CDS_LIST_SCREEN !ScreenLeaf
+                     'l': !ScreenLeaf
                           name: cds_list
                           parent: *CDS_SCREEN
-                     'i': &CDS_INFO_SCREEN !CdsInfoScreen
+                     'i': !ScreenLeaf
+                          name: cds_info
                           parent: *CDS_SCREEN
-                     'a': &CDS_ADD_SCREEN !ScreenLeaf
-                          name: cds_add
+                     'r': !ScreenLeaf
+                          name: cds_register
                           parent: *CDS_SCREEN
-                     'm': &CDS_MOVE_SCREEN !ScreenLeaf
+                     'm': !ScreenLeaf
                           name: cds_move
                           parent: *CDS_SCREEN
-                     'd': &CDS_DEL_SCREEN !ScreenLeaf
+                     'd': !ScreenLeaf
                           name: cds_del
                           parent: *CDS_SCREEN
-                     's': &CDS_ASSOCIATE_SCREEN !ScreenLeaf
+                     's': !ScreenLeaf
                           name: cds_associate
                           parent: *CDS_SCREEN
-                     'u': &CDS_UNASSOCIATE_SCREEN !ScreenLeaf
+                     'u': !ScreenLeaf
                           name: cds_unassociate
                           parent: *CDS_SCREEN
