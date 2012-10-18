@@ -43,6 +43,25 @@ class Instance():
 
     def expect(self, strexp, timeout=5):
         return self.expect_list([(re.compile(".*" + strexp + ".*",re.DOTALL),True)])
+
+    def match(self, regexp, group=1, timeout=5):
+        result = ""
+        count = 0
+        while count < timeout:
+            try:
+                recv_part = self.channel.recv(16384)
+                logging.debug("RCV: "+recv_part)
+                result += recv_part
+            except socket.timeout:
+                pass
+
+            match = regexp.match(result)
+            if match and match.group(group):
+                logging.debug("matched: " + match.group(group))
+                return match.group(group)
+            time.sleep(1)
+            count += 1
+        raise ExpectFailed()
     
     def enter(self, command):
         return self.channel.send(command+"\n")
@@ -88,7 +107,7 @@ class RHUA(Instance):
              password = password[:-1]
          return password
 
-    def initialRun(self, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", days="", username="admin", password="admin"):
+    def initialRun(self, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", cert_pw=None, days="", username="admin", password="admin"):
         self.enter("rhui-manager")
         state = self.expect_list([(re.compile(".*Full path to the new signing CA certificate:.*",re.DOTALL),1), (re.compile(".*rhui \(home\) =>.*",re.DOTALL),2)])
         if state == 1:
@@ -98,7 +117,10 @@ class RHUA(Instance):
             self.expect("regenerated using rhui-manager.*:")
             self.enter(days)
             self.expect("Enter pass phrase for.*:")
-            self.enter(self.getCaPassword())
+            if cert_pw:
+                self.enter(cert_pw)
+            else:
+                self.enter(self.getCaPassword())
             self.expect("RHUI Username:")
             self.enter(username)
             self.expect("RHUI Password:")
@@ -108,7 +130,7 @@ class RHUA(Instance):
             # initial step was already performed by someone
             self.enter("q")
 
-    def addCds(self, cluster, cdsname, hostname="", displayname=""):
+    def addCds(self, clustername, cdsname, hostname="", displayname=""):
         self.enter("rhui-manager")
         self.expect("rhui \(home\) =>")
         self.enter("c")
@@ -121,7 +143,24 @@ class RHUA(Instance):
         self.expect("Display name for the CDS.*:")
         self.enter(displayname)
         self.expect("Enter a CDS cluster name:")
+        self.enter(clustername)
+        self.expect("Proceed\? \(y/n\)")
+        self.enter("y")
+        self.expect("rhui \(cds\) =>")
+        self.enter("q")
+
+    def deleteCds(self, clustername, cdsname):
+        self.enter("rhui-manager")
+        self.expect("rhui \(home\) =>")
+        self.enter("c")
+        self.expect("rhui \(cds\) =>")
+        self.enter("d")
+        cluster = self.match(re.compile(".*([0-9]+)\s+-\s+" + clustername + "\s*\n.*to abort:.*", re.DOTALL))
         self.enter(cluster)
+        cds = self.match(re.compile(".*-\s+([0-9]+)\s+:\s+" + cdsname + "\s*\n.*for more commands:.*", re.DOTALL))
+        self.enter(cds)
+        cds = self.match(re.compile(".*x\s+([0-9]+)\s+:\s+" + cdsname + "\s*\n.*for more commands:.*", re.DOTALL))
+        self.enter("c")
         self.expect("Proceed\? \(y/n\)")
         self.enter("y")
         self.expect("rhui \(cds\) =>")
