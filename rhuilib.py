@@ -46,6 +46,9 @@ class Instance():
         return self.channel.send(command+"\n")
 
 class RHUA(Instance):
+    '''
+    Class to represent RHUA instance
+    '''
     def getCaPassword(self):
          tf = tempfile.NamedTemporaryFile(delete=False)
          tf.close()
@@ -56,12 +59,35 @@ class RHUA(Instance):
              password = password[:-1]
          return password
 
+    def initialRun(self, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", days="", username="admin", password="admin"):
+        self.enter("rhui-manager")
+        self.expect("Full path to the new signing CA certificate:")
+        self.enter(crt)
+        self.expect("Full path to the new signing CA certificate private key:")
+        self.enter(key)
+        self.expect("regenerated using rhui-manager.*:")
+        self.enter(days)
+        self.expect("Enter pass phrase for.*:")
+        self.enter(self.getCaPassword())
+        self.expect("RHUI Username:")
+        self.enter(username)
+        self.expect("RHUI Password:")
+        self.enter(password)
+        self.expect("rhui \(home\) =>")
+        self.enter("q")
+
 
 class CDS(Instance):
+    '''
+    Class to represent CDS instance
+    '''
     pass
 
 
 class CLI(Instance):
+    '''
+    Class to represent CLI instance
+    '''
     pass
 
 
