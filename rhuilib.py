@@ -62,7 +62,7 @@ class Instance():
             time.sleep(1)
             count += 1
         raise ExpectFailed()
-    
+
     def enter(self, command):
         return self.channel.send(command+"\n")
 
@@ -107,6 +107,16 @@ class RHUA(Instance):
              password = password[:-1]
          return password
 
+    def rhui_select(self, value_list):
+        for value in value_list:
+            match = self.match(re.compile(".*-\s+([0-9]+)\s+:\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
+            self.enter(match)
+            match = self.match(re.compile(".*x\s+([0-9]+)\s+:\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
+            self.enter("l")
+        self.enter("c")
+        self.expect("Proceed\? \(y/n\)")
+        self.enter("y")
+
     def initialRun(self, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", cert_pw=None, days="", username="admin", password="admin"):
         self.enter("rhui-manager")
         state = self.expect_list([(re.compile(".*Full path to the new signing CA certificate:.*",re.DOTALL),1), (re.compile(".*rhui \(home\) =>.*",re.DOTALL),2)])
@@ -149,7 +159,7 @@ class RHUA(Instance):
         self.expect("rhui \(cds\) =>")
         self.enter("q")
 
-    def deleteCds(self, clustername, cdsname):
+    def deleteCds(self, clustername, cdslist):
         self.enter("rhui-manager")
         self.expect("rhui \(home\) =>")
         self.enter("c")
@@ -157,12 +167,7 @@ class RHUA(Instance):
         self.enter("d")
         cluster = self.match(re.compile(".*([0-9]+)\s+-\s+" + clustername + "\s*\n.*to abort:.*", re.DOTALL))
         self.enter(cluster)
-        cds = self.match(re.compile(".*-\s+([0-9]+)\s+:\s+" + cdsname + "\s*\n.*for more commands:.*", re.DOTALL))
-        self.enter(cds)
-        cds = self.match(re.compile(".*x\s+([0-9]+)\s+:\s+" + cdsname + "\s*\n.*for more commands:.*", re.DOTALL))
-        self.enter("c")
-        self.expect("Proceed\? \(y/n\)")
-        self.enter("y")
+        self.rhui_select(cdslist)
         self.expect("rhui \(cds\) =>")
         self.enter("q")
 
@@ -202,6 +207,16 @@ class RHUA(Instance):
         self.expect("Proceed\? \(y/n\)")
         self.enter("y")
         self.expect("Successfully created repository.*rhui \(repo\) =>")
+        self.enter("q")
+
+    def deleteCustomRepo(self, repolist):
+        self.enter("rhui-manager")
+        self.expect("rhui \(home\) =>")
+        self.enter("r")
+        self.expect("rhui \(repo\) =>")
+        self.enter("d")
+        self.rhui_select(repolist)
+        self.expect("rhui \(repo\) =>")
         self.enter("q")
 
 
