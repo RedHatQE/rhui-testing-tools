@@ -34,7 +34,7 @@
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
-	"Tags" : [{"Key": "Role", "Value": "Master"},{"Key": "Hostname", "Value": "master.example.com"}]
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_Master", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "Master"}, {"Key": "Hostname", "Value": "master.example.com"}]
         }
     },
     "rhua": {
@@ -44,7 +44,7 @@
         "InstanceType" : "m1.large",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
-	"Tags" : [{"Key": "Role", "Value": "RHUA"},{"Key": "Hostname", "Value": "rhua.example.com"}]
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUA", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "RHUA"}, {"Key": "Hostname", "Value": "rhua.example.com"}]
       }
     },
     "cds1": {
@@ -54,7 +54,7 @@
         "InstanceType" : "m1.large",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
-	"Tags" : [{"Key": "Role", "Value": "CDS"},{"Key": "Hostname", "Value": "cds1.example.com"}]
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["CDS1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CDS"}, {"Key": "Hostname", "Value": "cds1.example.com"}]
       }
     },
     "cli1": {
@@ -64,7 +64,7 @@
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
-	"Tags" : [{"Key": "Role", "Value": "CLI"},{"Key": "Hostname", "Value": "cli1.example.com"}]
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_CLI1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CLI"}, {"Key": "Hostname", "Value": "cli1.example.com"}]
       }
     }
   },
