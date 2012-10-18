@@ -8,8 +8,10 @@ import tempfile
 import random
 import string
 
+
 class ExpectFailed(Exception):
     pass
+
 
 class Instance():
     def __init__(self, hostname, username="root", key_filename=None):
@@ -29,7 +31,7 @@ class Instance():
         while count < timeout:
             try:
                 recv_part = self.channel.recv(16384)
-                logging.debug("RCV: "+recv_part)
+                logging.debug("RCV: " + recv_part)
                 result += recv_part
             except socket.timeout:
                 pass
@@ -42,7 +44,7 @@ class Instance():
         raise ExpectFailed()
 
     def expect(self, strexp, timeout=5):
-        return self.expect_list([(re.compile(".*" + strexp + ".*",re.DOTALL),True)])
+        return self.expect_list([(re.compile(".*" + strexp + ".*", re.DOTALL), True)])
 
     def match(self, regexp, group=1, timeout=5):
         result = ""
@@ -50,7 +52,7 @@ class Instance():
         while count < timeout:
             try:
                 recv_part = self.channel.recv(16384)
-                logging.debug("RCV: "+recv_part)
+                logging.debug("RCV: " + recv_part)
                 result += recv_part
             except socket.timeout:
                 pass
@@ -64,26 +66,26 @@ class Instance():
         raise ExpectFailed()
 
     def enter(self, command):
-        return self.channel.send(command+"\n")
+        return self.channel.send(command + "\n")
 
     def generateGpgKey(self, keytype="DSA", keysize="1024", keyvalid="0", realname="Key Owner", email="kowner@example.com", comment="comment"):
         ''' It takes too long to wait for this operation to complete... use pre-created keys instead '''
         self.enter("cat > /tmp/gpgkey << EOF")
-        self.enter("Key-Type: "+keytype)
-        self.enter("Key-Length: "+keysize)
+        self.enter("Key-Type: " + keytype)
+        self.enter("Key-Length: " + keysize)
         self.enter("Subkey-Type: ELG-E")
-        self.enter("Subkey-Length: "+keysize)
-        self.enter("Name-Real: "+realname)
-        self.enter("Name-Comment: "+comment)
-        self.enter("Name-Email: "+email)
-        self.enter("Expire-Date: "+keyvalid)
+        self.enter("Subkey-Length: " + keysize)
+        self.enter("Name-Real: " + realname)
+        self.enter("Name-Comment: " + comment)
+        self.enter("Name-Email: " + email)
+        self.enter("Expire-Date: " + keyvalid)
         self.enter("%commit")
         self.enter("%echo done")
         self.enter("EOF")
         self.expect("root@")
 
         self.enter("gpg --gen-key --no-random-seed-file --batch /tmp/gpgkey")
-        for i in range(1,200):
+        for i in range(1, 200):
             self.enter(''.join(random.choice(string.ascii_lowercase) for x in range(200)))
             time.sleep(1)
             try:
@@ -98,14 +100,14 @@ class RHUA(Instance):
     Class to represent RHUA instance
     '''
     def getCaPassword(self):
-         tf = tempfile.NamedTemporaryFile(delete=False)
-         tf.close()
-         self.sftp.get("/etc/rhui/pem/ca.pwd",tf.name)
-         fd = open(tf.name,'r')
-         password = fd.read()
-         if password[-1:]=='\n':
-             password = password[:-1]
-         return password
+        tf = tempfile.NamedTemporaryFile(delete=False)
+        tf.close()
+        self.sftp.get("/etc/rhui/pem/ca.pwd", tf.name)
+        fd = open(tf.name, 'r')
+        password = fd.read()
+        if password[-1:] == '\n':
+            password = password[:-1]
+        return password
 
     def rhui_select(self, value_list):
         for value in value_list:
@@ -119,7 +121,7 @@ class RHUA(Instance):
 
     def initialRun(self, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", cert_pw=None, days="", username="admin", password="admin"):
         self.enter("rhui-manager")
-        state = self.expect_list([(re.compile(".*Full path to the new signing CA certificate:.*",re.DOTALL),1), (re.compile(".*rhui \(home\) =>.*",re.DOTALL),2)])
+        state = self.expect_list([(re.compile(".*Full path to the new signing CA certificate:.*", re.DOTALL), 1), (re.compile(".*rhui \(home\) =>.*", re.DOTALL), 2)])
         if state == 1:
             self.enter(crt)
             self.expect("Full path to the new signing CA certificate private key:")
@@ -187,7 +189,7 @@ class RHUA(Instance):
         self.enter(checksum_alg)
         self.expect("Should the repository require an entitlement certificate to access\? \(y/n\)")
         self.enter(entitlement)
-        if entitlement=="y":
+        if entitlement == "y":
             self.expect("Path that should be used when granting an entitlement for this repository.*:")
             self.enter(entitlement_path)
         self.expect("packages are signed by a GPG key\? \(y/n\)")
@@ -239,11 +241,11 @@ class RHUIsetup():
         self.RHUA = None
         self.CDS = []
         self.CLI = []
-    
+
     def setRHUA(self, hostname, username="root", key_filename=None):
         logging.debug("Adding RHUA with hostname " + hostname)
         self.RHUA = RHUA(hostname, username, key_filename)
-    
+
     def addCDS(self, hostname, username="root", key_filename=None):
         logging.debug("Adding CDS with hostname " + hostname)
         self.CDS.append(CDS(hostname, username, key_filename))
@@ -253,19 +255,18 @@ class RHUIsetup():
         self.CLI.append(CDS(hostname, username, key_filename))
 
     def setupFromRolesfile(self, rolesfile="/etc/testing_roles"):
-        fd = open(rolesfile,'r')
+        fd = open(rolesfile, 'r')
         for line in fd.readlines():
             [Role, Hostname, PublicIP, PrivateIP] = line.split('\t')
-            if Role.upper()=="RHUA":
+            if Role.upper() == "RHUA":
                 self.setRHUA(Hostname)
-            elif Role.upper()=="CDS":
+            elif Role.upper() == "CDS":
                 self.addCDS(Hostname)
-            elif Role.upper()=="CLI":
+            elif Role.upper() == "CLI":
                 self.addCLI(Hostname)
         fd.close()
 
 
-if __name__=="__main__":
+if __name__ == "__main__":
     logging.error("What do you think I am? A program?")
     sys.exit(1)
-    
