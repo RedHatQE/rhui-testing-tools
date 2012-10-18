@@ -2,24 +2,22 @@
   name:    "home"
   prompt:  ".*rhui (home) => "
   screen_map: {
-      '^': *HOME_SCREEN,
-      '<': *HOME_SCREEN,
-      'r': *REPO_SCREEN,
-      'c': *CDS_SCREEN
-      }
--  !Screen &REPO_SCREEN
-   name:   "repo"
-   prompt: ".*rhui (repo) => "
-   screen_map: {
-       '^': *HOME_SCREEN,
-       '<': *HOME_SCREEN
-       }
--  &CDS_SCREEN !Screen
-       name:   "cds"
-       prompt: "*.rhui (cds) => "
-       screen_map: {
-           '^': *HOME_SCREEN,
-           '<': *HOME_SCREEN,
-        }
-
-
+    '^': *HOME_SCREEN,
+    '<': *HOME_SCREEN,
+    'r': *REPO_SCREEN,
+    'c': *CDS_SCREEN
+  }
+- &REPO_SCREEN !Screen
+  name:   "repo"
+  prompt: ".*rhui (repo) => "
+  screen_map: {
+    '^': *HOME_SCREEN,
+    '<': *HOME_SCREEN
+  }
+- &CDS_SCREEN !Screen
+  name:   "cds"
+  prompt: "*.rhui (cds) => "
+  screen_map: {
+    '^': *HOME_SCREEN,
+    '<': *HOME_SCREEN,
+  }

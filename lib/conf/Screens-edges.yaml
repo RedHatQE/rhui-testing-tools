@@ -1,0 +1,14 @@
+## Screens
+---
+- &HOME_SCREEN !Screen
+  name:    "home"
+  prompt:  ".*rhui (home) => "
+- &REPO_SCREEN !Screen
+  name:   "repo"
+  prompt: ".*rhui (repo) => "
+- &CDS_SCREEN !Screen
+  name:   "cds"
+  prompt: "*.rhui (cds) => "
+- {
+    ? !!python/tuple [*REPO_SCREEN, '^']: *HOME_SCREEN
+  }
