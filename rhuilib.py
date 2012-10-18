@@ -119,6 +119,10 @@ class RHUA(Instance):
         self.expect("Proceed\? \(y/n\)")
         self.enter("y")
 
+    def rhui_select_cluster(self, clustername):
+        cluster = self.match(re.compile(".*([0-9]+)\s+-\s+" + clustername + "\s*\n.*to abort:.*", re.DOTALL))
+        self.enter(cluster)
+
     def initialRun(self, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", cert_pw=None, days="", username="admin", password="admin"):
         self.enter("rhui-manager")
         state = self.expect_list([(re.compile(".*Full path to the new signing CA certificate:.*", re.DOTALL), 1), (re.compile(".*rhui \(home\) =>.*", re.DOTALL), 2)])
@@ -167,8 +171,7 @@ class RHUA(Instance):
         self.enter("c")
         self.expect("rhui \(cds\) =>")
         self.enter("d")
-        cluster = self.match(re.compile(".*([0-9]+)\s+-\s+" + clustername + "\s*\n.*to abort:.*", re.DOTALL))
-        self.enter(cluster)
+        self.rhui_select_cluster(clustername)
         self.rhui_select(cdslist)
         self.expect("rhui \(cds\) =>")
         self.enter("q")
@@ -219,6 +222,17 @@ class RHUA(Instance):
         self.enter("d")
         self.rhui_select(repolist)
         self.expect("rhui \(repo\) =>")
+        self.enter("q")
+
+    def associateRepoCds(self, clustername, repolist):
+        self.enter("rhui-manager")
+        self.expect("rhui \(home\) =>")
+        self.enter("c")
+        self.expect("rhui \(cds\) =>")
+        self.enter("s")
+        self.rhui_select_cluster(clustername)
+        self.rhui_select(repolist)
+        self.expect("rhui \(cds\) =>")
         self.enter("q")
 
 
