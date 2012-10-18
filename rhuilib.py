@@ -5,6 +5,8 @@ import logging
 import socket
 import sys
 import tempfile
+import random
+import string
 
 class ExpectFailed(Exception):
     pass
@@ -44,6 +46,33 @@ class Instance():
     
     def enter(self, command):
         return self.channel.send(command+"\n")
+
+    def generateGpgKey(self, keytype="DSA", keysize="1024", keyvalid="0", realname="Key Owner", email="kowner@example.com", comment="comment"):
+        ''' It takes too long to wait for this operation to complete... use pre-created keys instead '''
+        self.enter("cat > /tmp/gpgkey << EOF")
+        self.enter("Key-Type: "+keytype)
+        self.enter("Key-Length: "+keysize)
+        self.enter("Subkey-Type: ELG-E")
+        self.enter("Subkey-Length: "+keysize)
+        self.enter("Name-Real: "+realname)
+        self.enter("Name-Comment: "+comment)
+        self.enter("Name-Email: "+email)
+        self.enter("Expire-Date: "+keyvalid)
+        self.enter("%commit")
+        self.enter("%echo done")
+        self.enter("EOF")
+        self.expect("root@")
+
+        self.enter("gpg --gen-key --no-random-seed-file --batch /tmp/gpgkey")
+        for i in range(1,200):
+            self.enter(''.join(random.choice(string.ascii_lowercase) for x in range(200)))
+            time.sleep(1)
+            try:
+                self.expect("gpg: done")
+                break
+            except ExpectFailed:
+                continue
+
 
 class RHUA(Instance):
     '''
@@ -96,6 +125,44 @@ class RHUA(Instance):
         self.expect("Proceed\? \(y/n\)")
         self.enter("y")
         self.expect("rhui \(cds\) =>")
+        self.enter("q")
+
+    def addCustomRepo(self, reponame, displayname="", path="", checksum_alg="1", entitlement="y", entitlement_path="", redhat_gpg="y", custom_gpg=None):
+        self.enter("rhui-manager")
+        self.expect("rhui \(home\) =>")
+        self.enter("r")
+        self.expect("rhui \(repo\) =>")
+        self.enter("c")
+        self.expect("Unique ID for the custom repository.*:")
+        self.enter(reponame)
+        self.expect("Display name for the custom repository.*:")
+        self.enter(displayname)
+        self.expect("Path at which the repository will be served.*:")
+        self.enter(path)
+        self.expect("Enter value.*:")
+        self.enter(checksum_alg)
+        self.expect("Should the repository require an entitlement certificate to access\? \(y/n\)")
+        self.enter(entitlement)
+        if entitlement=="y":
+            self.expect("Path that should be used when granting an entitlement for this repository.*:")
+            self.enter(entitlement_path)
+        self.expect("packages are signed by a GPG key\? \(y/n\)")
+        if redhat_gpg or custom_gpg:
+            self.enter("y")
+            self.expect("Will the repository be used to host any Red Hat GPG signed content\? \(y/n\)")
+            self.enter(redhat_gpg)
+            self.expect("Will the repository be used to host any custom GPG signed content\? \(y/n\)")
+            if custom_gpg:
+                self.enter("y")
+                self.expect("Enter the absolute path to the public key of the GPG keypair:")
+                self.enter(custom_gpg)
+            else:
+                self.enter("n")
+        else:
+            self.enter("n")
+        self.expect("Proceed\? \(y/n\)")
+        self.enter("y")
+        self.expect("Successfully created repository.*rhui \(repo\) =>")
         self.enter("q")
 
 
