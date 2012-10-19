@@ -240,6 +240,7 @@ con_cf.create_stack(STACK_ID, template_body=json_body,
                     parameters=parameters, timeout_in_minutes=args.timeout)
 
 is_complete = False
+result = False
 while not is_complete:
     time.sleep(10)
     try:
@@ -247,16 +248,18 @@ while not is_complete:
             if event.resource_type == "AWS::CloudFormation::Stack" and event.resource_status == "CREATE_COMPLETE":
                 logging.info("Stack creation completed")
                 is_complete = True
-                result = 0
+                result = True
                 break
             if event.resource_type == "AWS::CloudFormation::Stack" and event.resource_status == "ROLLBACK_COMPLETE":
                 logging.info("Stack creation failed")
                 is_complete = True
-                sys.exit(1)
                 break
     except:
         # Sometimes 'Rate exceeded' happens
         pass
+
+if not result:
+    sys.exit(1)
 
 instances = []
 for res in con_cf.describe_stack_resources(STACK_ID):
