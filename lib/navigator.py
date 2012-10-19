@@ -6,13 +6,9 @@ from contextlib import contextmanager
 
 class Navigator(object):
     """Manages a role session"""
-    def __init__(self, host, user, screen, logfile=None, timeout=30):
-        self.user = user
-        self.host = host
+    def __init__(self, screen, session):
         self.screen = screen
-        self.session = pxssh.pxssh(logfile=logfile, timeout=timeout)
-        self.session.login(self.host, self.user)
-        self.session.prompt()
+        self.session = session
     def __repr__(self):
         return "%s(host=%r, user=%r, screen=%r)" % (self.__class__.__name__,
                 self.host, self.user, screen)
