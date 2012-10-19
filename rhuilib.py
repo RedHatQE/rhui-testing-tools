@@ -116,12 +116,30 @@ class RHUA(Instance):
             match = self.match(re.compile(".*x\s+([0-9]+)\s+:\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
             self.enter("l")
         self.enter("c")
-        self.expect("Proceed\? \(y/n\)")
-        self.enter("y")
 
     def rhui_select_cluster(self, clustername):
         cluster = self.match(re.compile(".*([0-9]+)\s+-\s+" + clustername + "\s*\n.*to abort:.*", re.DOTALL))
         self.enter(cluster)
+
+    def rhui_quit(self):
+        self.expect("rhui \(.*\) =>")
+        self.enter("q")
+
+    def rhui_proceed(self):
+        self.expect("Proceed\? \(y/n\)")
+        self.enter("y")
+
+    def rhui_repo_screen(self):
+        self.enter("rhui-manager")
+        self.expect("rhui \(home\) =>")
+        self.enter("r")
+        self.expect("rhui \(repo\) =>")
+
+    def rhui_cds_screen(self):
+        self.enter("rhui-manager")
+        self.expect("rhui \(home\) =>")
+        self.enter("c")
+        self.expect("rhui \(cds\) =>")
 
     def initialRun(self, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", cert_pw=None, days="", username="admin", password="admin"):
         self.enter("rhui-manager")
@@ -147,10 +165,7 @@ class RHUA(Instance):
             self.enter("q")
 
     def addCds(self, clustername, cdsname, hostname="", displayname=""):
-        self.enter("rhui-manager")
-        self.expect("rhui \(home\) =>")
-        self.enter("c")
-        self.expect("rhui \(cds\) =>")
+        self.rhui_cds_screen()
         self.enter("a")
         self.expect("Hostname of the CDS to register:")
         self.enter(cdsname)
@@ -160,27 +175,19 @@ class RHUA(Instance):
         self.enter(displayname)
         self.expect("Enter a CDS cluster name:")
         self.enter(clustername)
-        self.expect("Proceed\? \(y/n\)")
-        self.enter("y")
-        self.expect("rhui \(cds\) =>")
-        self.enter("q")
+        self.rhui_proceed()
+        self.rhui_quit()
 
     def deleteCds(self, clustername, cdslist):
-        self.enter("rhui-manager")
-        self.expect("rhui \(home\) =>")
-        self.enter("c")
-        self.expect("rhui \(cds\) =>")
+        self.rhui_cds_screen()
         self.enter("d")
         self.rhui_select_cluster(clustername)
         self.rhui_select(cdslist)
-        self.expect("rhui \(cds\) =>")
-        self.enter("q")
+        self.rhui_proceed()
+        self.rhui_quit()
 
     def addCustomRepo(self, reponame, displayname="", path="", checksum_alg="1", entitlement="y", entitlement_path="", redhat_gpg="y", custom_gpg=None):
-        self.enter("rhui-manager")
-        self.expect("rhui \(home\) =>")
-        self.enter("r")
-        self.expect("rhui \(repo\) =>")
+        self.rhui_repo_screen()
         self.enter("c")
         self.expect("Unique ID for the custom repository.*:")
         self.enter(reponame)
@@ -209,31 +216,33 @@ class RHUA(Instance):
                 self.enter("n")
         else:
             self.enter("n")
-        self.expect("Proceed\? \(y/n\)")
-        self.enter("y")
+        self.rhui_proceed()
         self.expect("Successfully created repository.*rhui \(repo\) =>")
         self.enter("q")
 
     def deleteCustomRepo(self, repolist):
-        self.enter("rhui-manager")
-        self.expect("rhui \(home\) =>")
-        self.enter("r")
-        self.expect("rhui \(repo\) =>")
+        self.rhui_repo_screen()
         self.enter("d")
         self.rhui_select(repolist)
-        self.expect("rhui \(repo\) =>")
-        self.enter("q")
+        self.rhui_proceed()
+        self.rhui_quit()
 
     def associateRepoCds(self, clustername, repolist):
-        self.enter("rhui-manager")
-        self.expect("rhui \(home\) =>")
-        self.enter("c")
-        self.expect("rhui \(cds\) =>")
+        self.rhui_cds_screen()
         self.enter("s")
         self.rhui_select_cluster(clustername)
         self.rhui_select(repolist)
-        self.expect("rhui \(cds\) =>")
-        self.enter("q")
+        self.rhui_proceed()
+        self.rhui_quit()
+
+    def uploadContent(self, repolist, path):
+        self.rhui_repo_screen()
+        self.enter("u")
+        self.rhui_select(repolist)
+        self.expect("will be uploaded:")
+        self.enter(path)
+        self.rhui_proceed()
+        self.rhui_quit()
 
 
 class CDS(Instance):
