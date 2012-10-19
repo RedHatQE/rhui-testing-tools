@@ -20,4 +20,4 @@ if [ ! -f "$KEY" ]; then
 fi
 
 scp $SSH_OPT -r -i "$KEY" "$ISO" *.py testing-data/ "root@$HOST:/root/"
-ssh $SSH_OPT -i "$KEY" "root@$HOST" "yum install -y python-paramiko; python rhui_installer.py --iso /root/`basename $ISO` > /root/log 2>&1"
+ssh $SSH_OPT -i "$KEY" "root@$HOST" "yum install -y python-paramiko; python rhui_installer.py --iso /root/`basename $ISO`"

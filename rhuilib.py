@@ -44,7 +44,7 @@ class Instance():
         raise ExpectFailed()
 
     def expect(self, strexp, timeout=5):
-        return self.expect_list([(re.compile(".*" + strexp + ".*", re.DOTALL), True)])
+        return self.expect_list([(re.compile(".*" + strexp + ".*", re.DOTALL), True)], timeout)
 
     def match(self, regexp, group=1, timeout=5):
         result = ""
@@ -94,6 +94,24 @@ class Instance():
             except ExpectFailed:
                 continue
 
+    def removeConfigurationRpm(self):
+        self.enter("")
+        self.expect("root@")
+        self.enter("yum remove `rpm -qf --queryformat %{NAME} /etc/yum/pluginconf.d/rhui-lb.conf`")
+        if self.expect_list([(re.compile(".*Is this ok \[y/N\]:.*", re.DOTALL), True),
+                             (re.compile(".*Error: Need to pass a list of pkgs to remove.*root@.*", re.DOTALL), False)],35) == True:
+            self.enter("y")
+            self.expect("Complete.*root@",30)
+
+    def installRpmFromMaster(self, rpmpath):
+        self.enter("mkdir -p `dirname " + rpmpath + "`")
+        self.expect("root@")
+        self.sftp.put(rpmpath,rpmpath)
+        self.enter("yum install "+rpmpath)
+        self.expect("Is this ok \[y/N\]:")
+        self.enter("y")
+        self.expect("Complete.*root@",30)
+
 
 class RHUA(Instance):
     '''
@@ -117,9 +135,9 @@ class RHUA(Instance):
             self.enter("l")
         self.enter("c")
 
-    def rhui_select_cluster(self, clustername):
-        cluster = self.match(re.compile(".*([0-9]+)\s+-\s+" + clustername + "\s*\n.*to abort:.*", re.DOTALL))
-        self.enter(cluster)
+    def rhui_select_one(self, value):
+        match = self.match(re.compile(".*([0-9]+)\s+-\s+" + value + "\s*\n.*to abort:.*", re.DOTALL))
+        self.enter(match)
 
     def rhui_quit(self):
         self.expect("rhui \(.*\) =>")
@@ -134,6 +152,8 @@ class RHUA(Instance):
         self.expect("rhui \(home\) =>")
         if screen in ["repo", "cds", "sync"]:
             key = screen[:1]
+        elif screen == "client":
+            key = "e"
         self.enter(key)
         self.expect("rhui \(" + screen + "\) =>")
 
@@ -177,7 +197,7 @@ class RHUA(Instance):
     def deleteCds(self, clustername, cdslist):
         self.rhui_screen("cds")
         self.enter("d")
-        self.rhui_select_cluster(clustername)
+        self.rhui_select_one(clustername)
         self.rhui_select(cdslist)
         self.rhui_proceed()
         self.rhui_quit()
@@ -226,7 +246,7 @@ class RHUA(Instance):
     def associateRepoCds(self, clustername, repolist):
         self.rhui_screen("cds")
         self.enter("s")
-        self.rhui_select_cluster(clustername)
+        self.rhui_select_one(clustername)
         self.rhui_select(repolist)
         self.rhui_proceed()
         self.rhui_quit()
@@ -252,6 +272,42 @@ class RHUA(Instance):
         self.enter("sl")
         self.rhui_select(clusterlist)
         self.rhui_proceed()
+        self.rhui_quit()
+
+    def generateEntitlementCert(self, clustername, repolist, certname, dirname, validity_days="", cert_pw=None):
+        self.rhui_screen("client")
+        self.enter("e")
+        self.rhui_select_one(clustername)
+        self.rhui_select(repolist)
+        self.expect("Name of the certificate.*contained with it:")
+        self.enter(certname)
+        self.expect("Local directory in which to save the generated certificate.*:")
+        self.enter(dirname)
+        self.expect("Number of days the certificate should be valid.*:")
+        self.enter(validity_days)
+        self.rhui_proceed()
+        self.expect("Enter pass phrase for.*:")
+        if cert_pw:
+            self.enter(cert_pw)
+        else:
+            self.enter(self.getCaPassword())
+        self.rhui_quit()
+
+    def createConfigurationRpm(self, clustername, primary_cds, dirname, certpath, certkey, rpmname, rpmversion=""):
+        self.rhui_screen("client")
+        self.enter("c")
+        self.expect("Full path to local directory.*:")
+        self.enter(dirname)
+        self.expect("Name of the RPM:")
+        self.enter(rpmname)
+        self.expect("Version of the configuration RPM.*:")
+        self.enter(rpmversion)
+        self.expect("Full path to the entitlement certificate.*:")
+        self.enter(certpath)
+        self.expect("Full path to the private key for the above entitlement certificate:")
+        self.enter(certkey)
+        self.rhui_select_one(clustername)
+        self.rhui_select_one(primary_cds)
         self.rhui_quit()
 
 
@@ -285,7 +341,7 @@ class RHUIsetup():
 
     def addCLI(self, hostname, username="root", key_filename=None):
         logging.debug("Adding CLI with hostname " + hostname)
-        self.CLI.append(CDS(hostname, username, key_filename))
+        self.CLI.append(CLI(hostname, username, key_filename))
 
     def setupFromRolesfile(self, rolesfile="/etc/testing_roles"):
         fd = open(rolesfile, 'r')

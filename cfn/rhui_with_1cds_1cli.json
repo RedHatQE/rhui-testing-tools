@@ -10,6 +10,56 @@
     }
   },
 
+  "Mappings": {
+        "RHEL63Map": {
+            "us-east-1": {
+                "AMI": "ami-cc5af9a5"
+            },
+            "us-west-1": {
+                "AMI": "ami-51f4ae14"
+            },
+            "us-west-2": {
+                "AMI": "ami-8a25a9ba"
+            },
+            "eu-west-1": {
+                "AMI": "ami-8bf2f7ff"
+            },
+            "sa-east-1": {
+                "AMI": "ami-4807d955"
+            },
+            "ap-southeast-1": {
+                "AMI": "ami-24e5a376"
+            },
+            "ap-northeast-1": {
+                "AMI": "ami-5453e055"
+            }
+        },
+
+        "F17Map": {
+            "us-east-1": {
+                "AMI": "ami-2ea50247"
+            },
+            "us-west-1": {
+                "AMI": "ami-877e24c2"
+            },
+            "us-west-2": {
+                "AMI": "ami-8e69e5be"
+            },
+            "eu-west-1": {
+                "AMI": "ami-9980baed"
+            },
+            "sa-east-1": {
+                "AMI": "ami-eee23cf3"
+            },
+            "ap-southeast-1": {
+                "AMI": "ami-2e86c07c"
+            },
+            "ap-northeast-1": {
+                "AMI": "ami-26e65527"
+            }
+        }
+    },
+
   "Resources" : {
     "RHUIsecuritygroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
@@ -30,7 +80,7 @@
     "master": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
-        "ImageId" : "ami-2ea50247",
+        "ImageId" : { "Fn::FindInMap": [ "F17Map", { "Ref": "AWS::Region" }, "AMI" ]},
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
@@ -40,7 +90,7 @@
     "rhua": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
-        "ImageId" : "ami-cc5af9a5",
+        "ImageId" : { "Fn::FindInMap": [ "RHEL63Map", { "Ref": "AWS::Region" }, "AMI" ]},
         "InstanceType" : "m1.large",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
@@ -50,7 +100,7 @@
     "cds1": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
-        "ImageId" : "ami-cc5af9a5",
+        "ImageId" : { "Fn::FindInMap": [ "RHEL63Map", { "Ref": "AWS::Region" }, "AMI" ]},
         "InstanceType" : "m1.large",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
@@ -60,7 +110,7 @@
     "cli1": {
       "Type": "AWS::EC2::Instance",
       "Properties": {
-        "ImageId" : "ami-cc5af9a5",
+        "ImageId" : { "Fn::FindInMap": [ "RHEL63Map", { "Ref": "AWS::Region" }, "AMI" ]},
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
