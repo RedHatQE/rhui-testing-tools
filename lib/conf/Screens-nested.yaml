@@ -3,16 +3,36 @@
         prompt: ".*rhui (home) => "
         screen_map:
             '^': *HOME_SCREEN
+            '<': *HOME_SCREEN
+            'h': *HOME_SCREEN
             'r': &REPO_SCREEN !Screen
                  name: repo
                  prompt: ".*rhui (repo) => "
                  screen_map:
-                    '^': *HOME_SCREEN
-                    '<': *HOME_SCREEN
-                    'h': *HOME_SCREEN
-                    'a': &REPO_ADD_SCREEN !Screen
-                         name: repo_add
-                         prompt: ".*=> "
+                     '^': *HOME_SCREEN
+                     '<': *HOME_SCREEN
+                     'h': *HOME_SCREEN
+                     'l': !ScreenLeaf
+                          name: repo_list
+                          parent: *REPO_SCREEN
+                     'i': !ScreenLeaf
+                          name: repo_info
+                          parent: *REPO_SCREEN
+                     'a': !ScreenLeaf
+                          name: repo_add
+                          parent: *REPO_SCREEN
+                     'c': !ScreenLeaf
+                          name: repo_custom
+                          parent: *REPO_SCREEN
+                     'd': !ScreenLeaf
+                          name: repo_del
+                          parent: *REPO_SCREEN
+                     'u': !ScreenLeaf
+                          name: repo_upload
+                          parent: *REPO_SCREEN
+                     'p': !ScreenLeaf
+                          name: repo_packages
+                          parent: *REPO_SCREEN
             'c': &CDS_SCREEN !Screen
                  name: cds
                  prompt: ".*rhui (cds) => "

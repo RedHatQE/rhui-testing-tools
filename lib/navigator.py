@@ -30,6 +30,8 @@ class Navigator(object):
         self.prompt()
     @contextmanager
     def navigating(self, command)
+        self.reset()
         self.move(command)
         yield
         self.prompt()
+

@@ -1,10 +1,5 @@
 from navigator import Navigator
-from screen import ScreenLeaf
-from command import Command
-from prompt import Prompt
 from contextlib import contextmanager
-import re
-import pexpect
 
 multi_selection_prompt = "Enter value (\d*) to toggle selection, 'c' to confirm selections, or '?' for more commands: "
 confirm_prompt = ".*confirm: "
@@ -35,7 +30,8 @@ class RhuiNavigator(Navigator):
         self.expect(question + proceed_prompt)
         self.sendline('y')
     def reset(self):
-        self.navigate('^')
+        if self.screen.name != 'home':
+            self.navigate('^')
     def self(quit):
         self.reset()
         self.sendline('q')
@@ -52,4 +48,9 @@ class RhuiNavigator(Navigator):
         finally:
             self.expect(confirm_prompt)
             self.sendline(c)
+    def list(self):
+        """seems common enough to put to superclass"""
+        self.reset()
+        self.navigate('l')
+        return self.session.beforematch
 
