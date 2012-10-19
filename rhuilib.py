@@ -103,6 +103,15 @@ class Instance():
             self.enter("y")
             self.expect("Complete.*root@",30)
 
+    def installRpmFromMaster(self, rpmpath):
+        self.enter("mkdir -p `dirname " + rpmpath + "`")
+        self.expect("root@")
+        self.sftp.put(rpmpath,rpmpath)
+        self.enter("yum install "+rpmpath)
+        self.expect("Is this ok \[y/N\]:")
+        self.enter("y")
+        self.expect("Complete.*root@",30)
+
 
 class RHUA(Instance):
     '''
