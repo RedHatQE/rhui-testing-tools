@@ -44,7 +44,7 @@ class Instance():
         raise ExpectFailed()
 
     def expect(self, strexp, timeout=5):
-        return self.expect_list([(re.compile(".*" + strexp + ".*", re.DOTALL), True)])
+        return self.expect_list([(re.compile(".*" + strexp + ".*", re.DOTALL), True)], timeout)
 
     def match(self, regexp, group=1, timeout=5):
         result = ""
@@ -93,6 +93,15 @@ class Instance():
                 break
             except ExpectFailed:
                 continue
+
+    def removeConfigurationRpm(self):
+        self.enter("")
+        self.expect("root@")
+        self.enter("yum remove `rpm -qf --queryformat %{NAME} /etc/yum/pluginconf.d/rhui-lb.conf`")
+        if self.expect_list([(re.compile(".*Is this ok \[y/N\]:.*", re.DOTALL), True),
+                             (re.compile(".*Error: Need to pass a list of pkgs to remove.*root@.*", re.DOTALL), False)],35) == True:
+            self.enter("y")
+            self.expect("Complete.*root@",30)
 
 
 class RHUA(Instance):
@@ -323,7 +332,7 @@ class RHUIsetup():
 
     def addCLI(self, hostname, username="root", key_filename=None):
         logging.debug("Adding CLI with hostname " + hostname)
-        self.CLI.append(CDS(hostname, username, key_filename))
+        self.CLI.append(CLI(hostname, username, key_filename))
 
     def setupFromRolesfile(self, rolesfile="/etc/testing_roles"):
         fd = open(rolesfile, 'r')
