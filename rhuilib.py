@@ -117,9 +117,9 @@ class RHUA(Instance):
             self.enter("l")
         self.enter("c")
 
-    def rhui_select_cluster(self, clustername):
-        cluster = self.match(re.compile(".*([0-9]+)\s+-\s+" + clustername + "\s*\n.*to abort:.*", re.DOTALL))
-        self.enter(cluster)
+    def rhui_select_one(self, value):
+        match = self.match(re.compile(".*([0-9]+)\s+-\s+" + value + "\s*\n.*to abort:.*", re.DOTALL))
+        self.enter(match)
 
     def rhui_quit(self):
         self.expect("rhui \(.*\) =>")
@@ -134,6 +134,8 @@ class RHUA(Instance):
         self.expect("rhui \(home\) =>")
         if screen in ["repo", "cds", "sync"]:
             key = screen[:1]
+        elif screen == "client":
+            key = "e"
         self.enter(key)
         self.expect("rhui \(" + screen + "\) =>")
 
@@ -177,7 +179,7 @@ class RHUA(Instance):
     def deleteCds(self, clustername, cdslist):
         self.rhui_screen("cds")
         self.enter("d")
-        self.rhui_select_cluster(clustername)
+        self.rhui_select_one(clustername)
         self.rhui_select(cdslist)
         self.rhui_proceed()
         self.rhui_quit()
@@ -226,7 +228,7 @@ class RHUA(Instance):
     def associateRepoCds(self, clustername, repolist):
         self.rhui_screen("cds")
         self.enter("s")
-        self.rhui_select_cluster(clustername)
+        self.rhui_select_one(clustername)
         self.rhui_select(repolist)
         self.rhui_proceed()
         self.rhui_quit()
@@ -252,6 +254,42 @@ class RHUA(Instance):
         self.enter("sl")
         self.rhui_select(clusterlist)
         self.rhui_proceed()
+        self.rhui_quit()
+
+    def generateEntitlementCert(self, clustername, repolist, certname, dirname, validity_days="", cert_pw=None):
+        self.rhui_screen("client")
+        self.enter("e")
+        self.rhui_select_one(clustername)
+        self.rhui_select(repolist)
+        self.expect("Name of the certificate.*contained with it:")
+        self.enter(certname)
+        self.expect("Local directory in which to save the generated certificate.*:")
+        self.enter(dirname)
+        self.expect("Number of days the certificate should be valid.*:")
+        self.enter(validity_days)
+        self.rhui_proceed()
+        self.expect("Enter pass phrase for.*:")
+        if cert_pw:
+            self.enter(cert_pw)
+        else:
+            self.enter(self.getCaPassword())
+        self.rhui_quit()
+
+    def createConfigurationRpm(self, clustername, primary_cds, dirname, certpath, certkey, rpmname, rpmversion=""):
+        self.rhui_screen("client")
+        self.enter("c")
+        self.expect("Full path to local directory.*:")
+        self.enter(dirname)
+        self.expect("Name of the RPM:")
+        self.enter(rpmname)
+        self.expect("Version of the configuration RPM.*:")
+        self.enter(rpmversion)
+        self.expect("Full path to the entitlement certificate.*:")
+        self.enter(certpath)
+        self.expect("Full path to the private key for the above entitlement certificate:")
+        self.enter(certkey)
+        self.rhui_select_one(clustername)
+        self.rhui_select_one(primary_cds)
         self.rhui_quit()
 
 
