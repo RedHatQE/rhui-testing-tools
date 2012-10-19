@@ -111,9 +111,9 @@ class RHUA(Instance):
 
     def rhui_select(self, value_list):
         for value in value_list:
-            match = self.match(re.compile(".*-\s+([0-9]+)\s+:\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
+            match = self.match(re.compile(".*-\s+([0-9]+)\s+:.*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
             self.enter(match)
-            match = self.match(re.compile(".*x\s+([0-9]+)\s+:\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
+            match = self.match(re.compile(".*x\s+([0-9]+)\s+:.*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
             self.enter("l")
         self.enter("c")
 
@@ -129,17 +129,13 @@ class RHUA(Instance):
         self.expect("Proceed\? \(y/n\)")
         self.enter("y")
 
-    def rhui_repo_screen(self):
+    def rhui_screen(self, screen):
         self.enter("rhui-manager")
         self.expect("rhui \(home\) =>")
-        self.enter("r")
-        self.expect("rhui \(repo\) =>")
-
-    def rhui_cds_screen(self):
-        self.enter("rhui-manager")
-        self.expect("rhui \(home\) =>")
-        self.enter("c")
-        self.expect("rhui \(cds\) =>")
+        if screen in ["repo", "cds", "sync"]:
+            key = screen[:1]
+        self.enter(key)
+        self.expect("rhui \(" + screen + "\) =>")
 
     def initialRun(self, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", cert_pw=None, days="", username="admin", password="admin"):
         self.enter("rhui-manager")
@@ -165,7 +161,7 @@ class RHUA(Instance):
             self.enter("q")
 
     def addCds(self, clustername, cdsname, hostname="", displayname=""):
-        self.rhui_cds_screen()
+        self.rhui_screen("cds")
         self.enter("a")
         self.expect("Hostname of the CDS to register:")
         self.enter(cdsname)
@@ -179,7 +175,7 @@ class RHUA(Instance):
         self.rhui_quit()
 
     def deleteCds(self, clustername, cdslist):
-        self.rhui_cds_screen()
+        self.rhui_screen("cds")
         self.enter("d")
         self.rhui_select_cluster(clustername)
         self.rhui_select(cdslist)
@@ -187,7 +183,7 @@ class RHUA(Instance):
         self.rhui_quit()
 
     def addCustomRepo(self, reponame, displayname="", path="", checksum_alg="1", entitlement="y", entitlement_path="", redhat_gpg="y", custom_gpg=None):
-        self.rhui_repo_screen()
+        self.rhui_screen("repo")
         self.enter("c")
         self.expect("Unique ID for the custom repository.*:")
         self.enter(reponame)
@@ -221,14 +217,14 @@ class RHUA(Instance):
         self.enter("q")
 
     def deleteCustomRepo(self, repolist):
-        self.rhui_repo_screen()
+        self.rhui_screen("repo")
         self.enter("d")
         self.rhui_select(repolist)
         self.rhui_proceed()
         self.rhui_quit()
 
     def associateRepoCds(self, clustername, repolist):
-        self.rhui_cds_screen()
+        self.rhui_screen("cds")
         self.enter("s")
         self.rhui_select_cluster(clustername)
         self.rhui_select(repolist)
@@ -236,11 +232,25 @@ class RHUA(Instance):
         self.rhui_quit()
 
     def uploadContent(self, repolist, path):
-        self.rhui_repo_screen()
+        self.rhui_screen("repo")
         self.enter("u")
         self.rhui_select(repolist)
         self.expect("will be uploaded:")
         self.enter(path)
+        self.rhui_proceed()
+        self.rhui_quit()
+
+    def syncCds(self, cdslist):
+        self.rhui_screen("sync")
+        self.enter("sc")
+        self.rhui_select(cdslist)
+        self.rhui_proceed()
+        self.rhui_quit()
+
+    def syncCluster(self, clusterlist):
+        self.rhui_screen("sync")
+        self.enter("sl")
+        self.rhui_select(clusterlist)
         self.rhui_proceed()
         self.rhui_quit()
 
