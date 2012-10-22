@@ -46,7 +46,7 @@ class Instance():
     def expect(self, strexp, timeout=5):
         return self.expect_list([(re.compile(".*" + strexp + ".*", re.DOTALL), True)], timeout)
 
-    def match(self, regexp, group=1, timeout=5):
+    def match(self, regexp, grouplist = [1], timeout=5):
         result = ""
         count = 0
         while count < timeout:
@@ -58,9 +58,12 @@ class Instance():
                 pass
 
             match = regexp.match(result)
-            if match and match.group(group):
-                logging.debug("matched: " + match.group(group))
-                return match.group(group)
+            if match:
+                ret_list = []
+                for group in grouplist:
+                    logging.debug("matched: " + match.group(group))
+                    ret_list.append(match.group(group))
+                return ret_list
             time.sleep(1)
             count += 1
         raise ExpectFailed()
@@ -130,14 +133,14 @@ class RHUA(Instance):
     def rhui_select(self, value_list):
         for value in value_list:
             match = self.match(re.compile(".*-\s+([0-9]+)\s+:.*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
-            self.enter(match)
+            self.enter(match[0])
             match = self.match(re.compile(".*x\s+([0-9]+)\s+:.*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
             self.enter("l")
         self.enter("c")
 
     def rhui_select_one(self, value):
         match = self.match(re.compile(".*([0-9]+)\s+-\s+" + value + "\s*\n.*to abort:.*", re.DOTALL))
-        self.enter(match)
+        self.enter(match[0])
 
     def rhui_quit(self):
         self.expect("rhui \(.*\) =>")
@@ -309,6 +312,21 @@ class RHUA(Instance):
         self.rhui_select_one(clustername)
         self.rhui_select_one(primary_cds)
         self.rhui_quit()
+
+    def getCdsStatus(self, cdsname):
+        self.rhui_screen("sync")
+        self.enter("dc")
+        res_list = self.match(re.compile(".*" + cdsname.replace(".","\.") + "[\.\s]*\[([^\n]*)\].*" + cdsname.replace(".","\.") + "\s*\r\n[\s0-9\-:]+([^\n]*)\r\n", re.DOTALL), [1, 2])
+        self.channel.close()
+        self.channel = self.cli.invoke_shell()
+        ret_list = []
+        for val in res_list:
+            val = val.replace("\x1b","")
+            val = val.replace("[92m","")
+            val = val.replace("[0m","")
+            val = val.replace(" ","")
+            ret_list.append(val)
+        return ret_list
 
 
 class CDS(Instance):
