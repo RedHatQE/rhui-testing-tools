@@ -19,5 +19,5 @@ if [ ! -f "$KEY" ]; then
     usage
 fi
 
-scp $SSH_OPT -r -i "$KEY" "$ISO" *.py testing-data/ "root@$HOST:/root/"
+scp $SSH_OPT -r -i "$KEY" "$ISO" rhuilib *.py testing-data/ "root@$HOST:/root/"
 ssh $SSH_OPT -i "$KEY" "root@$HOST" "yum install -y python-paramiko; python rhui_installer.py --iso /root/`basename $ISO`"

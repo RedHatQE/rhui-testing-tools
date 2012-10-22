@@ -186,7 +186,7 @@ formatter = logging.Formatter(fmt='%(asctime)s %(levelname)s %(message)s', datef
 ch.setFormatter(formatter)
 fh.setFormatter(formatter)
 plogger = logging.getLogger("paramiko")
-plogger.setLever(logging.DEBUG)
+plogger.setLevel(logging.DEBUG)
 plogger.addHandler(fh)
 logger.addHandler(ch)
 logger.addHandler(fh)
