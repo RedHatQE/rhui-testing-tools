@@ -35,7 +35,7 @@ def setup_host_ssh(hostname, key):
     sftp = None
     client = SyncSSHClient()
     client.load_system_host_keys()
-    client.set_missing_host_key_policy(paramiko.WarningPolicy())
+    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     while ntries > 0:
         try:
             client.connect(hostname=hostname,
@@ -134,6 +134,11 @@ else:
 REGION = args.region
 
 logging.basicConfig(level=loglevel, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+
+if args.debug:
+    logging.getLogger("paramiko").setLevel(logging.DEBUG)
+else:
+    logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 config = ConfigParser.ConfigParser()
 config.read(args.config)
@@ -265,7 +270,7 @@ instances = []
 for res in con_cf.describe_stack_resources(STACK_ID):
     # we do care about instances only
     if res.resource_type == 'AWS::EC2::Instance' and res.physical_resource_id:
-        logging.info("Instance " + res.physical_resource_id + " created")
+        logging.debug("Instance " + res.physical_resource_id + " created")
         instances.append(res.physical_resource_id)
 
 instances_detail = []
@@ -301,8 +306,10 @@ master_keys = []
 for instance in instances_detail:
     if instance["public_ip"]:
         ip = instance["public_ip"]
+        logging.info("Instance with public ip created: " + instance["role"] + ":" + instance["hostname"] + ":" + ip)
     else:
         ip = instance["private_ip"]
+        logging.info("Instance with private ip created: " + instance["role"] + ":" + instance["hostname"] + ":" + ip)
     (instance["client"], instance["sftp"]) = setup_host_ssh(ip, SSHKEY)
     if instance["role"] == "Master":
         master_keys.append(setup_master(instance["client"]))
