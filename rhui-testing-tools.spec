@@ -1,6 +1,6 @@
 Name:		rhui-testing-tools
 Version:	0.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	RHUI Testing library
 
 Group:		Development/Python
@@ -40,5 +40,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%name/testing-data
 
 %changelog
+* Tue Oct 23 2012 Vitaly Kuznetsov <vitty@redhat.com> 0.1-2
+- packaging: hot fixes (vitty@redhat.com)
+
 * Mon Oct 22 2012 Vitaly Kuznetsov <vitty@redhat.com> 0.1-1
 - new package built with tito
