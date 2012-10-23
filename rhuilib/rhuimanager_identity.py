@@ -3,8 +3,14 @@ from rhuilib.rhuimanager import *
 
 
 class RHUIManagerIdentity:
+    '''
+    Represents -= Identity Certificate Management =- RHUI screen
+    '''
     @staticmethod
     def generate_new(connection, days="", cert_pw=None):
+        '''
+        generate a new identity certificate
+        '''
         RHUIManager.screen(connection, "identity")
         Expect.enter(connection, "g")
         Expect.expect(connection, "Proceed\? \[y/n\]")

@@ -4,8 +4,14 @@ from rhuilib.rhuimanager import *
 
 
 class RHUIManagerClient:
+    '''
+    Represents -= Client Entitlement Management =- RHUI screen
+    '''
     @staticmethod
     def generate_ent_cert(connection, clustername, repolist, certname, dirname, validity_days="", cert_pw=None):
+        '''
+        generate an entitlement certificate
+        '''
         RHUIManager.screen(connection, "client")
         Expect.enter(connection, "e")
         RHUIManager.select_one(connection, clustername)
@@ -26,6 +32,9 @@ class RHUIManagerClient:
 
     @staticmethod
     def create_conf_rpm(connection, clustername, primary_cds, dirname, certpath, certkey, rpmname, rpmversion=""):
+        '''
+        create a client configuration RPM from an entitlement certificate
+        '''
         RHUIManager.screen(connection, "client")
         Expect.enter(connection, "c")
         Expect.expect(connection, "Full path to local directory.*:")

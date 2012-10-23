@@ -5,8 +5,14 @@ from rhuilib.rhuimanager import *
 
 
 class RHUIManagerCds:
+    '''
+    Represents -= Content Delivery Server (CDS) Management =- RHUI screen
+    '''
     @staticmethod
     def _add_cds_part1(connection, clustername, cdsname, hostname="", displayname=""):
+        '''
+        service function for add_cds
+        '''
         Expect.enter(connection, "a")
         Expect.expect(connection, "Hostname of the CDS to register:")
         Expect.enter(connection, cdsname)
@@ -17,6 +23,9 @@ class RHUIManagerCds:
 
     @staticmethod
     def add_cds(connection, clustername, cdsname, hostname="", displayname=""):
+        '''
+        register (add) a new CDS instance
+        '''
         RHUIManager.screen(connection, "cds")
         RHUIManagerCds._add_cds_part1(connection, clustername, cdsname, hostname, displayname)
         state = Expect.expect_list(connection, [(re.compile(".*Enter a CDS cluster name:.*", re.DOTALL), 1), (re.compile(".*Select a CDS cluster or enter a new one:.*", re.DOTALL), 2)])
@@ -38,6 +47,9 @@ class RHUIManagerCds:
 
     @staticmethod
     def delete_cds(connection, clustername, cdslist):
+        '''
+        unregister (delete) a CDS instance from the RHUI
+        '''
         RHUIManager.screen(connection, "cds")
         Expect.enter(connection, "d")
         RHUIManager.select_one(connection, clustername)
@@ -47,6 +59,9 @@ class RHUIManagerCds:
 
     @staticmethod
     def associate_repo_cds(connection, clustername, repolist):
+        '''
+        associate a repository with a CDS cluster
+        '''
         RHUIManager.screen(connection, "cds")
         Expect.enter(connection, "s")
         RHUIManager.select_one(connection, clustername)

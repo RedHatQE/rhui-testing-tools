@@ -4,8 +4,14 @@ from rhuilib.util import *
 
 
 class RHUIManager:
+    '''
+    Basic functions to manage rhui-manager.
+    '''
     @staticmethod
     def select(connection, value_list):
+        '''
+        Select list of values (multiple choice)
+        '''
         for value in value_list:
             match = Expect.match(connection, re.compile(".*-\s+([0-9]+)\s+:.*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
             Expect.enter(connection, match[0])
@@ -15,21 +21,33 @@ class RHUIManager:
 
     @staticmethod
     def select_one(connection, value):
+        '''
+        Select one value (single choice)
+        '''
         match = Expect.match(connection, re.compile(".*([0-9]+)\s+-\s+" + value + "\s*\n.*to abort:.*", re.DOTALL))
         Expect.enter(connection, match[0])
 
     @staticmethod
     def quit(connection):
+        '''
+        Quit from rhui-manager
+        '''
         Expect.expect(connection, "rhui \(.*\) =>")
         Expect.enter(connection, "q")
 
     @staticmethod
     def proceed(connection):
+        '''
+        Proceed
+        '''
         Expect.expect(connection, "Proceed\? \(y/n\)")
         Expect.enter(connection, "y")
 
     @staticmethod
     def screen(connection, screen_name):
+        '''
+        Open specified rhui-manager screen
+        '''
         Expect.enter(connection, "rhui-manager")
         Expect.expect(connection, "rhui \(home\) =>")
         if screen_name in ["repo", "cds", "sync", "identity", "users"]:
@@ -43,9 +61,13 @@ class RHUIManager:
 
     @staticmethod
     def initial_run(connection, crt="/etc/rhui/pem/ca.crt", key="/etc/rhui/pem/ca.key", cert_pw=None, days="", username="admin", password="admin"):
+        '''
+        Do rhui-manager initial run
+        '''
         Expect.enter(connection, "rhui-manager")
         state = Expect.expect_list(connection, [(re.compile(".*Full path to the new signing CA certificate:.*", re.DOTALL), 1), (re.compile(".*rhui \(home\) =>.*", re.DOTALL), 2)])
         if state == 1:
+            # Need to answer sone first-run questions
             Expect.enter(connection, crt)
             Expect.expect(connection, "Full path to the new signing CA certificate private key:")
             Expect.enter(connection, key)

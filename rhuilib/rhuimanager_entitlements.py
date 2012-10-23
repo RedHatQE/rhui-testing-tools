@@ -3,8 +3,14 @@ from rhuilib.rhuimanager import *
 
 
 class RHUIManagerEntitlements:
+    '''
+    Represents -= Entitlements Manager =- RHUI screen
+    '''
     @staticmethod
     def upload_content_cert(connection, certpath):
+        '''
+        upload a new or updated Red Hat content certificate
+        '''
         Expect.enter(connection, "mkdir -p `dirname " + certpath + "`")
         Expect.expect(connection, "root@")
         connection.sftp.put(certpath, certpath)

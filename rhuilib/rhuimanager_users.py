@@ -3,8 +3,14 @@ from rhuilib.rhuimanager import *
 
 
 class RHUIManagerUsers:
+    '''
+    Represents -= User Manager =- RHUI screen
+    '''
     @staticmethod
     def change_password(connection, username, password):
+        '''
+        change a user's password
+        '''
         RHUIManager.screen(connection, "users")
         Expect.enter(connection, "p")
         Expect.expect(connection, "Username:")

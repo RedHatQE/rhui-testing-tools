@@ -5,8 +5,14 @@ from rhuilib.rhuimanager import *
 
 
 class RHUIManagerSync:
+    '''
+    Represents -= Synchronization Status =- RHUI screen
+    '''
     @staticmethod
     def sync_cds(connection, cdslist):
+        '''
+        sync an individual CDS immediately
+        '''
         RHUIManager.screen(connection, "sync")
         Expect.enter(connection, "sc")
         RHUIManager.select(connection, cdslist)
@@ -15,6 +21,9 @@ class RHUIManagerSync:
 
     @staticmethod
     def sync_cluster(connection, clusterlist):
+        '''
+        sync a CDS cluster immediately
+        '''
         RHUIManager.screen(connection, "sync")
         Expect.enter(connection, "sl")
         RHUIManager.select(connection, clusterlist)
@@ -23,6 +32,9 @@ class RHUIManagerSync:
 
     @staticmethod
     def get_cds_status(connection, cdsname):
+        '''
+        display CDS sync summary
+        '''
         RHUIManager.screen(connection, "sync")
         Expect.enter(connection, "dc")
         res_list = Expect.match(connection, re.compile(".*" + cdsname.replace(".", "\.") + "[\.\s]*\[([^\n]*)\].*" + cdsname.replace(".", "\.") + "\s*\r\n[\s0-9\-:]+([^\n]*)\r\n", re.DOTALL), [1, 2])

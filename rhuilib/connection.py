@@ -2,6 +2,9 @@ import paramiko
 
 
 class Connection():
+    '''
+    Stateful object to represent paramiko connection to the host
+    '''
     def __init__(self, hostname, username="root", key_filename=None):
         self.hostname = hostname
         self.username = username

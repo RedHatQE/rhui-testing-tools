@@ -3,8 +3,14 @@ from rhuilib.rhuimanager import *
 
 
 class RHUIManagerRepo:
+    '''
+    Represents -= Repository Management =- RHUI screen
+    '''
     @staticmethod
     def add_custom_repo(connection, reponame, displayname="", path="", checksum_alg="1", entitlement="y", entitlement_path="", redhat_gpg="y", custom_gpg=None):
+        '''
+        create a new custom repository
+        '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "c")
         Expect.expect(connection, "Unique ID for the custom repository.*:")
@@ -40,12 +46,18 @@ class RHUIManagerRepo:
 
     @staticmethod
     def add_rh_repo(connection, reponame):
+        '''
+        add a new Red Hat content repository
+        '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "a")
         #not finished
 
     @staticmethod
     def delete_custom_repo(connection, repolist):
+        '''
+        delete a repository from the RHUI
+        '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "d")
         RHUIManager.select(connection, repolist)
@@ -54,6 +66,9 @@ class RHUIManagerRepo:
 
     @staticmethod
     def upload_content(connection, repolist, path):
+        '''
+        upload content to a custom repository
+        '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "u")
         RHUIManager.select(connection, repolist)
@@ -64,6 +79,9 @@ class RHUIManagerRepo:
 
     @staticmethod
     def check_for_package(connection, reponame, package):
+        '''
+        list packages in a repository
+        '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "p")
         RHUIManager.select_one(connection, reponame)

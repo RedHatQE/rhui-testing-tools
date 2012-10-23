@@ -5,12 +5,25 @@ import socket
 
 
 class ExpectFailed(Exception):
+    '''
+    Exception to represent expectation error
+    '''
     pass
 
 
 class Expect():
+    '''
+    Class to do expect-ike stuff over paramiko connection
+    '''
     @staticmethod
     def expect_list(connection, regexp_list, timeout=5):
+        '''
+        Expect a list of expressions
+
+        @param connection: paramiko connection
+        @param regexp_list: list of tuples (regexp, return value)
+        @param timeout: timeout (default to 5)
+        '''
         result = ""
         count = 0
         while count < timeout:
@@ -30,10 +43,26 @@ class Expect():
 
     @staticmethod
     def expect(connection, strexp, timeout=5):
+        '''
+        Expect one expression
+
+        @param connection: paramiko connection
+        @param strexp: string to convert to expression (.*string.*)
+        @param timeout: timeout (default to 5)
+        '''
         return Expect.expect_list(connection, [(re.compile(".*" + strexp + ".*", re.DOTALL), True)], timeout)
 
     @staticmethod
     def match(connection, regexp, grouplist=[1], timeout=5):
+        '''
+        Match against an expression
+
+        @param connection: paramiko connection
+        @param regexp: compiled regular expression
+        @param grouplist: list of groups to return (defaults to [1])
+        @param timeout: timeout (default to 5)
+
+        '''
         result = ""
         count = 0
         while count < timeout:
@@ -57,4 +86,7 @@ class Expect():
 
     @staticmethod
     def enter(connection, command):
+        '''
+        Enter a command to the channel (with '\n' appended)
+        '''
         return connection.channel.send(command + "\n")

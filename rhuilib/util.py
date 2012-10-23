@@ -5,9 +5,17 @@ from rhuilib.expect import *
 
 
 class Util:
+    '''
+    Utility functions for instances
+    '''
     @staticmethod
     def generate_gpg_key(connection, keytype="DSA", keysize="1024", keyvalid="0", realname="Key Owner", email="kowner@example.com", comment="comment"):
-        ''' It takes too long to wait for this operation to complete... use pre-created keys instead '''
+        '''
+        Generate GPG keypair
+
+        WARNING!!!
+        It takes too long to wait for this operation to complete... use pre-created keys instead!
+        '''
         Expect.enter(connection, "cat > /tmp/gpgkey << EOF")
         Expect.enter(connection, "Key-Type: " + keytype)
         Expect.enter(connection, "Key-Length: " + keysize)
@@ -34,6 +42,9 @@ class Util:
 
     @staticmethod
     def remove_conf_rpm(connection):
+        '''
+        Remove RHUI configuration rpm from instance (which owns /etc/yum/pluginconf.d/rhui-lb.conf file)
+        '''
         Expect.enter(connection, "")
         Expect.expect(connection, "root@")
         Expect.enter(connection, "yum remove `rpm -qf --queryformat %{NAME} /etc/yum/pluginconf.d/rhui-lb.conf`")
@@ -44,6 +55,10 @@ class Util:
 
     @staticmethod
     def install_rpm_from_master(connection, rpmpath):
+        '''
+        Transfer RPM package to instance and install it
+        @param rpmpath: path to RPM package on Master node
+        '''
         Expect.enter(connection, "mkdir -p `dirname " + rpmpath + "`")
         Expect.expect(connection, "root@")
         connection.sftp.put(rpmpath, rpmpath)
@@ -53,7 +68,11 @@ class Util:
         Expect.expect(connection, "Complete.*root@", 30)
 
     @staticmethod
-    def getCaPassword(connection):
+    def getCaPassword(connection, pwdfile="/etc/rhui/pem/ca.pwd"):
+        '''
+        Read CA password from file
+        @param pwdfile: file with the password (defaults to /etc/rhui/pem/ca.pwd)
+        '''
         tf = tempfile.NamedTemporaryFile(delete=False)
         tf.close()
         connection.sftp.get("/etc/rhui/pem/ca.pwd", tf.name)
