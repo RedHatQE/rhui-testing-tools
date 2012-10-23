@@ -32,7 +32,7 @@ class RHUIManager:
     def screen(connection, screen_name):
         Expect.enter(connection, "rhui-manager")
         Expect.expect(connection, "rhui \(home\) =>")
-        if screen_name in ["repo", "cds", "sync"]:
+        if screen_name in ["repo", "cds", "sync", "identity", "users"]:
             key = screen_name[:1]
         elif screen_name == "client":
             key = "e"
