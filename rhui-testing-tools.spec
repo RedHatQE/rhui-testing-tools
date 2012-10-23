@@ -36,9 +36,9 @@ rm -rf $RPM_BUILD_ROOT
 %{python_sitelib}/rhuilib/*.pyc
 %{python_sitelib}/rhuilib/*.pyo
 %{_datadir}/%name/cfn
+%{_datadir}/%name/rhui-tests
 %{_datadir}/%name/testing-data
 
 %changelog
 * Mon Oct 22 2012 Vitaly Kuznetsov <vitty@redhat.com> 0.1-1
 - new package built with tito
-

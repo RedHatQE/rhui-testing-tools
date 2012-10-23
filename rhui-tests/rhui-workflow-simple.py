@@ -1,3 +1,5 @@
+#! /usr/bin/python -tt
+
 import logging
 
 from rhuilib.util import *

@@ -15,6 +15,7 @@ setup(name='rhuilib',
     data_files=[
              ('share/rhui-testing-tools/cfn', ['cfn/rhui_with_1cds_1cli.json']),
              ('share/rhui-testing-tools/testing-data', ['testing-data/private.key', 'testing-data/public.key']),
+             ('share/rhui-testing-tools/rhui-tests', ['rhui-tests/rhui-workflow-simple.py']),
     ],
     classifiers=[
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
@@ -26,8 +27,7 @@ setup(name='rhuilib',
     ],
     scripts=[
             'scripts/create-cf-stack.py',
-            'scripts/rhui-workflow-simple.py',
-            'scripts/rhui-installer.py',
-            'scripts/remote-rhui-installer.sh'
+            'scripts/remote-rhui-installer.sh',
+            'scripts/rhui-installer.py'
     ]
 )
