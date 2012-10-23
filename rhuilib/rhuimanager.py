@@ -36,6 +36,8 @@ class RHUIManager:
             key = screen_name[:1]
         elif screen_name == "client":
             key = "e"
+        elif screen_name == "entitlements":
+            key = "n"
         Expect.enter(connection, key)
         Expect.expect(connection, "rhui \(" + screen_name + "\) =>")
 

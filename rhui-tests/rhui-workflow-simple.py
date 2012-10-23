@@ -11,6 +11,7 @@ from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_identity import *
 from rhuilib.rhuimanager_users import *
+from rhuilib.rhuimanager_entitlements import *
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
