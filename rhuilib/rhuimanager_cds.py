@@ -68,3 +68,15 @@ class RHUIManagerCds:
         RHUIManager.select(connection, repolist)
         RHUIManager.proceed(connection)
         RHUIManager.quit(connection)
+
+    @staticmethod
+    def unassociate_repo_cds(connection, clustername, repolist):
+        '''
+        unassociate a repository with a CDS cluster
+        '''
+        RHUIManager.screen(connection, "cds")
+        Expect.enter(connection, "u")
+        RHUIManager.select_one(connection, clustername)
+        RHUIManager.select(connection, repolist)
+        RHUIManager.proceed(connection)
+        RHUIManager.quit(connection)
