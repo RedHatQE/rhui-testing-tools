@@ -35,7 +35,7 @@ RHUIManager.initial_run(rs.RHUA)
 cdslist = []
 for cds in rs.CDS:
     cdslist.append(cds.hostname)
-    RHUIManagerCds.add_cds(rs.RHUA,"Cluster1", cds.hostname)
+    RHUIManagerCds.add_cds(rs.RHUA, "Cluster1", cds.hostname)
 
 for cli in rs.CLI:
     Util.remove_conf_rpm(cli)
@@ -51,7 +51,7 @@ RHUIManagerSync.sync_cds(rs.RHUA, cdslist)
 
 RHUIManagerClient.generate_ent_cert(rs.RHUA, "Cluster1", ["repo1"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 RHUIManagerClient.create_conf_rpm(rs.RHUA, "Cluster1", cdslist[0], "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
-rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm","/root/repo1-3.0-1.noarch.rpm")
+rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
 Util.install_rpm_from_master(rs.CLI[0], "/root/repo1-3.0-1.noarch.rpm")
 
 # delete testing - uncomment if necessary
