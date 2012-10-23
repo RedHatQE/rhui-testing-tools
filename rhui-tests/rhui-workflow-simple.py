@@ -10,6 +10,7 @@ from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_identity import *
+from rhuilib.rhuimanager_users import *
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
@@ -43,3 +44,4 @@ for cds in rs.CDS:
     RHUIManagerCds.delete_cds(rs.RHUA, "Cluster1", [cds.hostname])
 RHUIManagerRepo.delete_custom_repo(rs.RHUA, ["repo1", "repo2"])
 RHUIManagerIdentity.generate_new(rs.RHUA)
+RHUIManagerUsers.change_password(rs.RHUA, "admin", "admin2")
