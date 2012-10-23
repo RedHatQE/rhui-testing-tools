@@ -39,6 +39,12 @@ class RHUIManagerRepo:
         Expect.enter(connection, "q")
 
     @staticmethod
+    def add_rh_repo(connection, reponame):
+        RHUIManager.screen(connection, "repo")
+        Expect.enter(connection, "a")
+        #not finished
+
+    @staticmethod
     def delete_custom_repo(connection, repolist):
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "d")
@@ -55,3 +61,13 @@ class RHUIManagerRepo:
         Expect.enter(connection, path)
         RHUIManager.proceed(connection)
         RHUIManager.quit(connection)
+
+    @staticmethod
+    def check_for_package(connection, reponame, package):
+        RHUIManager.screen(connection, "repo")
+        Expect.enter(connection, "p")
+        RHUIManager.select_one(connection, reponame)
+        Expect.expect(connection, "\(blank line for no filter\):")
+        Expect.enter(connection, package)
+        Expect.expect(connection, "Packages:.*rhui \(repo\) =>")
+        Expect.enter(connection, "q")
