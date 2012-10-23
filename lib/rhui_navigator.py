@@ -4,7 +4,7 @@ from contextlib import contextmanager
 multi_selection_prompt = "Enter value (\d*) to toggle selection, 'c' to confirm selections, or '?' for more commands: "
 confirm_prompt = ".*confirm: "
 proceed_prompt = ".*\(y/n\)"
-class MenuItemNotFoundError(RuntimeError)
+class MenuItemNotFoundError(RuntimeError):
     """In cases expect didn't find the requested menu item"""
 
 class RhuiNavigator(Navigator):

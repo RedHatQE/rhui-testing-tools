@@ -17,7 +17,7 @@ class Navigator(object):
             command.send(self.session)
         else:
             self.session.send(str(command))
-        self.screen = self.screen.next(command))
+        self.screen = self.screen.next(command)
     def prompt(self):
         if isinstance (Prompt, self.screen.prompt):
             self.screen.prompt.expect(self.session)
@@ -29,7 +29,7 @@ class Navigator(object):
         self.move(command)
         self.prompt()
     @contextmanager
-    def navigating(self, command)
+    def navigating(self, command):
         self.reset()
         self.move(command)
         yield

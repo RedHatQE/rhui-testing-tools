@@ -1,4 +1,4 @@
-- &HOME_SCREEN !Screen
+&HOME_SCREEN !Screen
         name: home
         prompt: ".*rhui (home) => "
         screen_map:
