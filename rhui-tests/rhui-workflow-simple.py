@@ -1,6 +1,7 @@
 #! /usr/bin/python -tt
 
 import logging
+import argparse
 
 from rhuilib.util import *
 from rhuilib.rhuisetup import *
@@ -13,7 +14,19 @@ from rhuilib.rhuimanager_identity import *
 from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+argparser = argparse.ArgumentParser(description='RHUI simple workflow')
+argparser.add_argument('--debug', action='store_const', const=True,
+                       default=False, help='debug mode')
+argparser.add_argument('--cert',
+                       help='use supplied RH enablement certificate')
+args = argparser.parse_args()
+
+if args.debug:
+    loglevel = logging.DEBUG
+else:
+    loglevel = logging.INFO
+
+logging.basicConfig(level=loglevel, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 rs = RHUIsetup()
 rs.setup_from_rolesfile()
@@ -41,8 +54,13 @@ RHUIManagerClient.create_conf_rpm(rs.RHUA, "Cluster1", cdslist[0], "/root", "/ro
 rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm","/root/repo1-3.0-1.noarch.rpm")
 Util.install_rpm_from_master(rs.CLI[0], "/root/repo1-3.0-1.noarch.rpm")
 
-for cds in rs.CDS:
-    RHUIManagerCds.delete_cds(rs.RHUA, "Cluster1", [cds.hostname])
-RHUIManagerRepo.delete_custom_repo(rs.RHUA, ["repo1", "repo2"])
+# delete testing - uncomment if necessary
+# for cds in rs.CDS:
+#    RHUIManagerCds.delete_cds(rs.RHUA, "Cluster1", [cds.hostname])
+# RHUIManagerRepo.delete_custom_repo(rs.RHUA, ["repo1", "repo2"])
+
+if args.cert:
+    RHUIManagerEntitlements.upload_content_cert(rs.RHUA, args.cert)
+
 RHUIManagerIdentity.generate_new(rs.RHUA)
 RHUIManagerUsers.change_password(rs.RHUA, "admin", "admin2")
