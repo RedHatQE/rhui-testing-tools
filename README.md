@@ -25,12 +25,12 @@ Basic usage:
 
 3) Run remote rhui installer:
     without rpm:
-        scripts/remote-rhui-installer.sh <master ip> <your-region-ssh-key> <RHUI iso> <rhui-testing-tools.rpm>
+        scripts/remote-rhui-installer.sh &lt;master ip&gt; &lt;your-region-ssh-key&gt; &lt;RHUI iso&gt; &lt;rhui-testing-tools.rpm&gt;
     with rpm installed:
-        remote-rhui-installer.sh <master ip> <your-region-ssh-key> <RHUI iso> <rhui-testing-tools.rpm>
+        remote-rhui-installer.sh &lt;master ip&gt; &lt;your-region-ssh-key&gt; &lt;RHUI iso&gt; &lt;rhui-testing-tools.rpm&gt;
 
 4) Go to master
-    ssh -i <your-region-ssh-key> <master ip>
+    ssh -i &lt;your-region-ssh-key&gt; &lt;master ip&gt;
 
 5) Run simple workflow
     /usr/share/rhui-testing-tools/rhui-tests/rhui-workflow-simple.py
