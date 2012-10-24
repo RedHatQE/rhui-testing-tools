@@ -43,7 +43,7 @@ class RhuiNavigator(Navigator):
             if not OK:
                 raise err
             self.sendline("0")
-            self.expect('Enter a CDS cluster name:\n')
+            self.expect('Enter a CDS cluster name:\r\n')
             self.sendline(cluster)
         finally:
             self.expect(confirm_prompt)

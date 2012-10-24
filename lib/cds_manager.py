@@ -1,9 +1,8 @@
-from rhui_navigator import MenuItemNotFoundError, multi_selection_prompt, confirm_prompt,
-     RhuiNavigator
+from rhui_navigator import MenuItemNotFoundError, multi_selection_prompt, confirm_prompt, RhuiNavigator
 
 class CdsManager(RhuiNavigator):
     def reset(self):
-        if self.screen.name != 'cds'
+        if self.screen.name != 'cds':
             RhuiNavigator.reset(self)
             self.navigate('c')
     def info(self, cluster, cds):
@@ -12,15 +11,15 @@ class CdsManager(RhuiNavigator):
             self.select_multimenu_items(cds)
         return self.session.beforematch
     def add(self, cluster, display_name, client_name, host_name):
-        with self.navigating('r'):
-            self.expect("Hostname of the CDS to register:\n")
+        with self.navigating('a'):
+            self.expect("Hostname of the CDS to register:\r\n")
             self.sendline(host_name)
-            self.expect("Client hostname.*:\n")
+            self.expect("Client hostname.*:\r\n")
             self.sendline(client_name)
-            self.sendline("Display name.*:\n")
+            self.sendline("Display name.*:\r\n")
             self.sendline(display_name)
             self.select_cluster(cluster)
-    def del(self, cluster, cdses, force=False):
+    def delete(self, cluster, cdses, force=False):
         """Use force only if you know the CDSes will fail to remove ;)"""
         with self.navigating('d'):
             self.select_menu_item(cluster)

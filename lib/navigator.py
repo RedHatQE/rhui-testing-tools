@@ -13,7 +13,7 @@ class Navigator(object):
     def __repr__(self):
         return "%s(host=%r, user=%r, screen=%r)" % (self.__class__.__name__,
                 self.host, self.user, screen)
-    def move(self, command):
+    def step(self, command):
         if isinstance(command, Command):
             command.send(self.session)
         else:
@@ -27,12 +27,12 @@ class Navigator(object):
             # this justifies the screen switched
             self.expect(self.screen.prompt)
     def navigate(self, command):
-        self.move(command)
+        self.step(command)
         self.prompt()
     @contextmanager
     def navigating(self, command):
         self.reset()
-        self.move(command)
+        self.step(command)
         yield
         self.prompt()
     def sendline(self, *args, **kvargs):
