@@ -16,7 +16,7 @@ class RHUIManagerSync:
         RHUIManager.screen(connection, "sync")
         Expect.enter(connection, "sc")
         RHUIManager.select(connection, cdslist)
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_with_check(connection, "The following CDS instances will be scheduled for synchronization:", cdslist)
         RHUIManager.quit(connection)
 
     @staticmethod
@@ -27,7 +27,7 @@ class RHUIManagerSync:
         RHUIManager.screen(connection, "sync")
         Expect.enter(connection, "sl")
         RHUIManager.select(connection, clusterlist)
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_with_check(connection, "The following CDS clusters will be scheduled for synchronization:", clusterlist)
         RHUIManager.quit(connection)
 
     @staticmethod

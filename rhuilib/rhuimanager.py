@@ -36,15 +36,20 @@ class RHUIManager:
         Expect.enter(connection, "q")
 
     @staticmethod
-    def proceed(connection):
+    def proceed_without_check(connection):
         '''
-        Proceed
+        Proceed without check (avoid this function when possible!)
         '''
         Expect.expect(connection, "Proceed\? \(y/n\)")
         Expect.enter(connection, "y")
 
     @staticmethod
     def proceed_with_check(connection, caption, value_list, skip_list=[]):
+        '''
+        Proceed with prior checking the list of values
+
+        Use @param skip_list to skip meaningless 2nd-level headers
+        '''
         selected = Expect.match(connection, re.compile(".*" + caption + "\r\n(.*)\r\nProceed\? \(y/n\).*", re.DOTALL))[0].split("\r\n")
         selected_clean = []
         for val in selected:

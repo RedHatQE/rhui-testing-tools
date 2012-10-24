@@ -70,4 +70,4 @@ RHUIManagerUsers.change_password(rs.RHUA, "admin", "admin2")
 # delete testing - uncomment if necessary
 # for cds in rs.CDS:
 #    RHUIManagerCds.delete_cds(rs.RHUA, "Cluster1", [cds.hostname])
-# RHUIManagerRepo.delete_custom_repo(rs.RHUA, ["repo1", "repo2"])
+# RHUIManagerRepo.delete_repo(rs.RHUA, ["repo1", "repo2"])

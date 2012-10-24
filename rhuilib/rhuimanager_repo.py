@@ -78,7 +78,7 @@ class RHUIManagerRepo:
         Expect.enter(connection, "a")
         Expect.expect(connection, "Import Repositories:.*to abort:", 30)
         Expect.enter(connection, "1")
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_without_check(connection)
         Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
         Expect.enter(connection, "q")
 
@@ -92,7 +92,7 @@ class RHUIManagerRepo:
         Expect.expect(connection, "Import Repositories:.*to abort:", 30)
         Expect.enter(connection, "2")
         RHUIManager.select(connection, productlist)
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_with_check(connection, "The following products will be deployed:", productlist)
         Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
         Expect.enter(connection, "q")
 
@@ -106,19 +106,19 @@ class RHUIManagerRepo:
         Expect.expect(connection, "Import Repositories:.*to abort:", 30)
         Expect.enter(connection, "3")
         RHUIManager.select(connection, repolist)
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_with_check(connection, "The following product repositories will be deployed:", repolist)
         Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
         Expect.enter(connection, "q")
 
     @staticmethod
-    def delete_custom_repo(connection, repolist):
+    def delete_repo(connection, repolist):
         '''
         delete a repository from the RHUI
         '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "d")
         RHUIManager.select(connection, repolist)
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_with_check(connection, "The following repositories will be deleted:", repolist, ["Red Hat Repositories", "Custom Repositories"])
         RHUIManager.quit(connection)
 
     @staticmethod
@@ -131,7 +131,7 @@ class RHUIManagerRepo:
         RHUIManager.select(connection, repolist)
         Expect.expect(connection, "will be uploaded:")
         Expect.enter(connection, path)
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_without_check(connection)
         RHUIManager.quit(connection)
 
     @staticmethod
