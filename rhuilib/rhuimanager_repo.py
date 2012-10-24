@@ -45,7 +45,7 @@ class RHUIManagerRepo:
         Expect.enter(connection, "q")
 
     @staticmethod
-    def add_rh_repo_all(connection, productlist):
+    def add_rh_repo_all(connection):
         '''
         add a new Red Hat content repository (All in Certificate)
         '''
