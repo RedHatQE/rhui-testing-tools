@@ -77,7 +77,7 @@ class RHUIManagerCds:
         Expect.enter(connection, "s")
         RHUIManager.select_one(connection, clustername)
         RHUIManager.select(connection, repolist)
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_with_check(connection, "The following repositories will be associated with the " + clustername + " cluster:", repolist, ["Red Hat Repositories", "Custom Repositories"])
         RHUIManager.quit(connection)
 
     @staticmethod
@@ -89,5 +89,5 @@ class RHUIManagerCds:
         Expect.enter(connection, "u")
         RHUIManager.select_one(connection, clustername)
         RHUIManager.select(connection, repolist)
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_with_check(connection, "The following repositories will be unassociated from the " + clustername + " cluster:", repolist, ["Red Hat Repositories", "Custom Repositories"])
         RHUIManager.quit(connection)

@@ -44,7 +44,7 @@ class RHUIManager:
         Expect.enter(connection, "y")
 
     @staticmethod
-    def proceed_with_check(connection, caption, value_list):
+    def proceed_with_check(connection, caption, value_list, skip_list=[]):
         selected = Expect.match(connection, re.compile(".*" + caption + "\r\n(.*)\r\nProceed\? \(y/n\).*", re.DOTALL))[0].split("\r\n")
         selected_clean = []
         for val in selected:
@@ -53,7 +53,7 @@ class RHUIManager:
             val = ' '.join(val.split())
             val = val.replace("(","\(")
             val = val.replace(")","\)")
-            if val != "":
+            if val != "" and not val in skip_list:
                 selected_clean.append(val)
         if sorted(selected_clean) != sorted(value_list):
             logging.debug("Selected: " + str(selected_clean))
