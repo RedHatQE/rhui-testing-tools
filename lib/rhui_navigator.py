@@ -32,7 +32,7 @@ class RhuiNavigator(Navigator):
     def reset(self):
         if self.screen.name != 'home':
             self.navigate('^')
-    def self(quit):
+    def quit(self):
         self.reset()
         self.sendline('q')
     def select_cluster(self, cluster, OK=True):
