@@ -15,6 +15,15 @@ from rhuilib.rhuimanager_identity import *
 from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
+cds_screen_items=[ \
+    """l.* list all CDS clusters and instances managed by the RHUI""",
+    """i.* display detailed information on a CDS cluster""",
+    """a.* register \(add\) a new CDS instance""",
+    """m.* move CDS\(s\) to a different cluster""",
+    """d.* unregister \(delete\) a CDS instance from the RHUI""",
+    """s.* associate a repository with a CDS cluster""",
+    """u.* unassociate a repository from a CDS cluster"""]
+
 argparser = argparse.ArgumentParser(description='RHUI CDS Management Screen')
 argparser.add_argument('--debug', action='store_const', const=True,
                        default=False, help='debug mode')
@@ -36,16 +45,7 @@ Expect.enter(rs.RHUA, "rhui-manager")
 Expect.expect(rs.RHUA, "rhui \(home\) => ")
 Expect.enter(rs.RHUA, "c")
 
-cds_screen_expression="""
--= Content Delivery Server (CDS) Management =-
-
-   l   list all CDS clusters and instances managed by the RHUI
-   a   register (add) a new CDS instance
-   e   edit CDS cluster membership
-   d   unregister (delete) a CDS instance from the RHUI
-   s   associate a repository with a CDS cluster
-   u   unassocate a repository with a CDS cluster
-"""
-ok(Expect.expect(rs.RHUA, cds_screen_expression), "CDS management screen isn't %s" % cds_screen_expression)
+for screen_item in cds_screen_expression:
+    Expect.expect(rs.RHUA, screen_item)
 Expect.expect(rs.RHUA, "rhui \(cds\) => ")
 RHUIManager.quit(rs.RHUA)
