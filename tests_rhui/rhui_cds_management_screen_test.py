@@ -1,6 +1,7 @@
 #! /usr/bin/python -tt
 __all__ = []
 __test__ = True
+
 import  yaml, pexpect, sys, pxssh
 from rhui_navigator import RhuiNavigator
 
@@ -22,11 +23,10 @@ session.expect("[$#] ")
 session.sendline("rhui-manager")
 session.expect("=> ")
 
-with open('conf/Screens-nested.yaml') as fd:
+with open('/root/rhui-testing-tools/lib/conf/Screens-nested.yaml') as fd:
     screen =  yaml.load(fd)
 
 rhui = RhuiNavigator(session=session, screen=screen)
-
 
 with rhui.navigating('c'):
     for screen_item in cds_screen_items:
