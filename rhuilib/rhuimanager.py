@@ -44,6 +44,21 @@ class RHUIManager:
         Expect.enter(connection, "y")
 
     @staticmethod
+    def proceed_with_check(connection, caption, value_list):
+        selected = Expect.match(connection, re.compile(".*" + caption + "\r\n(.*)\r\nProceed\? \(y/n\).*", re.DOTALL))[0].split("\r\n")
+        selected_clean = []
+        for val in selected:
+            val = val.strip().replace("(","\(").replace(")","\)")
+            if val != "":
+                selected_clean.append(val)
+        if sorted(selected_clean) != sorted(value_list):
+            logging.debug("Selected: " + str(selected_clean))
+            logging.debug("Expected: " + str(value_list))
+            raise ExpectFailed()
+        Expect.enter(connection, "y")
+
+
+    @staticmethod
     def screen(connection, screen_name):
         '''
         Open specified rhui-manager screen
