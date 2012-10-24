@@ -54,13 +54,18 @@ RHUIManagerClient.create_conf_rpm(rs.RHUA, "Cluster1", cdslist[0], "/root", "/ro
 rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
 Util.install_rpm_from_master(rs.CLI[0], "/root/repo1-3.0-1.noarch.rpm")
 
+
+if args.cert:
+    RHUIManagerEntitlements.upload_content_cert(rs.RHUA, args.cert)
+    RHUIManagerRepo.add_rh_repo_by_product(rs.RHUA, ["Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(RPMs\)", "Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\)"])
+    RHUIManagerRepo.add_rh_repo_by_repo(rs.RHUA, ["Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-i386\)", "Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-x86_64\)"])
+    RHUIManagerRepo.add_rh_repo_all(rs.RHUA)
+    RHUIManagerSync.sync_repo(rs.RHUA, ["Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-i386\)", "Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-x86_64\)"])
+
+RHUIManagerIdentity.generate_new(rs.RHUA)
+RHUIManagerUsers.change_password(rs.RHUA, "admin", "admin2")
+
 # delete testing - uncomment if necessary
 # for cds in rs.CDS:
 #    RHUIManagerCds.delete_cds(rs.RHUA, "Cluster1", [cds.hostname])
 # RHUIManagerRepo.delete_custom_repo(rs.RHUA, ["repo1", "repo2"])
-
-if args.cert:
-    RHUIManagerEntitlements.upload_content_cert(rs.RHUA, args.cert)
-
-RHUIManagerIdentity.generate_new(rs.RHUA)
-RHUIManagerUsers.change_password(rs.RHUA, "admin", "admin2")

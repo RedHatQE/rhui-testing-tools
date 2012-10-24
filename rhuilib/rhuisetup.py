@@ -12,6 +12,13 @@ class RHUIsetup:
         self.CDS = []
         self.CLI = []
 
+    def __del__(self):
+        '''
+        Close all connections
+        '''
+        for instance in self.CDS + self.CLI + [self.RHUA]:
+            instance.channel.close()
+
     def setRHUA(self, hostname, username="root", key_filename=None):
         '''
         set RHUA instance

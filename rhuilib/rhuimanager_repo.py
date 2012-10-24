@@ -45,13 +45,45 @@ class RHUIManagerRepo:
         Expect.enter(connection, "q")
 
     @staticmethod
-    def add_rh_repo(connection, reponame):
+    def add_rh_repo_all(connection):
         '''
-        add a new Red Hat content repository
+        add a new Red Hat content repository (All in Certificate)
         '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "a")
-        #not finished
+        Expect.expect(connection, "Import Repositories:.*to abort:", 30)
+        Expect.enter(connection, "1")
+        RHUIManager.proceed(connection)
+        Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
+        Expect.enter(connection, "q")
+
+    @staticmethod
+    def add_rh_repo_by_product(connection, productlist):
+        '''
+        add a new Red Hat content repository (By Product)
+        '''
+        RHUIManager.screen(connection, "repo")
+        Expect.enter(connection, "a")
+        Expect.expect(connection, "Import Repositories:.*to abort:", 30)
+        Expect.enter(connection, "2")
+        RHUIManager.select(connection, productlist)
+        RHUIManager.proceed(connection)
+        Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
+        Expect.enter(connection, "q")
+
+    @staticmethod
+    def add_rh_repo_by_repo(connection, repolist):
+        '''
+        add a new Red Hat content repository (By Repository)
+        '''
+        RHUIManager.screen(connection, "repo")
+        Expect.enter(connection, "a")
+        Expect.expect(connection, "Import Repositories:.*to abort:", 30)
+        Expect.enter(connection, "3")
+        RHUIManager.select(connection, repolist)
+        RHUIManager.proceed(connection)
+        Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
+        Expect.enter(connection, "q")
 
     @staticmethod
     def delete_custom_repo(connection, repolist):

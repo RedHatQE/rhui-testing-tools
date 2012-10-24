@@ -13,9 +13,9 @@ class RHUIManager:
         Select list of values (multiple choice)
         '''
         for value in value_list:
-            match = Expect.match(connection, re.compile(".*-\s+([0-9]+)\s+:.*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
+            match = Expect.match(connection, re.compile(".*-\s+([0-9]+)\s*:[^\n]*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
             Expect.enter(connection, match[0])
-            match = Expect.match(connection, re.compile(".*x\s+([0-9]+)\s+:.*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
+            match = Expect.match(connection, re.compile(".*x\s+([0-9]+)\s*:[^\n]*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
             Expect.enter(connection, "l")
         Expect.enter(connection, "c")
 
