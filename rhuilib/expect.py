@@ -32,9 +32,11 @@ class Expect():
                 logging.debug("RCV: " + recv_part)
                 result += recv_part
             except socket.timeout:
+                # socket.timeout here means 'no more data'
                 pass
 
             for (regexp, retvalue) in regexp_list:
+                # search for the first matching regexp and return desired value
                 if re.match(regexp, result):
                     return retvalue
             time.sleep(1)
@@ -71,6 +73,7 @@ class Expect():
                 logging.debug("RCV: " + recv_part)
                 result += recv_part
             except socket.timeout:
+                # socket.timeout here means 'no more data'
                 pass
 
             match = regexp.match(result)
