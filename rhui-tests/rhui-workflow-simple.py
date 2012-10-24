@@ -60,6 +60,7 @@ if args.cert:
     RHUIManagerRepo.add_rh_repo_by_product(rs.RHUA, ["Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(RPMs\)", "Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\)"])
     RHUIManagerRepo.add_rh_repo_by_repo(rs.RHUA, ["Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-i386\)", "Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-x86_64\)"])
     RHUIManagerRepo.add_rh_repo_all(rs.RHUA)
+    RHUIManagerSync.sync_repo(rs.RHUA, ["Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-i386\)", "Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-x86_64\)"])
 
 RHUIManagerIdentity.generate_new(rs.RHUA)
 RHUIManagerUsers.change_password(rs.RHUA, "admin", "admin2")

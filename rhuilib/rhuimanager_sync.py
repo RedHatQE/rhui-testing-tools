@@ -48,3 +48,16 @@ class RHUIManagerSync:
             val = val.replace(" ", "")
             ret_list.append(val)
         return ret_list
+
+    @staticmethod
+    def sync_repo(connection, repolist):
+        '''
+        sync an individual repository immediately
+        '''
+        RHUIManager.screen(connection, "sync")
+        Expect.enter(connection, "sr")
+        Expect.expect(connection,"Select one or more repositories.*for more commands:", 60)
+        Expect.enter(connection, "l")
+        RHUIManager.select(connection, repolist)
+        RHUIManager.proceed(connection)
+        RHUIManager.quit(connection)
