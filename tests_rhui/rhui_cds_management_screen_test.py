@@ -1,5 +1,6 @@
 #! /usr/bin/python -tt
-
+__all__ = []
+__test__ = True
 import  yaml, pexpect, sys, pxssh
 from rhui_navigator import RhuiNavigator
 
