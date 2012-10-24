@@ -41,7 +41,18 @@ class RHUIManagerCds:
                 Expect.enter(connection, "1")
                 Expect.expect(connection, "Enter a CDS cluster name:")
                 Expect.enter(connection, clustername)
-        RHUIManager.proceed(connection)
+        # We need to compare the output before proceeding
+        checklist = ["Hostname: " + cdsname]
+        if hostname != "":
+            checklist.append("Client Hostname: " + hostname)
+        else:
+            checklist.append("Client Hostname: " + cdsname)
+        if displayname != "":
+            checklist.append("Name: " + displayname)
+        else:
+            checklist.append("Name: " + cdsname)
+        checklist.append("Cluster: " + clustername)
+        RHUIManager.proceed_with_check(connection, "The following CDS instance will be registered:", checklist)
         Expect.expect(connection, "Successfully registered.*rhui \(cds\) =>.*")
         Expect.enter(connection, "q")
 
@@ -54,7 +65,7 @@ class RHUIManagerCds:
         Expect.enter(connection, "d")
         RHUIManager.select_one(connection, clustername)
         RHUIManager.select(connection, cdslist)
-        RHUIManager.proceed(connection)
+        RHUIManager.proceed_with_check(connection, "The following CDS instances from the Cluster1 cluster will be unregistered:", cdslist)
         RHUIManager.quit(connection)
 
     @staticmethod

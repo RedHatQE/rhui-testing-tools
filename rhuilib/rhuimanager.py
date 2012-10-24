@@ -48,7 +48,11 @@ class RHUIManager:
         selected = Expect.match(connection, re.compile(".*" + caption + "\r\n(.*)\r\nProceed\? \(y/n\).*", re.DOTALL))[0].split("\r\n")
         selected_clean = []
         for val in selected:
-            val = val.strip().replace("(","\(").replace(")","\)")
+            val = val.strip()
+            val = val.replace("\t"," ")
+            val = ' '.join(val.split())
+            val = val.replace("(","\(")
+            val = val.replace(")","\)")
             if val != "":
                 selected_clean.append(val)
         if sorted(selected_clean) != sorted(value_list):
