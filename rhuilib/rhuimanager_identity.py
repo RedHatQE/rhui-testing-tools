@@ -22,5 +22,5 @@ class RHUIManagerIdentity:
             Expect.enter(connection, cert_pw)
         else:
             Expect.enter(connection, Util.getCaPassword(connection))
-        Expect.expect(connection, "Successfully regenerated RHUI Identity certificate.*rhui \(identity\) =>")
+        Expect.expect(connection, "Successfully regenerated RHUI Identity certificate.*rhui \(identity\) =>", 30)
         Expect.enter(connection, "q")
