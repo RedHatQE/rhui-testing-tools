@@ -9,7 +9,7 @@ Scipts (scripts/, placed under /usr/bin in rpm):
     rhui-installer.py: RHUI installer (must be run on 'Master' node)
 
 RHUI tests (rhui-tests/, placed under /usr/share/rhui-testing-tools/rhui-tests in rpm):
-    rhui-workflow-simple.py: simple workflow (basic test)
+    test-rhui-workflow-simple.py: simple workflow (basic test)
 
 
 Basic usage:
@@ -33,4 +33,4 @@ Basic usage:
     ssh -i &lt;your-region-ssh-key&gt; &lt;master ip&gt;
 
 5) Run simple workflow
-    /usr/share/rhui-testing-tools/rhui-tests/rhui-workflow-simple.py
+    /usr/share/rhui-testing-tools/rhui-tests/test-rhui-workflow-simple.py [--cert your-rh-entitlement-certificate]

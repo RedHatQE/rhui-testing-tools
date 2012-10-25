@@ -11,7 +11,7 @@ BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:  noarch
 
 BuildRequires:	python-devel
-Requires:	python-paramiko
+Requires:	python-paramiko python-nose
 
 %description
 
