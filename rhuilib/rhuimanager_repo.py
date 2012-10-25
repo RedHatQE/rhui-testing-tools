@@ -1,3 +1,5 @@
+import re
+
 from rhuilib.expect import *
 from rhuilib.rhuimanager import *
 
@@ -106,7 +108,13 @@ class RHUIManagerRepo:
         Expect.expect(connection, "Import Repositories:.*to abort:", 30)
         Expect.enter(connection, "3")
         RHUIManager.select(connection, repolist)
-        RHUIManager.proceed_with_check(connection, "The following product repositories will be deployed:", repolist)
+        repocheck = list(repolist)
+        for repo in repolist:
+            #adding repo titles to check list
+            repotitle = re.sub(" \\\\\([^\(]*\\\\\)$", "", repo)
+            if not repotitle in repocheck:
+                repocheck.append(repotitle)
+        RHUIManager.proceed_with_check(connection, "The following product repositories will be deployed:", repocheck)
         Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
         Expect.enter(connection, "q")
 
