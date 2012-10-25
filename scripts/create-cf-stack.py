@@ -123,7 +123,7 @@ argparser.add_argument('--parameters', metavar='<expr>', nargs="*",
 argparser.add_argument('--region',
                        default="us-east-1", help='use specified region')
 argparser.add_argument('--timeout', type=int,
-                       default=5, help='stack creation timeout')
+                       default=10, help='stack creation timeout')
 args = argparser.parse_args()
 
 if args.debug:
