@@ -15,7 +15,7 @@ setup(name='rhuilib',
     data_files=[
              ('share/rhui-testing-tools/cfn', ['cfn/rhui_with_1cds_1cli.json']),
              ('share/rhui-testing-tools/testing-data', ['testing-data/private.key', 'testing-data/public.key']),
-             ('share/rhui-testing-tools/rhui-tests', ['rhui-tests/test-rhui-workflow-simple.py', 'rhui-tests/test-rhui-cds-management-screen.py']),
+             ('share/rhui-testing-tools/rhui-tests', ['rhui-tests/test-rhui-workflow-simple.py', 'rhui-tests/test-rhui-bug860117.py', 'rhui-tests/test-rhui-cds-management-screen.py']),
     ],
     classifiers=[
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
