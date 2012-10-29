@@ -62,10 +62,11 @@ class Util:
         Expect.enter(connection, "mkdir -p `dirname " + rpmpath + "`")
         Expect.expect(connection, "root@")
         connection.sftp.put(rpmpath, rpmpath)
-        Expect.enter(connection, "yum install " + rpmpath)
+        Expect.enter(connection, "yum install " + rpmpath + " && echo 'NO ERRORS'")
         Expect.expect(connection, "Is this ok \[y/N\]:")
         Expect.enter(connection, "y")
-        Expect.expect(connection, "Complete.*root@", 30)
+        # Check the result to address https://bugzilla.redhat.com/show_bug.cgi?id=617014
+        Expect.expect(connection, "NO ERRORS.*root@", 30)
 
     @staticmethod
     def getCaPassword(connection, pwdfile="/etc/rhui/pem/ca.pwd"):
