@@ -17,7 +17,8 @@ class RHUIsetup:
         Close all connections
         '''
         for instance in self.CDS + self.CLI + [self.RHUA]:
-            instance.channel.close()
+            instance.sftp.close()
+            instance.cli.close()
 
     def setRHUA(self, hostname, username="root", key_filename=None):
         '''
