@@ -65,7 +65,8 @@ class RHUIManagerCds:
         Expect.enter(connection, "d")
         RHUIManager.select_one(connection, clustername)
         RHUIManager.select(connection, cdslist)
-        RHUIManager.proceed_with_check(connection, "The following CDS instances from the Cluster1 cluster will be unregistered:", cdslist)
+        RHUIManager.proceed_with_check(connection, "The following CDS instances from the %s cluster will be unregistered:"
+                % clustername, cdslist)
         RHUIManager.quit(connection)
 
     @staticmethod
