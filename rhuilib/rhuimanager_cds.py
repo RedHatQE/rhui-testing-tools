@@ -103,7 +103,6 @@ class RHUIManagerCds:
         Expect.enter(connection, "l")
         pattern = re.compile('l(\r\n)+(.*)rhui\s* \(cds\)\s* =>',
                 re.DOTALL)
-
         ret = Expect.match(connection, pattern, grouplist=[2])[0]
         RHUIManager.quit(connection)
         return ret
