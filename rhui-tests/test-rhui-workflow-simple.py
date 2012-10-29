@@ -107,6 +107,7 @@ class test_simple_workflow:
 
     def test_19_change_password(self):
         RHUIManagerUsers.change_password(self.rs.RHUA, "admin", "admin2")
+        RHUIManagerUsers.change_password(self.rs.RHUA, "admin", "admin")
 
     def test_20_remove_cds(self):
         for cds in self.rs.CDS:
