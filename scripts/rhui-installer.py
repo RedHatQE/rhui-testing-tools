@@ -24,6 +24,14 @@ class Instance(SSHClient):
         self.set_missing_host_key_policy(AutoAddPolicy())
         self.connect(hostname=hostname, username="root")
         self.sftp = self.open_sftp()
+        self.ephemeral_device = None
+        for device in self.run_sync("ls -1 /dev/xvd*").strip().split('\n'):
+            # searching for the first unused block device
+            if self.run_sync("grep " + device + " /proc/mounts").strip() == "":
+                self.ephemeral_device = device
+                logger.debug("Using " + device + " as additional storage")
+                self.run_sync("mkfs.ext3 " + device, True)
+                break
 
     def __repr__(self):
         return (self.__class__.__name__ + ":" + self.hostname + ":" + self.public_ip + ":" + self.private_ip)
@@ -37,7 +45,7 @@ class Instance(SSHClient):
         logger.debug("STDERR: " + stderr.read())
         logger.debug("STATUS: " + str(status))
         if required and status != 0:
-            logger.debug("Command execution failed, exiting")
+            logger.error("Command " + command + " execution failed, exiting")
             sys.exit(1)
         stdin.close()
         stdout.close()
@@ -73,6 +81,13 @@ class RHUI_Instance(Instance):
         logger.debug("Setting up conf rpm name to " + name + " for " + self.hostname)
         self.confrpm = name
 
+    def ephemeral_mount(self, mountpoint):
+        if self.ephemeral_device:
+            self.run_sync("mkdir " + mountpoint + " ||:", True)
+            self.run_sync("chmod 755 " + mountpoint, True)
+            self.run_sync("mount " + self.ephemeral_device + " " + mountpoint, True)
+            self.run_sync("echo " + self.ephemeral_device + "\t" + mountpoint + "\text3\tdefaults\t0 0 >> /etc/fstab", True)
+
 
 class RHUA(RHUI_Instance):
     '''
@@ -83,8 +98,10 @@ class RHUA(RHUI_Instance):
         answersfile = tempfile.NamedTemporaryFile(delete=False)
         capassword = ''.join(random.choice(string.ascii_lowercase) for x in range(10))
         RHUI_Instance.setup(self)
+        self.ephemeral_mount("/var/lib/pulp")
         logger.debug("Running /mnt/install_RHUA.sh")
         self.run_sync("cd /mnt && ./install_RHUA.sh", True)
+        self.run_sync("chown apache.apache /var/lib/pulp", True)
         self.run_sync("mkdir /etc/rhui/pem ||:", True)
         self.run_sync("mkdir /etc/rhui/confrpm ||:", True)
         # Creating CA
@@ -140,7 +157,9 @@ class CDS(RHUI_Instance):
     def setup(self, rhua):
         logger.info("Setting up CDS instance " + self.hostname + " associated with RHUA " + rhua.hostname)
         RHUI_Instance.setup(self)
+        self.ephemeral_mount("/var/lib/pulp-cds")
         self.run_sync("cd /mnt && ./install_CDS.sh", True)
+        self.run_sync("chown apache.apache /var/lib/pulp-cds", True)
         rpmfile = tempfile.NamedTemporaryFile(delete=False)
         rpmfile.close()
         logger.debug("will transfer " + self.confrpm + " from RHUA to " + rpmfile.name)
