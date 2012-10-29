@@ -47,11 +47,8 @@ class Util:
         '''
         Expect.enter(connection, "")
         Expect.expect(connection, "root@")
-        Expect.enter(connection, "yum remove `rpm -qf --queryformat %{NAME} /etc/yum/pluginconf.d/rhui-lb.conf`")
-        if Expect.expect_list(connection, [(re.compile(".*Is this ok \[y/N\]:.*", re.DOTALL), True),
-                             (re.compile(".*Error: Need to pass a list of pkgs to remove.*root@.*", re.DOTALL), False)], 35) == True:
-            Expect.enter(connection, "y")
-            Expect.expect(connection, "Complete.*root@", 30)
+        Expect.enter(connection, "rpm -e `rpm -qf --queryformat %{NAME} /etc/yum/pluginconf.d/rhui-lb.conf` && echo SUCCESS")
+        Expect.expect(connection, "[^ ]SUCCESS.*root@", 30)
 
     @staticmethod
     def install_rpm_from_master(connection, rpmpath):
