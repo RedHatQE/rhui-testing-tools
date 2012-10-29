@@ -40,7 +40,7 @@ class test_178434(object):
         nose.tools.ok_(match is not None)
 
 if __name__ == "__main__":
-    nose.run(defaultTest=__name__, argv=[__file__, '-v', '--with-outputsave'])
+    nose.run(defaultTest=__name__, argv=[__file__, '-v'])
 
 
 
