@@ -92,3 +92,15 @@ class RHUIManagerCds:
         RHUIManager.select(connection, repolist)
         RHUIManager.proceed_with_check(connection, "The following repositories will be unassociated from the " + clustername + " cluster:", repolist, ["Red Hat Repositories", "Custom Repositories"])
         RHUIManager.quit(connection)
+
+    @staticmethod
+    def list(connection):
+        '''
+        return the list currently managed CDSes and clusters as it is provided
+        by the cds list command
+        '''
+        RHUIManager.screen(connection, "cds")
+        Expect.enter(connection, "l")
+        pattern = re.compile('l(\r\n)+(.*)rhui\s* \(cds\)\s* =>',
+                re.DOTALL)
+        return Expect.match(connection, pattern, grouplist=[2])[0]
