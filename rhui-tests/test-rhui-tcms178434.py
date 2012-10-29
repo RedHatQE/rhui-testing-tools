@@ -32,16 +32,13 @@ class test_178434(object):
         nose.tools.ok_(match is not None)
     def test_05_assert_pulp(self):
         """[test] assert no CDSes are dumped by pulp-admin cds list"""
-        Expect.enter(self.rs.RHUA, 'pulp-admin -u admin -p admin cds list')
-        pattern = re.compile(".*pulp-admin -u admin -p admin cds list\r\n\+-+\+\r\n\s*CDS Instances\s*\r\n\+-+\+(\r\n)+(.*)\[.*@.*\][\$#]", re.DOTALL)
-        result = Expect.match(self.rs.RHUA, pattern, grouplist=[2])[0]
+        from rhuilib.pulp_admin import PulpAdmin
+        pulp_admin = PulpAdmin(self.rs.RHUA)
+        result = pulp_admin.cds_list()
         pattern = re.compile("^(\r\n)*$", re.DOTALL)
         match = pattern.match(result)
         nose.tools.ok_(match is not None)
 
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])
-
-
-
 
