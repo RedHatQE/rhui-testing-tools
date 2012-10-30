@@ -15,7 +15,7 @@ from rhuilib.rhuimanager_identity import *
 from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
-cds_screen_items= \
+cds_screen_items = \
     """.*l\s* list all CDS clusters and instances managed by the RHUI\s*\r\n\s*i\s* display detailed information on a CDS cluster\s*\r\n\s*a\s* register \(add\) a new CDS instance\s*\r\n\s*m\s* move CDS\(s\) to a different cluster\s*\r\n\s*d\s* unregister \(delete\) a CDS instance from the RHUI\s*\r\n\s*s\s* associate a repository with a CDS cluster\s*\r\n\s*u\s* unassociate a repository from a CDS cluster\s*\r\n.*=> """
 
 argparser = argparse.ArgumentParser(description='RHUI CDS Management Screen')

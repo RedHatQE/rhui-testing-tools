@@ -31,7 +31,7 @@ class RHUIManager:
     def quit(connection, prefix="", timeout=5):
         '''
         Quit from rhui-manager
-        
+
         Use @param prefix to specify something to expect before exiting
         Use @param timeout to specify the timeout
         '''
@@ -57,10 +57,10 @@ class RHUIManager:
         selected_clean = []
         for val in selected:
             val = val.strip()
-            val = val.replace("\t"," ")
+            val = val.replace("\t", " ")
             val = ' '.join(val.split())
-            val = val.replace("(","\(")
-            val = val.replace(")","\)")
+            val = val.replace("(", "\(")
+            val = val.replace(")", "\)")
             if val != "" and not val in skip_list:
                 selected_clean.append(val)
         if sorted(selected_clean) != sorted(value_list):
@@ -68,7 +68,6 @@ class RHUIManager:
             logging.debug("Expected: " + str(value_list))
             raise ExpectFailed()
         Expect.enter(connection, "y")
-
 
     @staticmethod
     def screen(connection, screen_name):

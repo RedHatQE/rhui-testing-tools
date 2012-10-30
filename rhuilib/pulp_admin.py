@@ -1,6 +1,6 @@
-
 import re
 from rhuilib.expect import Expect, ExpectFailed
+
 
 class PulpAdmin(object):
     """pulp-admin handler"""
@@ -8,9 +8,11 @@ class PulpAdmin(object):
         self.connection = connection
         self.username = username
         self.password = password
+
     def command(self, *args):
         return "pulp-admin -u %s -p %s " % (self.username, self.password) + \
             " ".join([str(x) for x in args])
+
     def cds_list(self):
         """returns the output of pulp-admin cds list; header stripped off"""
         cmd = self.command("cds", "list")

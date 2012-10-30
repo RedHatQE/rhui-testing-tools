@@ -15,6 +15,7 @@ from rhuilib.rhuimanager_identity import *
 from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
+
 class test_simple_workflow:
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI simple workflow')
@@ -24,7 +25,7 @@ class test_simple_workflow:
         self.cert = args.cert
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
-        
+
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
@@ -68,7 +69,7 @@ class test_simple_workflow:
         ##it's impossible to do cluster sync and individual cds sync at the same moment
         ##RHUIManagerSync.sync_cluster(self.rs.RHUA,["Cluster1"])
         pass
-    
+
     def test_09_upload_content_cert(self):
         ''' Upload RH content certificate '''
         if not self.cert:
@@ -137,6 +138,7 @@ class test_simple_workflow:
     def test_21_delete_custom_repo(self):
         ''' Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1", "repo2"])
+
 
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])

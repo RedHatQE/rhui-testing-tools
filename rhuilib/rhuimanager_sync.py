@@ -56,7 +56,7 @@ class RHUIManagerSync:
         '''
         RHUIManager.screen(connection, "sync")
         Expect.enter(connection, "sr")
-        Expect.expect(connection,"Select one or more repositories.*for more commands:", 60)
+        Expect.expect(connection, "Select one or more repositories.*for more commands:", 60)
         Expect.enter(connection, "l")
         RHUIManager.select(connection, repolist)
         RHUIManager.proceed_with_check(connection, "The following repositories will be scheduled for synchronization:", repolist)

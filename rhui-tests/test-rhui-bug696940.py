@@ -14,13 +14,14 @@ from rhuilib.rhuimanager_identity import *
 from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
+
 class test_bug_696940:
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI bug 696940')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
-        
+
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)

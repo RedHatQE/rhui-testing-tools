@@ -14,13 +14,14 @@ from rhuilib.rhuimanager_identity import *
 from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
+
 class test_tcms_178476:
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI TCMS testcase test-rhui-178476')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
-        
+
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
@@ -50,7 +51,7 @@ class test_tcms_178476:
 
     def test_07_sync_cluster(self):
         ''' Sync cluster '''
-        RHUIManagerSync.sync_cluster(self.rs.RHUA,["Cluster1"])
+        RHUIManagerSync.sync_cluster(self.rs.RHUA, ["Cluster1"])
 
     def test_08_generate_ent_cert(self):
         ''' Generate entitlement certificate '''

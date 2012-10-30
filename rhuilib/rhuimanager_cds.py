@@ -122,7 +122,7 @@ class RHUIManagerCds:
             if not ok:
                 raise err
             Expect.enter(connection, "1")
-            pattern = re.compile( ".*Enter a (new\s*)? CDS cluster name:\r\n", re.DOTALL)
+            pattern = re.compile(".*Enter a (new\s*)? CDS cluster name:\r\n", re.DOTALL)
             Expect.expect_list(connection, [(pattern, 0)])
             Expect.enter(connection, clustername)
 

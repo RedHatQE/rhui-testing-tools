@@ -9,6 +9,7 @@ from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_repo import *
 
+
 class test_bug_867803:
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI bug 867803')
