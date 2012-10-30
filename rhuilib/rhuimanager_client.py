@@ -31,7 +31,7 @@ class RHUIManagerClient:
         RHUIManager.quit(connection)
 
     @staticmethod
-    def create_conf_rpm(connection, clustername, primary_cds, dirname, certpath, certkey, rpmname, rpmversion=""):
+    def create_conf_rpm(connection, clustername, primary_cds, dirname, certpath, certkey, rpmname, rpmversion="", unprotected_repos=None):
         '''
         create a client configuration RPM from an entitlement certificate
         '''
@@ -49,4 +49,6 @@ class RHUIManagerClient:
         Expect.enter(connection, certkey)
         RHUIManager.select_one(connection, clustername)
         RHUIManager.select_one(connection, primary_cds)
-        RHUIManager.quit(connection)
+        if unprotected_repos:
+            RHUIManager.select(connection, unprotected_repos)
+        RHUIManager.quit(connection, "Successfully created client configuration RPM")
