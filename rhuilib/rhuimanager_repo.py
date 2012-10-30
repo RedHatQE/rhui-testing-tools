@@ -68,8 +68,7 @@ class RHUIManagerRepo:
             checklist.append("Red Hat GPG Key: No")
 
         RHUIManager.proceed_with_check(connection, "The following repository will be created:", checklist)
-        Expect.expect(connection, "Successfully created repository.*rhui \(repo\) =>")
-        Expect.enter(connection, "q")
+        RHUIManager.quit(connection, "Successfully created repository")
 
     @staticmethod
     def add_rh_repo_all(connection):
@@ -81,8 +80,7 @@ class RHUIManagerRepo:
         Expect.expect(connection, "Import Repositories:.*to abort:", 30)
         Expect.enter(connection, "1")
         RHUIManager.proceed_without_check(connection)
-        Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
-        Expect.enter(connection, "q")
+        RHUIManager.quit(connection, "Content will not be downloaded", 30)
 
     @staticmethod
     def add_rh_repo_by_product(connection, productlist):
@@ -95,8 +93,7 @@ class RHUIManagerRepo:
         Expect.enter(connection, "2")
         RHUIManager.select(connection, productlist)
         RHUIManager.proceed_with_check(connection, "The following products will be deployed:", productlist)
-        Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
-        Expect.enter(connection, "q")
+        RHUIManager.quit(connection, "Content will not be downloaded", 30)
 
     @staticmethod
     def add_rh_repo_by_repo(connection, repolist):
@@ -115,8 +112,7 @@ class RHUIManagerRepo:
             if not repotitle in repocheck:
                 repocheck.append(repotitle)
         RHUIManager.proceed_with_check(connection, "The following product repositories will be deployed:", repocheck)
-        Expect.expect(connection, "Content will not be downloaded.*rhui \(repo\) =>", 30)
-        Expect.enter(connection, "q")
+        RHUIManager.quit(connection, "Content will not be downloaded", 30)
 
     @staticmethod
     def delete_repo(connection, repolist):
@@ -152,5 +148,4 @@ class RHUIManagerRepo:
         RHUIManager.select_one(connection, reponame)
         Expect.expect(connection, "\(blank line for no filter\):")
         Expect.enter(connection, package)
-        Expect.expect(connection, "Packages:.*rhui \(repo\) =>")
-        Expect.enter(connection, "q")
+        RHUIManager.quit(connection, "Packages:")

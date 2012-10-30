@@ -19,5 +19,4 @@ class RHUIManagerUsers:
         Expect.enter(connection, password)
         Expect.expect(connection, "Re-enter Password:")
         Expect.enter(connection, password)
-        Expect.expect(connection, "Password successfully updated.*rhui \(users\) =>")
-        Expect.enter(connection, "q")
+        RHUIManager.quit(connection, "Password successfully updated")

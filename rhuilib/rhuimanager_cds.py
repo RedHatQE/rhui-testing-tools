@@ -53,8 +53,7 @@ class RHUIManagerCds:
             checklist.append("Name: " + cdsname)
         checklist.append("Cluster: " + clustername)
         RHUIManager.proceed_with_check(connection, "The following CDS instance will be registered:", checklist)
-        Expect.expect(connection, "Successfully registered.*rhui \(cds\) =>.*")
-        Expect.enter(connection, "q")
+        RHUIManager.quit(connection, "Successfully registered")
 
     @staticmethod
     def delete_cds(connection, clustername, cdslist):
