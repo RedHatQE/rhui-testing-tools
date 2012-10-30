@@ -17,6 +17,7 @@ class test_bug_867803:
         self.rs.setup_from_rolesfile()
 
     def test_01_rhui_debug(self):
+        ''' Check rhui-debug behaivour '''
         Expect.enter(self.rs.RHUA, "")
         Expect.expect(self.rs.RHUA, "root@")
         Expect.enter(self.rs.RHUA, "python /usr/share/rh-rhua/rhui-debug.py | grep '/var/log/httpd/' | wc -l")
