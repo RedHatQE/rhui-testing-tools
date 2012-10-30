@@ -53,7 +53,7 @@ class test_tcms_178476:
         RHUIManagerSync.sync_cluster(self.rs.RHUA,["Cluster1"])
 
     def test_08_generate_ent_cert(self):
-        ''' Generate rntitlement rpm '''
+        ''' Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["repo1"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
     def test_09_create_conf_rpm(self):
