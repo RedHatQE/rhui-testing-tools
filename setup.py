@@ -15,7 +15,7 @@ setup(name='rhuilib',
         ],
     data_files=[
              ('share/rhui-testing-tools/cfn', glob.glob('cfn/*.json')),
-             ('share/rhui-testing-tools/testing-data', ['testing-data/private.key', 'testing-data/public.key']),
+             ('share/rhui-testing-tools/testing-data', glob.glob('testing-data/*.key') + glob.glob('testing-data/*.rpm')),
              ('share/rhui-testing-tools/rhui-tests', glob.glob('rhui-tests/*.py')),
     ],
     classifiers=[
