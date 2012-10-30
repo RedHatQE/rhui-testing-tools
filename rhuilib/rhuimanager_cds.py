@@ -101,10 +101,12 @@ class RHUIManagerCds:
         '''
         RHUIManager.screen(connection, "cds")
         Expect.enter(connection, "l")
+        # eating prompt!!
         pattern = re.compile('l(\r\n)+(.*)rhui\s* \(cds\)\s* =>',
                 re.DOTALL)
         ret = Expect.match(connection, pattern, grouplist=[2])[0]
-        RHUIManager.quit(connection)
+        # custom quitting; have eaten the prompt
+        Expect.enter(connection, 'q')
         return ret
 
     @staticmethod
@@ -137,8 +139,11 @@ class RHUIManagerCds:
         RHUIManager.proceed_with_check(connection,
                 "The following Content Delivery Servers will be moved to the %s cluster:\r\n.*-+" % clustername,
                 cdses)
-        pattern = re.compile("(.*)", re.DOTALL)
+        # eating prompt!!
+        pattern = re.compile("(.*)\r\nrhui \(cds\) =>", re.DOTALL)
         result = Expect.match(connection, pattern)[0]
         if re.match("Error", result):
             raise ExpectFailed("moving %s to %s" % (cdses, clustername))
-        RHUIManager.quit(connection)
+
+        # prompt eaten: custom quit
+        Expect.enter(connection, "q")
