@@ -28,11 +28,13 @@ class RHUIManager:
         Expect.enter(connection, match[0])
 
     @staticmethod
-    def quit(connection):
+    def quit(connection, prefix):
         '''
         Quit from rhui-manager
+        
+        Use @param prefix to specify something to expect before exiting
         '''
-        Expect.expect(connection, "rhui \(.*\) =>")
+        Expect.expect(connection, prefix + ".*rhui \(.*\) =>")
         Expect.enter(connection, "q")
 
     @staticmethod
