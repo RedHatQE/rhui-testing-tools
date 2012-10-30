@@ -41,7 +41,7 @@ class test_bug_860117:
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo6")
 
     def test_04_associate_repo_cds(self):
-        ''' Associate custom repos with Cluster1 '''
+        ''' Associate custom repos with cluster '''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1", "repo3", "repo6"])
 
     def test_05_generate_ent_cert(self):
