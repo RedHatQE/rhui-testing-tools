@@ -38,7 +38,7 @@ class test_178439(object):
         # NOTE: this expression _really_ checks that the cds is the first
         # record of a particular cluster; see [1]
         pattern = re.compile(
-                ".*%s\s*\n\s*-+\s*\n\s*Content Delivery? Servers\s*\n\s*-+\s*%s.*" % \
+                ".*%s\s*\n\s*-+\s*\n\s*Content Delivery Servers\s*\n\s*-+\s*%s.*" % \
                 (self.cluster_b, self.rs.CDS[0].hostname), re.DOTALL)
         match = pattern.match(result)
         nose.tools.ok_(match is not None)
