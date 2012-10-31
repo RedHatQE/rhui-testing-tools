@@ -1,3 +1,4 @@
+import os
 import tempfile
 import time
 
@@ -88,3 +89,15 @@ class Util:
         if password[-1:] == '\n':
             password = password[:-1]
         return password
+
+    @staticmethod
+    def get_rpm_details(rpmpath):
+        '''
+        Get (name-version-release, name) pair for local rpm file
+        '''
+        if rpmpath:
+            rpmnvr = os.popen("basename " + rpmpath).read()[:-1]
+            rpmname = os.popen("rpm -qp --queryformat '%{NAME}\n' " + rpmpath + " 2>/dev/null").read()[:-1]
+            return (rpmnvr, rpmname)
+        else:
+            return (None, None)
