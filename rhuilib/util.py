@@ -48,7 +48,7 @@ class Util:
         Expect.enter(connection, "")
         Expect.expect(connection, "root@")
         Expect.enter(connection, "rpm -e `rpm -qf --queryformat %{NAME} /etc/yum/pluginconf.d/rhui-lb.conf` && echo SUCCESS")
-        Expect.expect(connection, "[^ ]SUCCESS.*root@", 30)
+        Expect.expect(connection, "[^ ]SUCCESS.*root@", 60)
 
     @staticmethod
     def install_rpm_from_master(connection, rpmpath):
@@ -63,7 +63,7 @@ class Util:
         Expect.expect(connection, "Is this ok \[y/N\]:")
         Expect.enter(connection, "y")
         # Check the result to address https://bugzilla.redhat.com/show_bug.cgi?id=617014
-        Expect.expect(connection, "NO ERRORS.*root@", 30)
+        Expect.expect(connection, "NO ERRORS.*root@", 60)
 
     @staticmethod
     def getCaPassword(connection, pwdfile="/etc/rhui/pem/ca.pwd"):
