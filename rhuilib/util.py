@@ -47,7 +47,7 @@ class Util:
         '''
         Expect.enter(connection, "")
         Expect.expect(connection, "root@")
-        Expect.enter(connection, "rpm -e `rpm -qf --queryformat %{NAME} /etc/yum/pluginconf.d/rhui-lb.conf` && echo SUCCESS")
+        Expect.enter(connection, "([ ! -f /etc/yum/pluginconf.d/rhui-lb.conf ] && echo SUCCESS ) || (rpm -e `rpm -qf --queryformat %{NAME} /etc/yum/pluginconf.d/rhui-lb.conf` && echo SUCCESS)")
         Expect.expect(connection, "[^ ]SUCCESS.*root@", 60)
 
     @staticmethod
