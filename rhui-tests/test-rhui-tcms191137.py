@@ -174,6 +174,9 @@ class test_tcms_191137(object):
         ''' Delete RH repo '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
+    def test_26_delete_rh_cert(self):
+        RHUIManager.remove_rh_certs(self.rs.RHUA)
+
 
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])
