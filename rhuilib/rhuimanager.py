@@ -112,3 +112,11 @@ class RHUIManager:
         else:
             # initial step was already performed by someone
             Expect.enter(connection, "q")
+
+    @staticmethod
+    def remove_rh_certs(connection):
+        '''
+        Remove all RH certificates from RHUI
+        '''
+        Expect.enter(connection, "find /etc/pki/rhui/redhat/ -name '*.pem' -delete")
+        Expect.expect(connection, "root@")
