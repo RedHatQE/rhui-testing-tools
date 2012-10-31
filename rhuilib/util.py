@@ -9,6 +9,14 @@ class Util:
     Utility functions for instances
     '''
     @staticmethod
+    def uncolorify(instr):
+        res = instr.replace("\x1b", "")
+        res = res.replace("[92m", "")
+        res = res.replace("[93m", "")
+        res = res.replace("[0m", "")
+        return res
+
+    @staticmethod
     def generate_gpg_key(connection, keytype="DSA", keysize="1024", keyvalid="0", realname="Key Owner", email="kowner@example.com", comment="comment"):
         '''
         Generate GPG keypair
