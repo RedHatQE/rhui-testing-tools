@@ -37,16 +37,13 @@ class RHUIManagerSync:
         '''
         RHUIManager.screen(connection, "sync")
         Expect.enter(connection, "dc")
-        res_list = Expect.match(connection, re.compile(".*" + cdsname.replace(".", "\.") + "[\.\s]*\[([^\n]*)\].*" + cdsname.replace(".", "\.") + "\s*\r\n[\s0-9\-:]+([^\n]*)\r\n", re.DOTALL), [1, 2])
-        connection.channel.close()
-        connection.channel = connection.cli.invoke_shell()
+        res_list = Expect.match(connection, re.compile(".*\n" + cdsname.replace(".", "\.") + "[\.\s]*\[([^\n]*)\].*" + cdsname.replace(".", "\.") + "\s*\r\n([^\n]*)\r\n", re.DOTALL), [1, 2])
+        connection.cli.exec_command("killall -s SIGINT rhui-manager")
         ret_list = []
-        for val in res_list:
-            val = val.replace("\x1b", "")
-            val = val.replace("[92m", "")
-            val = val.replace("[0m", "")
-            val = val.replace(" ", "")
+        for val in [res_list[0]] + res_list[1].split("             "):
+            val = Util.uncolorify(val.strip())
             ret_list.append(val)
+        RHUIManager.quit(connection)
         return ret_list
 
     @staticmethod
@@ -61,3 +58,20 @@ class RHUIManagerSync:
         RHUIManager.select(connection, repolist)
         RHUIManager.proceed_with_check(connection, "The following repositories will be scheduled for synchronization:", repolist)
         RHUIManager.quit(connection)
+
+    @staticmethod
+    def get_repo_status(connection, reponame):
+        '''
+        display repo sync summary
+        '''
+        RHUIManager.screen(connection, "sync")
+        Expect.enter(connection, "dr")
+        reponame_quoted = reponame.replace(".", "\.")
+        res = Expect.match(connection, re.compile(".*" + reponame_quoted + "\s*\r\n([^\n]*)\r\n.*", re.DOTALL))[0]
+        connection.cli.exec_command("killall -s SIGINT rhui-manager")
+        res = Util.uncolorify(res)
+        ret_list = res.split("             ")
+        for i in range(len(ret_list)):
+            ret_list[i] = ret_list[i].strip()
+        RHUIManager.quit(connection)
+        return ret_list
