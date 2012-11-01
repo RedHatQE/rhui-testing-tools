@@ -10,8 +10,6 @@ from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
-from rhuilib.rhuimanager_identity import *
-from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
 
@@ -21,6 +19,8 @@ class test_bug_860117:
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
+        if len(self.rs.CDS)<2:
+            raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''
@@ -28,7 +28,6 @@ class test_bug_860117:
 
     def test_02_add_cds(self):
         ''' Add cdses '''
-        nose.tools.assert_equal(len(self.rs.CDS), 2)
         RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
         RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].hostname)
 
