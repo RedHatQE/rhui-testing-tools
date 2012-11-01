@@ -13,12 +13,9 @@ from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
-from rhuilib.rhuimanager_identity import *
-from rhuilib.rhuimanager_users import *
-from rhuilib.rhuimanager_entitlements import *
 
 
-class test_tcms_191046:
+class test_tcms_191046(object):
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI TCMS testcase test-rhui-191046')
         argparser.add_argument('--rhrpm',
@@ -27,16 +24,10 @@ class test_tcms_191046:
         self.rhrpm = args.rhrpm
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
-        if self.rhrpm:
-            self.rhrpmnvr = os.popen("basename " + self.rhrpm).read()[:-1]
-            logging.debug("RHRPMNVR: " + self.rhrpmnvr)
-            self.rs.RHUA.sftp.put(self.rhrpm, "/root/" + self.rhrpmnvr)
-            Expect.enter(self. rs.RHUA, "rpm -qp --queryformat '###%{NAME}###' /root/" + self.rhrpmnvr)
-            self.rhrpmname = Expect.match(self.rs.RHUA, re.compile(".*###([^\n]*)###.*", re.DOTALL))[0]
-            logging.debug("RHRPMNAME: " + self.rhrpmnvr)
-        else:
-            self.rhrpmname = None
-                                   
+        (self.rhrpmnvr, self.rhrpmname) = Util.get_rpm_details(self.rhrpm)
+
+    def __del__(self):
+        self.rs.__del__()
 
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''
@@ -64,6 +55,7 @@ class test_tcms_191046:
         ''' Upload rh rpm to custom repo '''
         if not self.rhrpm:
             raise nose.exc.SkipTest("can't test without RH rpm")
+        self.rs.RHUA.sftp.put(self.rhrpm, "/root/" + self.rhrpmnvr)
         RHUIManagerRepo.upload_content(self.rs.RHUA, ["repo1"], "/root/" + self.rhrpmnvr)
 
     def test_07_upload_signed_rpm(self):

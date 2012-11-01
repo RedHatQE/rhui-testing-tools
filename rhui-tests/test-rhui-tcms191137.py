@@ -33,15 +33,7 @@ class test_tcms_191137(object):
         self.rhrpm = args.rhrpm
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
-        if self.rhrpm:
-            self.rhrpmnvr = os.popen("basename " + self.rhrpm).read()[:-1]
-            logging.debug("RHRPMNVR: " + self.rhrpmnvr)
-            self.rs.RHUA.sftp.put(self.rhrpm, "/root/" + self.rhrpmnvr)
-            Expect.enter(self. rs.RHUA, "rpm -qp --queryformat '###%{NAME}###' /root/" + self.rhrpmnvr)
-            self.rhrpmname = Expect.match(self.rs.RHUA, re.compile(".*###([^\n]*)###.*", re.DOTALL))[0]
-            logging.debug("RHRPMNAME: " + self.rhrpmnvr)
-        else:
-            self.rhrpmname = None
+        (self.rhrpmnvr, self.rhrpmname) = Util.get_rpm_details(self.rhrpm)
 
     def __del__(self):
         self.rs.__del__()
@@ -80,6 +72,7 @@ class test_tcms_191137(object):
         ''' Upload rh rpm to custom repo '''
         if not self.rhrpm:
             raise nose.exc.SkipTest("can't test without RH rpm")
+        self.rs.RHUA.sftp.put(self.rhrpm, "/root/" + self.rhrpmnvr)
         RHUIManagerRepo.upload_content(self.rs.RHUA, ["repo1"], "/root/" + self.rhrpmnvr)
 
     def test_09_upload_signed_rpm(self):
