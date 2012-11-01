@@ -21,5 +21,5 @@ class RHUIManagerIdentity:
         if cert_pw:
             Expect.enter(connection, cert_pw)
         else:
-            Expect.enter(connection, Util.getCaPassword(connection))
+            Expect.enter(connection, Util.get_ca_password(connection))
         RHUIManager.quit(connection, "Successfully regenerated RHUI Identity certificate", 30)

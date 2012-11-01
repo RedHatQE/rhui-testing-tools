@@ -75,7 +75,7 @@ class Util:
         Expect.expect(connection, "NO ERRORS.*root@", 60)
 
     @staticmethod
-    def getCaPassword(connection, pwdfile="/etc/rhui/pem/ca.pwd"):
+    def get_ca_password(connection, pwdfile="/etc/rhui/pem/ca.pwd"):
         '''
         Read CA password from file
         @param pwdfile: file with the password (defaults to /etc/rhui/pem/ca.pwd)

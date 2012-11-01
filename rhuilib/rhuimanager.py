@@ -103,7 +103,7 @@ class RHUIManager:
             if cert_pw:
                 Expect.enter(connection, cert_pw)
             else:
-                Expect.enter(connection, Util.getCaPassword(connection))
+                Expect.enter(connection, Util.get_ca_password(connection))
             Expect.expect(connection, "RHUI Username:")
             Expect.enter(connection, username)
             Expect.expect(connection, "RHUI Password:")
