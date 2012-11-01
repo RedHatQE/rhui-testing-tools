@@ -2,9 +2,6 @@
 
 import argparse
 import nose
-import re
-import os
-import logging
 import time
 
 from rhuilib.util import *
@@ -14,8 +11,6 @@ from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
-from rhuilib.rhuimanager_identity import *
-from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
 
@@ -60,7 +55,7 @@ class test_tcms_191137(object):
         ''' Upload RH content certificate '''
         RHUIManagerEntitlements.upload_content_cert(self.rs.RHUA, self.cert)
 
-    def test_06_add_rh_repo_by_product(self):
+    def test_06_add_rh_repo_by_repo(self):
         ''' Add rh repo '''
         RHUIManagerRepo.add_rh_repo_by_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
@@ -168,6 +163,7 @@ class test_tcms_191137(object):
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
     def test_26_delete_rh_cert(self):
+        ''' Remove RH certs from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.RHUA)
 
 
