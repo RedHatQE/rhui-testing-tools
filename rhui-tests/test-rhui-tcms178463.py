@@ -16,11 +16,12 @@ from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
 
-class test_178463(object):
+class test_tcms_178463(object):
     cluster="cluster"
     repo="repo"
+
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='test un-associating a custom repository from a CDS cluster')
+        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178463: test un-associating a custom repository from a CDS cluster')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()

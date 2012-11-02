@@ -11,12 +11,12 @@ from rhuilib.rhuimanager_cds import *
 from rhuilib.pulp_admin import PulpAdmin
 
 
-class test_178439(object):
+class test_tcms_178439(object):
     cluster_a = "cluster_a"
     cluster_b = "cluster_b"
 
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='178439: Move a CDS belonging to a Single-node Cluster')
+        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178439: Move a CDS belonging to a Single-node Cluster')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
