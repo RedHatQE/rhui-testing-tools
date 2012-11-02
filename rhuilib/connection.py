@@ -15,3 +15,11 @@ class Connection():
         self.channel = self.cli.invoke_shell()
         self.sftp = self.cli.open_sftp()
         self.channel.setblocking(0)
+    def exec_command(self, command, bufsize=-1):
+        '''
+        execute a command in the connection
+        @param command:  a string command to execute
+        @param bufsize:  paramiko bufsize option
+        @return (stdin, stdout, stderr)
+        '''
+        return self.cli.exec_command(command, bufsize)
