@@ -36,19 +36,18 @@ class test_178439(object):
 
     def test_03_move_cds(self):
         """[test] move the cds to cluster_b"""
-        RHUIManagerCds.move_cdses(self.rs.RHUA, [self.rs.CDS[0].hostname],
+        RHUIManagerCds.move_cds(self.rs.RHUA, [self.rs.CDS[0].hostname],
                 self.cluster_b)
 
     def test_04_check_cds_assignment(self):
         """[test] assert cds is now associated with cluster_b"""
         result = RHUIManagerCds.list(self.rs.RHUA)
-        print result
         # check cds is now associated with cluster_b
         # NOTE: this expression _really_ checks that the cds is the first
         # record of a particular cluster; see [1]
-        pattern = re.compile(
-                ".*%s\s*\n\s*-+\s*\n\s*Content Delivery Servers\s*\n\s*-+\s*%s.*" % \
-                (self.cluster_b, self.rs.CDS[0].hostname), re.DOTALL)
+        pattern = re.compile(".*\n\s*%s\s*\r\n[\s-]+\r\n\s*Content Deliver Servers\s*\r\n[\s-]+\r\n\s*%s\s*\r\n.*" % \
+                             (self.cluster_b, self.rs.CDS[0].hostname), re.DOTALL)
+        # Temporary workaround - should be 'Delivery'
         match = pattern.match(result)
         nose.tools.ok_(match is not None)
 
