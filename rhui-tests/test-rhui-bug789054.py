@@ -10,12 +10,15 @@ from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_repo import *
 
 
-class test_bug_789054:
+class test_bug_789054(object):
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI bug 789054')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
+
+    def __del__(self):
+        self.rs.__del__()
 
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''

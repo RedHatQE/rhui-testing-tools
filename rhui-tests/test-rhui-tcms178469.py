@@ -18,6 +18,8 @@ class test_bug_tcms178469(object):
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
+        if len(self.rs.CDS) < 2:
+            raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 
     def __del__(self):
         self.rs.__del__()
@@ -37,7 +39,6 @@ class test_bug_tcms178469(object):
 
     def test_02_add_cds(self):
         ''' Add cdses '''
-        nose.tools.assert_equal(len(self.rs.CDS), 2)
         RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
         RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].hostname)
 

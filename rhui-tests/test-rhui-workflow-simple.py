@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import logging
 import argparse
 import nose
 
@@ -16,7 +15,7 @@ from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
 
-class test_simple_workflow:
+class test_simple_workflow(object):
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI simple workflow')
         argparser.add_argument('--cert',
@@ -25,6 +24,9 @@ class test_simple_workflow:
         self.cert = args.cert
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
+
+    def __del__(self):
+        self.rs.__del__()
 
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''

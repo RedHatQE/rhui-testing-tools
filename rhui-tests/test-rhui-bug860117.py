@@ -9,18 +9,19 @@ from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
-from rhuilib.rhuimanager_sync import *
-from rhuilib.rhuimanager_entitlements import *
 
 
-class test_bug_860117:
+class test_bug_860117(object):
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI bug 860117')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
-        if len(self.rs.CDS)<2:
+        if len(self.rs.CDS) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
+
+    def __del__(self):
+        self.rs.__del__()
 
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''

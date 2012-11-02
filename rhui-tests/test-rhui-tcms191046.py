@@ -2,9 +2,6 @@
 
 import argparse
 import nose
-import re
-import os
-import logging
 
 from rhuilib.util import *
 from rhuilib.rhuisetup import *

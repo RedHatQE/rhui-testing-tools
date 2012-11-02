@@ -6,7 +6,6 @@ import nose
 from rhuilib.expect import *
 from rhuilib.rhuisetup import *
 from rhuilib.rhuimanager import *
-from rhuilib.rhuimanager_cds import *
 
 
 class test_tcms_54561(object):
@@ -15,6 +14,9 @@ class test_tcms_54561(object):
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
+
+    def __del__(self):
+        self.rs.__del__()
 
     def test_01_check_selinux(self):
         """checking selinux on RHUA and CDS instances"""

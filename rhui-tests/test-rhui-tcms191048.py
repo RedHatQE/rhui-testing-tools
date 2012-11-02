@@ -2,9 +2,6 @@
 
 import argparse
 import nose
-import re
-import os
-import logging
 
 from rhuilib.util import *
 from rhuilib.rhuisetup import *
@@ -16,7 +13,7 @@ from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_entitlements import *
 
 
-class test_tcms_191048:
+class test_tcms_191048(object):
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI TCMS testcase test-rhui-191048')
         argparser.add_argument('--rhrpm',
@@ -26,6 +23,9 @@ class test_tcms_191048:
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
         (self.rhrpmnvr, self.rhrpmname) = Util.get_rpm_details(self.rhrpm)
+
+    def __del__(self):
+        self.rs.__del__()
 
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''

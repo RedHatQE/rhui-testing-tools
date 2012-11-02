@@ -2,9 +2,6 @@
 
 import argparse
 import nose
-import re
-import os
-import logging
 
 from rhuilib.util import *
 from rhuilib.rhuisetup import *
@@ -13,9 +10,6 @@ from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
-from rhuilib.rhuimanager_identity import *
-from rhuilib.rhuimanager_users import *
-from rhuilib.rhuimanager_entitlements import *
 
 
 class test_tcms_191050(object):

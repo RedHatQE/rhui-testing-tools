@@ -6,21 +6,18 @@ import nose
 from rhuilib.util import *
 from rhuilib.rhuisetup import *
 from rhuilib.rhuimanager import *
-from rhuilib.rhuimanager_cds import *
-from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
-from rhuilib.rhuimanager_sync import *
-from rhuilib.rhuimanager_identity import *
-from rhuilib.rhuimanager_users import *
-from rhuilib.rhuimanager_entitlements import *
 
 
-class test_bug_696940:
+class test_bug_696940(object):
     def __init__(self):
         argparser = argparse.ArgumentParser(description='RHUI bug 696940')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
+
+    def __del__(self):
+        self.rs.__del__()
 
     def test_01_initial_run(self):
         ''' Do initial rhui-manager run'''

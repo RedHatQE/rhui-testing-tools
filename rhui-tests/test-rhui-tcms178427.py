@@ -1,43 +1,36 @@
 #! /usr/bin/python -tt
 
-import logging
 import argparse
-from nose.tools import *
+import nose
 
-from rhuilib.util import *
 from rhuilib.rhuisetup import *
 from rhuilib.rhuimanager import *
-from rhuilib.rhuimanager_cds import *
-from rhuilib.rhuimanager_client import *
-from rhuilib.rhuimanager_repo import *
-from rhuilib.rhuimanager_sync import *
-from rhuilib.rhuimanager_identity import *
-from rhuilib.rhuimanager_users import *
-from rhuilib.rhuimanager_entitlements import *
 
-cds_screen_items = \
-    """.*l\s* list all CDS clusters and instances managed by the RHUI\s*\r\n\s*i\s* display detailed information on a CDS cluster\s*\r\n\s*a\s* register \(add\) a new CDS instance\s*\r\n\s*m\s* move CDS\(s\) to a different cluster\s*\r\n\s*d\s* unregister \(delete\) a CDS instance from the RHUI\s*\r\n\s*s\s* associate a repository with a CDS cluster\s*\r\n\s*u\s* unassociate a repository from a CDS cluster\s*\r\n.*=> """
 
-argparser = argparse.ArgumentParser(description='RHUI CDS Management Screen')
-argparser.add_argument('--debug', action='store_const', const=True,
-                       default=False, help='debug mode')
-argparser.add_argument('--cert',
-                       help='use supplied RH enablement certificate')
-args = argparser.parse_args()
+class test_rhui_cds_management_screen(object):
+    def __init__(self):
+        argparser = argparse.ArgumentParser(description='RHUI CDS Management Screen')
+        args = argparser.parse_args()
+        self.rs = RHUIsetup()
+        self.rs.setup_from_rolesfile()
 
-if args.debug:
-    loglevel = logging.DEBUG
-else:
-    loglevel = logging.INFO
+    def __del__(self):
+        self.rs.__del__()
 
-logging.basicConfig(level=loglevel, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+    def test_01_initial_run(self):
+        ''' Do initial rhui-manager run'''
+        RHUIManager.initial_run(self.rs.RHUA)
 
-rs = RHUIsetup()
-rs.setup_from_rolesfile()
-RHUIManager.initial_run(rs.RHUA)
-Expect.enter(rs.RHUA, "rhui-manager")
-Expect.expect(rs.RHUA, "rhui \(home\) => ")
-Expect.enter(rs.RHUA, "c")
+    def test_02_home_screen(self):
+        ''' Test home screen content '''
+        cds_screen_items = \
+            """.*l\s* list all CDS clusters and instances managed by the RHUI\s*\r\n\s*i\s* display detailed information on a CDS cluster\s*\r\n\s*a\s* register \(add\) a new CDS instance\s*\r\n\s*m\s* move CDS\(s\) to a different cluster\s*\r\n\s*d\s* unregister \(delete\) a CDS instance from the RHUI\s*\r\n\s*s\s* associate a repository with a CDS cluster\s*\r\n\s*u\s* unassociate a repository from a CDS cluster\s*\r\n.*=> """
+        Expect.enter(self.rs.RHUA, "rhui-manager")
+        Expect.expect(self.rs.RHUA, "rhui \(home\) => ")
+        Expect.enter(self.rs.RHUA, "c")
+        Expect.expect(self.rs.RHUA, cds_screen_items)
+        Expect.enter(self.rs.RHUA, 'q')
 
-Expect.expect(rs.RHUA, cds_screen_items)
-Expect.enter(rs.RHUA, 'q')
+
+if __name__ == "__main__":
+    nose.run(defaultTest=__name__, argv=[__file__, '-v'])

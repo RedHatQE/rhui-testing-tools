@@ -17,6 +17,9 @@ class test_178434(object):
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
 
+    def __del__(self):
+        self.rs.__del__()
+
     def test_01_initial_run(self):
         """[setup] check initial rhui-manager login"""
         RHUIManager.initial_run(self.rs.RHUA)
