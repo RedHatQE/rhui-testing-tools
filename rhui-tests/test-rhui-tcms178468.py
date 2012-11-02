@@ -33,12 +33,12 @@ class Cds(object):
 class test_178468(object):
     repo = "repo-1"
     cluster = "cluster-1"
+    rs = RHUIsetup()
+    rs.setup_from_rolesfile()
     def __init__(self):
         argparser = argparse.ArgumentParser(description=\
                 '178468: Synchronize Unassociated Repositories')
         args = argparser.parse_args()
-        self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
         self.cds = Cds(self.rs.CDS[0])
 
     def test_01_initial_run(self):
@@ -56,7 +56,7 @@ class test_178468(object):
     def test_04_associate_custom_repo(self):
         '''[setup] Associate custom repo with a cluster'''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, self.cluster, [self.repo])
-    
+
     def test_05_upload_content(self):
         '''[setup] Upload content to custom repo '''
         RHUIManagerRepo.upload_content(self.rs.RHUA, [self.repo], "/etc/rhui/confrpm")
@@ -68,7 +68,7 @@ class test_178468(object):
     def test_07_assert_repo_on_cds(self):
         '''[test] assert repo contents is present on the CDS'''
         nose.tools.ok_(self.repo in self.cds.get_reponames())
-        
+
     def test_08_un_associate_custom_repo(self):
         '''[test] Un-associate a custom repo from a cluster'''
         RHUIManagerCds.unassociate_repo_cds(self.rs.RHUA, self.cluster, [self.repo])
