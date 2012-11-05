@@ -93,3 +93,11 @@ class Expect():
         Enter a command to the channel (with '\n' appended)
         '''
         return connection.channel.send(command + "\n")
+
+    @staticmethod
+    def ping_pong(connection, command, strexp, timeout=5):
+        '''
+        Enter a command and wait for something to happen (enter + expect combined)
+        '''
+        Expect.enter(connection, command)
+        Expect.expect(connection, strexp, timeout)
