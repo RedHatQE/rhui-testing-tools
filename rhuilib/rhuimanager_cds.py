@@ -115,6 +115,69 @@ class RHUIManagerCds:
         return ret
 
     @staticmethod
+    def info(connection, clusterlist):
+        '''
+        display detailed information on a CDS cluster
+        @returns string with info
+        '''
+        RHUIManager.screen(connection, "cds")
+        Expect.enter(connection, "i")
+        RHUIManager.select(connection, clusterlist)
+        pattern = re.compile('.*-= RHUI CDS Clusters =-(.*)rhui\s* \(cds\)\s* =>',
+                re.DOTALL)
+        ret = Expect.match(connection, pattern, grouplist=[1])[0]
+        reslist = ret.split("\r\n")
+        i = 0
+        clusterlist = []
+        cluster = {}
+        while i < len(reslist):
+            line = reslist[i]
+            # Readling lines and searching for clusters
+            if line.strip()!='':
+                if line[:2] == '  ' and not line[2:3] in [' ', '-']:
+                    # We've found a new cluster!
+                    if cluster != {}:
+                        clusterlist.append(cluster)
+                        cluster={}
+                    cluster['Name'] = line[2:]
+                    i+=2
+                    while reslist[i][:4] == '    ' or reslist[i] == '':
+                        if reslist[i] == '':
+                            i+=1
+                            continue
+                        line = reslist[i].strip()
+                        if line == "CDS Instances":
+                            # Figuring out cds instances
+                            instances = []
+                            i+=2
+                            while reslist[i].strip()!="":
+                                # New cds
+                                cds = reslist[i].strip()
+                                hostname = reslist[i+1].strip().split(':')[1].strip()
+                                client = reslist[i+2].strip().split(':')[1].strip()
+                                instances.append({"CDS": reslist[i].strip(), "hostname": hostname, "client": client})
+                                i+=3
+                            cluster['Instances'] = instances
+                        elif line == "Repositories":
+                            # Figuring out repositories
+                            repositories = []
+                            i+=2
+                            while reslist[i].strip()!="":
+                                # New repo
+                                repositories.append(reslist[i].strip())
+                                i+=1
+                            cluster['Repositories'] = repositories
+                            break
+                        else:
+                            i+=1
+            i+=1
+
+        if cluster != {}:
+            clusterlist.append(cluster)
+        Expect.enter(connection, 'q')
+        return clusterlist
+
+    @staticmethod
     def move_cds(connection, cdslist, clustername):
         '''
         move the CDSes to clustername
