@@ -19,10 +19,8 @@ class test_bug_867803(object):
 
     def test_01_rhui_debug(self):
         ''' Check rhui-debug behaivour '''
-        Expect.enter(self.rs.RHUA, "")
-        Expect.expect(self.rs.RHUA, "root@")
-        Expect.enter(self.rs.RHUA, "python /usr/share/rh-rhua/rhui-debug.py | grep '/var/log/httpd/' | wc -l")
-        Expect.expect(self.rs.RHUA, "0\r\n")
+        Expect.ping_pong(self.rs.RHUA, "", "root@")
+        Expect.ping_pong(self.rs.RHUA, "python /usr/share/rh-rhua/rhui-debug.py | grep '/var/log/httpd/' | wc -l", "0\r\n")
 
 
 if __name__ == "__main__":

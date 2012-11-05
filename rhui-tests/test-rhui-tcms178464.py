@@ -48,10 +48,8 @@ class test_tcms_178464(object):
         
     def test_07_check_cds_content(self):
         ''' Check certs created for custom repo '''
-        Expect.enter(self.rs.RHUA, "test -f /etc/pki/pulp/content/repo1/consumer-repo1.cert && echo SUCCESS")
-        Expect.expect(self.rs.RHUA, "[^ ]SUCCESS")
-        Expect.enter(self.rs.RHUA, "test -f /etc/pki/pulp/content/repo1/consumer-repo1.ca && echo SUCCESS")
-        Expect.expect(self.rs.RHUA, "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.RHUA, "test -f /etc/pki/pulp/content/repo1/consumer-repo1.cert && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.RHUA, "test -f /etc/pki/pulp/content/repo1/consumer-repo1.ca && echo SUCCESS", "[^ ]SUCCESS")
 
     def test_08_remove_cds(self):
         ''' Remove cds '''

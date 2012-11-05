@@ -90,23 +90,19 @@ class test_tcms_191049(object):
 
     def test_13_rh_rpm_install(self):
         ''' Install RPM signed by RH '''
-        Expect.enter(self. rs.CLI[0], "yum install -y " + self.rhrpmname + " && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "yum install -y " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_14_signed_rpm_install(self):
         ''' Trying to install custom signed rpm to the client '''
-        Expect.enter(self. rs.CLI[0], "yum install -y custom-signed-rpm || echo FAILURE")
-        Expect.expect(self. rs.CLI[0], "[^ ]FAILURE", 60)
+        Expect.ping_pong(self. rs.CLI[0], "yum install -y custom-signed-rpm || echo FAILURE", "[^ ]FAILURE", 60)
 
     def test_15_unsigned_rpm_install(self):
         ''' Trying to install unsigned rpm to the client '''
-        Expect.enter(self. rs.CLI[0], "yum install -y custom-unsigned-rpm || echo FAILURE")
-        Expect.expect(self. rs.CLI[0], "[^ ]FAILURE", 60)
+        Expect.ping_pong(self. rs.CLI[0], "yum install -y custom-unsigned-rpm || echo FAILURE", "[^ ]FAILURE", 60)
 
     def test_16_signed_rpm_remove(self):
         ''' Removing RPM signed by RH from the client '''
-        Expect.enter(self. rs.CLI[0], "rpm -e " + self.rhrpmname + " && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "rpm -e " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_17_remove_cds(self):
         ''' Remove cds '''

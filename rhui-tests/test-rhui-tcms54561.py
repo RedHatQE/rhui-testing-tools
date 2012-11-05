@@ -21,10 +21,8 @@ class test_tcms_54561(object):
     def test_01_check_selinux(self):
         """checking selinux on RHUA and CDS instances"""
         for instance in [self.rs.RHUA] + self.rs.CDS:
-            Expect.enter(instance, 'getenforce')
-            Expect.expect(instance, 'Enforcing')
-            Expect.enter(instance, 'cat /etc/sysconfig/selinux | grep "SELINUX=[^ ]"')
-            Expect.expect(instance, 'SELINUX=enforcing')
+            Expect.ping_pong(instance, 'getenforce', 'Enforcing')
+            Expect.ping_pong(instance, 'cat /etc/sysconfig/selinux | grep "SELINUX=[^ ]"', 'SELINUX=enforcing')
 
 
 if __name__ == "__main__":

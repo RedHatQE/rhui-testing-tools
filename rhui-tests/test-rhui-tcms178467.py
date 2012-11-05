@@ -86,10 +86,8 @@ class test_bug_tcms178467(object):
 
     def test_11_check_cds_content(self):
         ''' Check repo content on cds '''
-        Expect.enter(self.rs.CDS[0], "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm && echo SUCCESS")
-        Expect.expect(self.rs.CDS[0], "[^ ]SUCCESS")
-        Expect.enter(self.rs.CDS[0], "find /var/lib/pulp-cds/ -name 'mongodb*.rpm' | grep mongodb && echo SUCCESS")
-        Expect.expect(self.rs.CDS[0], "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.CDS[0], "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.CDS[0], "find /var/lib/pulp-cds/ -name 'mongodb*.rpm' | grep mongodb && echo SUCCESS", "[^ ]SUCCESS")
 
     def test_12_delete_custom_repo(self):
         ''' Delete custom repos '''

@@ -42,7 +42,7 @@ class test_bug_840977(object):
         Expect.enter(self.rs.RHUA, "i")
         RHUIManager.select(self.rs.RHUA, ["Cluster1"])
         Expect.expect(self.rs.RHUA, "Repositories.*\(None\).*rhui \(cds\) =>")
-        Expect.enter(self.rs.RHUA, "q")
+        Expect.ping_pong(self.rs.RHUA, "q", "root@")
 
     def test_06_remove_cds(self):
         ''' Remove cds '''

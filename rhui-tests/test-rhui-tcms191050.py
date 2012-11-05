@@ -86,35 +86,29 @@ class test_tcms_191050(object):
         ''' Installing RH rpm to the client '''
         if not self.rhrpmname:
             raise nose.exc.SkipTest("can't test without RH rpm")
-        Expect.enter(self. rs.CLI[0], "yum install -y --nogpgcheck " + self.rhrpmname + " && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "yum install -y --nogpgcheck " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_14_signed_rpm_install(self):
         ''' Installing signed rpm to the client '''
-        Expect.enter(self. rs.CLI[0], "yum install -y --nogpgcheck custom-signed-rpm && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "yum install -y --nogpgcheck custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_15_unsigned_rpm_install(self):
         ''' Installing unsigned rpm to the client '''
-        Expect.enter(self. rs.CLI[0], "yum install -y --nogpgcheck custom-unsigned-rpm && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "yum install -y --nogpgcheck custom-unsigned-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_16_rh_rpm_remove(self):
         ''' Removing RH rpm from the client '''
         if not self.rhrpmname:
             raise nose.exc.SkipTest("can't test without RH rpm")
-        Expect.enter(self. rs.CLI[0], "rpm -e " + self.rhrpmname + " && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "rpm -e " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_17_signed_rpm_remove(self):
         ''' Removing signed rpm from the client '''
-        Expect.enter(self. rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_18_unsigned_rpm_remove(self):
         ''' Removing unsigned rpm from the client '''
-        Expect.enter(self. rs.CLI[0], "rpm -e custom-unsigned-rpm && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "rpm -e custom-unsigned-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_19_remove_cds(self):
         ''' Remove cds '''

@@ -86,8 +86,7 @@ class test_rhui_update_simple(object):
 
     def test_12_update(self):
         ''' Upgrade RHUI '''
-        Expect.enter(self.rs.RHUA, "yum -y update && echo SUCCESS")
-        Expect.expect(self.rs.RHUA, "[^ ]SUCCESS", 120)
+        Expect.ping_pong(self.rs.RHUA, "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 120)
 
     def test_13_remove_cds(self):
         ''' Remove cds '''

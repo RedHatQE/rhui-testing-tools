@@ -25,11 +25,9 @@ class test_rhui_tcms178427(object):
         ''' Test home screen content '''
         cds_screen_items = \
             """.*l\s* list all CDS clusters and instances managed by the RHUI\s*\r\n\s*i\s* display detailed information on a CDS cluster\s*\r\n\s*a\s* register \(add\) a new CDS instance\s*\r\n\s*m\s* move CDS\(s\) to a different cluster\s*\r\n\s*d\s* unregister \(delete\) a CDS instance from the RHUI\s*\r\n\s*s\s* associate a repository with a CDS cluster\s*\r\n\s*u\s* unassociate a repository from a CDS cluster\s*\r\n.*=> """
-        Expect.enter(self.rs.RHUA, "rhui-manager")
-        Expect.expect(self.rs.RHUA, "rhui \(home\) => ")
-        Expect.enter(self.rs.RHUA, "c")
-        Expect.expect(self.rs.RHUA, cds_screen_items)
-        Expect.enter(self.rs.RHUA, 'q')
+        Expect.ping_pong(self.rs.RHUA, "rhui-manager", "rhui \(home\) => ")
+        Expect.ping_pong(self.rs.RHUA, "c", cds_screen_items)
+        Expect.ping_pong(self.rs.RHUA, 'q', "root@")
 
 
 if __name__ == "__main__":

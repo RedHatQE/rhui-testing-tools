@@ -113,42 +113,35 @@ class test_tcms_191137(object):
 
     def test_16_rh_rpm_install(self):
         ''' Installing RH rpm from RH repo to the client '''
-        Expect.enter(self. rs.CLI[0], "yum install -y pymongo && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.CLI[0], "yum install -y pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_17_rh_rpm_install(self):
         ''' Installing RH rpm from custom repo to the client '''
         if not self.rhrpmname:
             raise nose.exc.SkipTest("can't test without RH rpm")
-        Expect.enter(self. rs.CLI[0], "yum install -y " + self.rhrpmname + " && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.CLI[0], "yum install -y " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_18_signed_rpm_install(self):
         ''' Installing signed rpm from custom repo to the client '''
-        Expect.enter(self. rs.CLI[0], "yum install -y custom-signed-rpm && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.CLI[0], "yum install -y custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_19_unsigned_rpm_install(self):
         ''' Trying to install unsigned rpm from custom repo to the client '''
-        Expect.enter(self. rs.CLI[0], "yum install -y custom-unsigned-rpm || echo FAILURE")
-        Expect.expect(self. rs.CLI[0], "[^ ]FAILURE", 60)
+        Expect.ping_pong(self.rs.CLI[0], "yum install -y custom-unsigned-rpm || echo FAILURE", "[^ ]FAILURE", 60)
 
     def test_20_rh_rpm_remove(self):
         ''' Removing RH rpm from RH repo from the client '''
-        Expect.enter(self. rs.CLI[0], "rpm -e pymongo && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.CLI[0], "rpm -e pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_21_rh_rpm_remove(self):
         ''' Removing RH rpm from custom repo from the client '''
         if not self.rhrpmname:
             raise nose.exc.SkipTest("can't test without RH rpm")
-        Expect.enter(self. rs.CLI[0], "rpm -e " + self.rhrpmname + " && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.CLI[0], "rpm -e " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_22_signed_rpm_remove(self):
         ''' Removing signed rpm from the client '''
-        Expect.enter(self. rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_23_remove_cds(self):
         ''' Remove cds '''

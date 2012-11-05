@@ -45,8 +45,7 @@ class test_bug_789054(object):
         RHUIManager.select_one(self.rs.RHUA, "Cluster1")
         RHUIManager.select(self.rs.RHUA, ["repo1", "repo2"])
         Expect.expect(self.rs.RHUA, "Name of the certificate.*contained with it:")
-        Expect.enter(self.rs.RHUA, "cert with spaces")
-        Expect.expect(self.rs.RHUA, "The name can not contain spaces")
+        Expect.ping_pong(self.rs.RHUA, "cert with spaces", "The name can not contain spaces")
 
     def test_06_remove_cds(self):
         ''' Remove cds '''

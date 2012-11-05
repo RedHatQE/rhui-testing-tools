@@ -91,23 +91,19 @@ class test_tcms_191048(object):
 
     def test_13_check_repo_gpg(self):
         ''' Check RH gpg key in repo file '''
-        Expect.enter(self. rs.CLI[0], "grep RPM-GPG-KEY-redhat-release /etc/yum.repos.d/rh-cloud.repo || echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "grep RPM-GPG-KEY-redhat-release /etc/yum.repos.d/rh-cloud.repo || echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_14_signed_rpm_install(self):
         ''' Installing signed rpm to the client '''
-        Expect.enter(self. rs.CLI[0], "yum install -y custom-signed-rpm && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "yum install -y custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_15_unsigned_rpm_install(self):
         ''' Trying to install unsigned rpm to the client '''
-        Expect.enter(self. rs.CLI[0], "yum install -y custom-unsigned-rpm || echo FAILURE")
-        Expect.expect(self. rs.CLI[0], "[^ ]FAILURE", 60)
+        Expect.ping_pong(self. rs.CLI[0], "yum install -y custom-unsigned-rpm || echo FAILURE", "[^ ]FAILURE", 60)
 
     def test_16_signed_rpm_remove(self):
         ''' Removing signed rpm from the client '''
-        Expect.enter(self. rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self. rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def test_17_remove_cds(self):
         ''' Remove cds '''

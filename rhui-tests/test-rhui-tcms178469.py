@@ -69,8 +69,7 @@ class test_bug_tcms178469(object):
     def test_08_check_cds_content(self):
         ''' Check repo content on cdses '''
         for cds in self.rs.CDS:
-            Expect.enter(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm && echo SUCCESS")
-            Expect.expect(cds, "[^ ]SUCCESS")
+            Expect.ping_pong(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS")
 
     def test_09_delete_custom_repo(self):
         ''' Delete custom repos '''
@@ -83,8 +82,7 @@ class test_bug_tcms178469(object):
     def test_11_check_cds_content(self):
         ''' Check repo content on cdses '''
         for cds in self.rs.CDS:
-            Expect.enter(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm || echo FAILURE")
-            Expect.expect(cds, "[^ ]FAILURE")
+            Expect.ping_pong(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm || echo FAILURE", "[^ ]FAILURE")
 
     def test_12_remove_cds(self):
         ''' Remove cdses '''

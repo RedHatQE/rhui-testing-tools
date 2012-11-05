@@ -69,32 +69,25 @@ class test_tcms_178476(object):
 
     def test_11_cli_2cds(self):
         ''' Test client with 2 cdses up '''
-        Expect.enter(self. rs.CLI[0], "yum clean metadata && yum check-update && echo SUCCESS")
-        Expect.expect(self. rs.CLI[0], "[^ ]SUCCESS")
+        Expect.ping_pong(self. rs.CLI[0], "yum clean metadata && yum check-update && echo SUCCESS", "[^ ]SUCCESS")
 
     def test_12_cli_1cds_slave(self):
         ''' Test client with only slave cds up '''
         # disabling httpd on master
-        Expect.enter(self.rs.CDS[0], "service httpd stop && echo SUCCESS")
-        Expect.expect(self.rs.CDS[0], "[^ ]SUCCESS")
-        Expect.enter(self.rs.CLI[0], "yum clean metadata && yum check-update && echo SUCCESS")
-        Expect.expect(self.rs.CLI[0], "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.CDS[0], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.CLI[0], "yum clean metadata && yum check-update && echo SUCCESS", "[^ ]SUCCESS")
 
     def test_13_cli_1cds_master(self):
         ''' Test client with only master cds up '''
         # enabling httpd on master, disabling on slave
-        Expect.enter(self.rs.CDS[0], "service httpd start && echo SUCCESS")
-        Expect.expect(self.rs.CDS[0], "[^ ]SUCCESS")
-        Expect.enter(self.rs.CDS[1], "service httpd stop && echo SUCCESS")
-        Expect.expect(self.rs.CDS[1], "[^ ]SUCCESS")
-        Expect.enter(self.rs.CLI[0], "yum clean metadata && yum check-update && echo SUCCESS")
-        Expect.expect(self.rs.CLI[0], "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.CDS[0], "service httpd start && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.CDS[1], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.CLI[0], "yum clean metadata && yum check-update && echo SUCCESS", "[^ ]SUCCESS")
 
     def test_14_recover(self):
         ''' Recover from tests '''
         # enabling httpd on slave
-        Expect.enter(self.rs.CDS[1], "service httpd start && echo SUCCESS")
-        Expect.expect(self.rs.CDS[1], "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.CDS[1], "service httpd start && echo SUCCESS", "[^ ]SUCCESS")
 
     def test_15_remove_cds(self):
         ''' Remove cdses '''
