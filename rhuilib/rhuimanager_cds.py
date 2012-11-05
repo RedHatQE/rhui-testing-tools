@@ -117,8 +117,14 @@ class RHUIManagerCds:
     @staticmethod
     def info(connection, clusterlist):
         '''
-        display detailed information on a CDS cluster
-        @returns string with info
+        display detailed information on a CDS clusters
+
+        @param clusterlist - list of clusters
+        @returns list representing current state, e.g. [{'Instances': [{'hostname': 'cds1.example.com', 'client': 'cds1.example.com', 'CDS': 'cds1.example.com'},
+                                                                       {'hostname': 'cds2.example.com', 'client': 'cds2.example.com', 'CDS': 'cds2.example.com'}],
+                                                         'Repositories': ['repo1',
+                                                                          'Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)'],
+                                                         'Name': 'Cluster1'}]
         '''
         RHUIManager.screen(connection, "cds")
         Expect.enter(connection, "i")
