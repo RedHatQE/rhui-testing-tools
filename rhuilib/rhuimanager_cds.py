@@ -164,8 +164,13 @@ class RHUIManagerCds:
                             i+=2
                             while reslist[i].strip()!="":
                                 # New repo
-                                repositories.append(reslist[i].strip())
+                                repo = reslist[i].strip()
                                 i+=1
+                                if repo == '(None)':
+                                    # no repos, continue with next (empty)
+                                    # line
+                                    continue
+                                repositories.append(repo)
                             cluster['Repositories'] = repositories
                             break
                         else:
