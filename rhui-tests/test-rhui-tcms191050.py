@@ -14,7 +14,7 @@ from rhuilib.rhuimanager_sync import *
 
 class test_tcms_191050(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase test-rhui-191050')
+        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 191050')
         argparser.add_argument('--rhrpm',
                                help='use supplied RH rpm for tests')
         args = argparser.parse_args()

@@ -16,7 +16,7 @@ from rhuilib.rhuimanager_entitlements import *
 
 class test_tcms_191137(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase test-rhui-191137')
+        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 191137')
         argparser.add_argument('--rhrpm',
                                help='use supplied RH rpm for tests')
         argparser.add_argument('--cert',

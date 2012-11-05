@@ -14,7 +14,7 @@ from rhuilib.pulp_admin import PulpAdmin
 
 class test_tcms_178464(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase test-rhui-178464')
+        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178464')
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
 

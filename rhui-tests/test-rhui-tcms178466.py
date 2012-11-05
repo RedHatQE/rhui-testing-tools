@@ -16,7 +16,7 @@ from rhuilib.pulp_admin import PulpAdmin
 
 class test_tcms_178466(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase test-rhui-178466')
+        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178466')
         argparser.add_argument('--cert',
                                help='use supplied RH enablement certificate')
         args = argparser.parse_args()

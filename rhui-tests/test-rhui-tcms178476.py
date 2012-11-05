@@ -14,7 +14,7 @@ from rhuilib.rhuimanager_sync import *
 
 class test_tcms_178476(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase test-rhui-178476')
+        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178476')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()

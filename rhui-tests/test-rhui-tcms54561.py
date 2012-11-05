@@ -10,7 +10,7 @@ from rhuilib.rhuimanager import *
 
 class test_tcms_54561(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase test-rhui-54561')
+        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 54561')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
