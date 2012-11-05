@@ -8,6 +8,7 @@ from rhuilib.expect import *
 from rhuilib.rhuisetup import *
 from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_cds import *
+from rhuilib.pulp_admin import *
 
 
 class test_tcms_178434(object):
@@ -42,12 +43,8 @@ class test_tcms_178434(object):
 
     def test_05_assert_pulp(self):
         """[test] assert no CDSes are dumped by pulp-admin cds list"""
-        from rhuilib.pulp_admin import PulpAdmin
-        pulp_admin = PulpAdmin(self.rs.RHUA)
-        result = pulp_admin.cds_list()
-        pattern = re.compile("^(\r\n)*$", re.DOTALL)
-        match = pattern.match(result)
-        nose.tools.ok_(match is not None)
+        result = PulpAdmin.cds_list(self.rs.RHUA)
+        nose.tools.assert_equal(result, [])
 
 
 if __name__ == "__main__":

@@ -20,7 +20,6 @@ class test_tcms_178439(object):
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
-        self.pulp_admin = PulpAdmin(self.rs.RHUA)
 
     def __del__(self):
         self.rs.__del__()
@@ -59,25 +58,12 @@ class test_tcms_178439(object):
         match = pattern.match(result)
         nose.tools.ok_(match is None)
 
-    def test_06_assert_no_cluster_a_in_pulp(self):
-        """[test] assert cluster_a no longer exists in pulp"""
-        result = self.pulp_admin.cds_list()
-        pattern = re.compile(str(self.cluster_a))
-        match = pattern.match(result)
-        nose.tools.ok_(match is None)
+    def test_06_assert_propper_pulp_list(self):
+        """[test] assert cluster_a no longer exists in pulp and cluster_b exists"""
+        result = PulpAdmin.cds_list(self.rs.RHUA)
+        nose.tools.assert_equal(result, [{'Status': 'Yes', 'Cluster': 'cluster_b', 'Repos': 'None', 'Hostname': 'cds1.example.com', 'Name': 'cds1.example.com'}])
 
-    def test_07_assert_cds_cluster_b_in_pulp(self):
-        """[test] assert cluster_b holds cds now in pulp"""
-        result = self.pulp_admin.cds_list()
-        print result
-        # see [2]
-        pattern = re.compile(
-                ".*Hostname[^\r\n\w]*%s[^\r\n\w]*\r\n[^\r\n\w]*Description[^\r\n\w]*RHUI\s*CDS[^\w\r\n]*\r\n[^\r\n\w]*Cluster[^\r\n\w]*%s.*" \
-                % (self.rs.CDS[0].hostname, self.cluster_b), re.DOTALL)
-        match = pattern.match(result)
-        nose.tools.ok_(match is not None)
-
-    def test_08_remove_cds(self):
+    def test_07_remove_cds(self):
         """[teardown] remove the cds"""
         RHUIManagerCds.delete_cds(self.rs.RHUA, self.cluster_b,
                 [self.rs.CDS[0].hostname])
