@@ -8,7 +8,7 @@ from rhuilib.expect import *
 from rhuilib.rhuisetup import *
 from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_cds import *
-from rhuilib.pulp_admin import PulpAdmin
+from rhuilib.pulp_admin import PulpAdmin, Cds
 
 
 class test_tcms_178439(object):
@@ -20,6 +20,7 @@ class test_tcms_178439(object):
         args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_rolesfile()
+        self.cds = self.rs.CDS[0]
 
     def __del__(self):
         self.rs.__del__()
@@ -31,24 +32,19 @@ class test_tcms_178439(object):
     def test_02_add_cds(self):
         """[setup] create a single-node cluster_a containing a cds"""
         RHUIManagerCds.add_cds(self.rs.RHUA, self.cluster_a,
-                self.rs.CDS[0].hostname)
+                self.cds.hostname)
 
     def test_03_move_cds(self):
         """[test] move the cds to cluster_b"""
-        RHUIManagerCds.move_cds(self.rs.RHUA, [self.rs.CDS[0].hostname],
+        RHUIManagerCds.move_cds(self.rs.RHUA, [self.cds.hostname],
                 self.cluster_b)
 
     def test_04_check_cds_assignment(self):
         """[test] assert cds is now associated with cluster_b"""
-        result = RHUIManagerCds.list(self.rs.RHUA)
-        # check cds is now associated with cluster_b
-        # NOTE: this expression _really_ checks that the cds is the first
-        # record of a particular cluster; see [1]
-        pattern = re.compile(".*\n\s*%s\s*\r\n[\s-]+\r\n\s*Content Deliver Servers\s*\r\n[\s-]+\r\n\s*%s\s*\r\n.*" % \
-                             (self.cluster_b, self.rs.CDS[0].hostname), re.DOTALL)
-        # Temporary workaround - should be 'Delivery'
-        match = pattern.match(result)
-        nose.tools.ok_(match is not None)
+        clusters = RHUIManagerCds.info(self.rs.RHUA, [self.cluster_b])
+        for cds in clusters[0]["Instances"]:
+            nose.tools.eq_(cds["hostname"],  self.cds.hostname,
+                self.cds.hostname)
 
     def test_05_cluster_a_removed(self):
         """[test] assert cluster_a no longer exists"""
@@ -60,44 +56,17 @@ class test_tcms_178439(object):
 
     def test_06_assert_propper_pulp_list(self):
         """[test] assert cluster_a no longer exists in pulp and cluster_b exists"""
-        result = PulpAdmin.cds_list(self.rs.RHUA)
-        nose.tools.assert_equal(result, [{'Status': 'Yes', 'Cluster': 'cluster_b', 'Repos': 'None', 'Hostname': 'cds1.example.com', 'Name': 'cds1.example.com'}])
+        cdses = PulpAdmin.cds_list(self.rs.RHUA)
+        cds = Cds(name = self.cds.hostname,
+                hostname = self.cds.hostname,
+                description = 'RHUI CDS',
+                cluster = self.cluster_b)
+        nose.tools.eq_(cdses, [cds])
 
     def test_07_remove_cds(self):
         """[teardown] remove the cds"""
         RHUIManagerCds.delete_cds(self.rs.RHUA, self.cluster_b,
-                [self.rs.CDS[0].hostname])
-
-
-#[1] clusters listed in rhui-manager e.g.
-"""
-
- cluster-1
-  ---------
-    Content Deliver Servers
-    -----------------------
-    cds1.example.com
-"""
-
-#[2] cdses listed in pulp-admin
-"""
-
-+------------------------------------------+
-                CDS Instances
-+------------------------------------------+
-
-Name                    cds1.example.com
-Hostname                cds1.example.com
-Description             RHUI CDS
-Cluster                 cluster-a
-Sync Schedule           2012-10-29T19:20:09-04:00/PT6H
-Repos                   None
-Last Sync               Never
-Status:
-   Responding           Yes
-   Last Heartbeat       2012-10-29 17:36:29.182300+00:00
-
-"""
+                [self.cds.hostname])
 
 
 if __name__ == "__main__":
