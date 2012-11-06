@@ -14,6 +14,7 @@ import string
 import json
 import tempfile
 import paramiko
+import yaml
 
 
 class SyncSSHClient(SSHClient):
@@ -82,21 +83,21 @@ def setup_master(client):
         return None
 
 
-def setup_slave(client, sftp, hostname, hostsfile, rolesfile, master_keys):
+def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys):
     '''
     Setup slave node.
     - Allow connections from masters
     - Set hostname
     - Write /etc/hosts
-    - Write /etc/testing_roles
+    - Write /etc/rhui-testing.yaml
     '''
     try:
         client.run_sync("touch /tmp/hosts")
         sftp.put(hostsfile, "/tmp/hosts")
         client.run_sync("cat /etc/hosts >> /tmp/hosts")
         client.run_sync("sort -u /tmp/hosts > /etc/hosts")
-        sftp.put(rolesfile, "/etc/testing_roles")
-        client.run_sync("touch /etc/testing_roles")
+        sftp.put(yamlfile, "/etc/rhui-testing.yaml")
+        client.run_sync("touch /etc/rhui-testing.yaml")
         if hostname:
             client.run_sync("hostname " + hostname)
             client.run_sync("sed -i 's,^HOSTNAME=.*$,HOSTNAME=" + hostname + ",' /etc/sysconfig/network")
@@ -276,8 +277,8 @@ for res in con_cf.describe_stack_resources(STACK_ID):
 instances_detail = []
 hostsfile = tempfile.NamedTemporaryFile(delete=False)
 logging.debug("Created temporary file for /etc/hosts " + hostsfile.name)
-rolesfile = tempfile.NamedTemporaryFile(delete=False)
-logging.debug("Created temporary file for roles " + rolesfile.name)
+yamlfile = tempfile.NamedTemporaryFile(delete=False)
+logging.debug("Created temporary YAML config " + yamlfile.name)
 for i in con_ec2.get_all_instances():
     for ii in  i.instances:
         if ii.id in instances:
@@ -297,10 +298,10 @@ for i in con_ec2.get_all_instances():
                                      "public_ip": public_ip,
                                      "private_ip": private_ip})
             hostsfile.write(private_ip + "\t" + hostname + "\n")
-            rolesfile.write(role + "\t" + hostname + "\t" + public_ip +
-                            "\t" + private_ip + "\n")
+yamlconfig = {'Instances': instances_detail[:]}
+yamlfile.write(yaml.safe_dump(yamlconfig))
+yamlfile.close()
 hostsfile.close()
-rolesfile.close()
 logging.debug(instances_detail)
 master_keys = []
 for instance in instances_detail:
@@ -321,4 +322,4 @@ for instance in instances_detail:
         ip = instance["private_ip"]
     setup_slave(instance["client"], instance["sftp"],
                 instance["hostname"], hostsfile.name,
-                rolesfile.name, master_keys)
+                yamlfile.name, master_keys)
