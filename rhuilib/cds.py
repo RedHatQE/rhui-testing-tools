@@ -27,6 +27,12 @@ class Cds(object):
         ret &= self.cluster == other.cluster
         ret &= self.repos == other.repos
         return ret
+    def __cmp__(self , other):
+        """for comparison of sorted lists to work as expected"""
+        if self == other:
+            return 0
+        # hack that in other cases
+        return cmp(repr(self), repr(other))
 
 
 class RhuiCds(Cds):
