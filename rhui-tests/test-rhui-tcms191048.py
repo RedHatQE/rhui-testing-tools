@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import argparse
 import nose
 
 from rhuilib.util import *
@@ -15,13 +14,11 @@ from rhuilib.rhuimanager_entitlements import *
 
 class test_tcms_191048(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 191048')
-        argparser.add_argument('--rhrpm',
-                               help='use supplied RH rpm for tests')
-        args = argparser.parse_args()
-        self.rhrpm = args.rhrpm
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
+        if not 'rhrpm' in self.rs.config.keys():
+            raise nose.exc.SkipTest("can't test without RH-signed RPM")
+        self.rhrpm = self.rs.config['rhrpm']
         (self.rhrpmnvr, self.rhrpmname) = Util.get_rpm_details(self.rhrpm)
 
     def __del__(self):
@@ -51,9 +48,6 @@ class test_tcms_191048(object):
 
     def test_06_upload_rh_rpm(self):
         ''' Upload rh rpm to custom repo '''
-        if not self.rhrpm:
-            raise nose.exc.SkipTest("can't test without RH rpm")
-
         self.rs.RHUA.sftp.put(self.rhrpm, "/root/" + self.rhrpmnvr)
         RHUIManagerRepo.upload_content(self.rs.RHUA, ["repo1"], "/root/" + self.rhrpmnvr)
 

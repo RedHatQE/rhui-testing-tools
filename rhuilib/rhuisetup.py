@@ -1,4 +1,5 @@
 import logging
+import yaml
 
 from rhuilib.connection import Connection
 
@@ -11,6 +12,7 @@ class RHUIsetup:
         self.RHUA = None
         self.CDS = []
         self.CLI = []
+        self.config = {}
 
     def __del__(self):
         '''
@@ -41,18 +43,21 @@ class RHUIsetup:
         logging.debug("Adding CLI with hostname " + hostname)
         self.CLI.append(Connection(hostname, username, key_filename))
 
-    def setup_from_rolesfile(self, rolesfile="/etc/testing_roles"):
+    def setup_from_yamlfile(self, yamlfile="/etc/rhui-testing.yaml"):
         '''
-        Setup from rolesfile
-        @param rolesfile: file with roles description (defaults to /etc/testing_roles)
+        Setup from yaml config
         '''
-        fd = open(rolesfile, 'r')
-        for line in fd.readlines():
-            [Role, Hostname, PublicIP, PrivateIP] = line.split('\t')
-            if Role.upper() == "RHUA":
-                self.setRHUA(Hostname)
-            elif Role.upper() == "CDS":
-                self.addCDS(Hostname)
-            elif Role.upper() == "CLI":
-                self.addCLI(Hostname)
+        logging.debug("Loading config from " + yamlfile)
+        fd = open(yamlfile, 'r')
+        yamlconfig = yaml.load(fd)
+        for instance in yamlconfig['Instances']:
+            if instance['role'].upper() == "RHUA":
+                self.setRHUA(instance['hostname'])
+            elif instance['role'].upper() == "CDS":
+                self.addCDS(instance['hostname'])
+            elif instance['role'].upper() == "CLI":
+                self.addCLI(instance['hostname'])
+        if 'Config' in yamlconfig.keys():
+            logging.debug("Config found: " + yamlconfig['Config'])
+            self.config = yamlconfig['Config'].copy()
         fd.close()

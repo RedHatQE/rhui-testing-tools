@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import argparse
 import nose
 
 from rhuilib.util import *
@@ -17,13 +16,11 @@ from rhuilib.rhuimanager_entitlements import *
 
 class test_simple_workflow(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI simple workflow')
-        argparser.add_argument('--cert',
-                               help='use supplied RH enablement certificate')
-        args = argparser.parse_args()
-        self.cert = args.cert
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
+        if not 'rhcert' in self.rs.config.keys():
+            raise nose.exc.SkipTest("can't test without RH certificate")
+        self.cert = self.rs.config['rhcert']
 
     def __del__(self):
         self.rs.__del__()
@@ -74,44 +71,30 @@ class test_simple_workflow(object):
 
     def test_09_upload_content_cert(self):
         ''' Upload RH content certificate '''
-        if not self.cert:
-            raise nose.exc.SkipTest("can't test without RH content cert")
         RHUIManagerEntitlements.upload_content_cert(self.rs.RHUA, self.cert)
 
     def test_10_add_rh_repo_by_product(self):
         ''' Add rh repo by product '''
-        if not self.cert:
-            raise nose.exc.SkipTest("can't test without RH content cert")
         RHUIManagerRepo.add_rh_repo_by_product(self.rs.RHUA, ["Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(RPMs\)", "Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\)"])
 
     def test_11_add_rh_repo_by_repo(self):
         ''' Add rh repo by repo '''
-        if not self.cert:
-            raise nose.exc.SkipTest("can't test without RH content cert")
         RHUIManagerRepo.add_rh_repo_by_repo(self.rs.RHUA, ["Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-i386\)", "Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-x86_64\)"])
 
     def test_12_add_rh_repo_all(self):
         ''' Add all rh products '''
-        if not self.cert:
-            raise nose.exc.SkipTest("can't test without RH content cert")
         RHUIManagerRepo.add_rh_repo_all(self.rs.RHUA)
 
     def test_13_sync_repo(self):
         ''' Syncronize repo '''
-        if not self.cert:
-            raise nose.exc.SkipTest("can't test without RH content cert")
         RHUIManagerSync.sync_repo(self.rs.RHUA, ["Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-i386\)", "Red Hat Enterprise Linux 5 Server from RHUI \(RPMs\) \(5Server-x86_64\)", "Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\) \(6Server-x86_64\)"])
 
     def test_14_associate_rh_repo_cds(self):
         ''' Associate rh repo with cds '''
-        if not self.cert:
-            raise nose.exc.SkipTest("can't test without RH content cert")
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\) \(6Server-x86_64\)"])
 
     def test_15_generate_ent_cert_with_rh_content(self):
         ''' Generate entitlement certificate with rh content '''
-        if not self.cert:
-            raise nose.exc.SkipTest("can't test without RH content cert")
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["repo1", "Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\)"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
     def test_16_create_conf_rpm(self):

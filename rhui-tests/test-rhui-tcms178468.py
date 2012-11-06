@@ -1,6 +1,7 @@
 #! /usr/bin/python -tt
 
-import argparse, nose, re
+import nose
+import re
 
 from rhuilib.expect import *
 from rhuilib.util import *
@@ -10,8 +11,6 @@ from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
-from rhuilib.rhuimanager_identity import *
-from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
 
@@ -34,11 +33,8 @@ class test_178468(object):
     repo = "repo-1"
     cluster = "cluster-1"
     rs = RHUIsetup()
-    rs.setup_from_rolesfile()
+    rs.setup_from_yamlfile()
     def __init__(self):
-        argparser = argparse.ArgumentParser(description=\
-                '178468: Synchronize Unassociated Repositories')
-        args = argparser.parse_args()
         self.cds = Cds(self.rs.CDS[0])
 
     def test_01_initial_run(self):

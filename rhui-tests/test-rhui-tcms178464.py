@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import argparse
 import nose
 
 from rhuilib.util import *
@@ -14,9 +13,8 @@ from rhuilib.pulp_admin import PulpAdmin
 
 class test_tcms_178464(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178464')
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
 
     def __del__(self):
         self.rs.__del__()

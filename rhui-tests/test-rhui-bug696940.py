@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import argparse
 import nose
 
 from rhuilib.util import *
@@ -11,10 +10,8 @@ from rhuilib.rhuimanager_repo import *
 
 class test_bug_696940(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI bug 696940')
-        args = argparser.parse_args()
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
 
     def __del__(self):
         self.rs.__del__()

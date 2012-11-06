@@ -11,7 +11,7 @@ BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildArch:  noarch
 
 BuildRequires:	python-devel
-Requires:	python-paramiko python-nose
+Requires:	python-paramiko python-nose PyYAML
 
 %description
 
@@ -22,6 +22,7 @@ Requires:	python-paramiko python-nose
 
 %install
 %{__python} setup.py install -O1 --root $RPM_BUILD_ROOT
+%{__mkdir_p} $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -38,6 +39,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%name/cfn
 %{_datadir}/%name/rhui-tests
 %{_datadir}/%name/testing-data
+%{_sharedstatedir}/%{name}
 
 %changelog
 * Mon Nov 05 2012 Vitaly Kuznetsov <vitty@redhat.com> 0.1-4

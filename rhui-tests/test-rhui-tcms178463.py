@@ -1,7 +1,5 @@
 #! /usr/bin/python -tt
 
-import logging
-import argparse
 import nose
 
 from rhuilib.util import *
@@ -21,10 +19,8 @@ class test_tcms_178463(object):
     repo="repo"
 
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178463: test un-associating a custom repository from a CDS cluster')
-        args = argparser.parse_args()
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
 
     def test_01_initial_run(self):
         '''[setup] Do initial rhui-manager run'''

@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import argparse
 import nose
 
 from rhuilib.util import *
@@ -13,10 +12,8 @@ from rhuilib.rhuimanager_repo import *
 
 class test_bug_860117(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI bug 860117')
-        args = argparser.parse_args()
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
         if len(self.rs.CDS) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 

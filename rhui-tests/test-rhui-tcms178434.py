@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import argparse
 import nose
 import re
 
@@ -13,10 +12,8 @@ from rhuilib.pulp_admin import *
 
 class test_tcms_178434(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178434: Unregister a CDS belonging to a Single-node Cluster')
-        args = argparser.parse_args()
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
 
     def __del__(self):
         self.rs.__del__()
