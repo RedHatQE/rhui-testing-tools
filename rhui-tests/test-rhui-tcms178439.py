@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import argparse
 import nose
 import re
 
@@ -16,8 +15,6 @@ class test_tcms_178439(object):
     cluster_b = "cluster_b"
 
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178439: Move a CDS belonging to a Single-node Cluster')
-        args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_yamlfile()
 

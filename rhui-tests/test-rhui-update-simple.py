@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import argparse
 import nose
 import time
 
@@ -16,15 +15,11 @@ from rhuilib.rhuimanager_entitlements import *
 
 class test_rhui_update_simple(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='Update RHUI packages from access.redhat.com')
-        argparser.add_argument('--cert',
-                               help='use supplied RH enablement certificate')
-        args = argparser.parse_args()
-        self.cert = args.cert
-        if not self.cert:
-            raise nose.exc.SkipTest("can't test without RH certificate")
         self.rs = RHUIsetup()
         self.rs.setup_from_yamlfile()
+        if not 'rhcert' in self.rs.config.keys():
+            raise nose.exc.SkipTest("can't test without RH certificate")
+        self.cert = self.rs.config['rhcert']
 
     def __del__(self):
         self.rs.__del__()

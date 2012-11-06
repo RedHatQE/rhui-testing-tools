@@ -1,6 +1,5 @@
 #! /usr/bin/python -tt
 
-import argparse
 import nose
 import logging
 
@@ -13,8 +12,6 @@ from rhuilib.pulp_admin import *
 
 class test_bug_tcms178442(object):
     def __init__(self):
-        argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178442')
-        args = argparser.parse_args()
         self.rs = RHUIsetup()
         self.rs.setup_from_yamlfile()
         if len(self.rs.CDS) < 3:
