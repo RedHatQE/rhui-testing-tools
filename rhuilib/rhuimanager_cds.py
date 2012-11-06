@@ -163,7 +163,7 @@ class RHUIManagerCds:
                                 client = reslist[i+2].strip().split(':')[1].strip()
                                 instances.append({"CDS": reslist[i].strip(), "hostname": hostname, "client": client})
                                 i+=3
-                            cluster['Instances'] = instances
+                            cluster['Instances'] = sorted(instances)
                         elif line == "Repositories":
                             # Figuring out repositories
                             repositories = []
@@ -177,7 +177,7 @@ class RHUIManagerCds:
                                     # line
                                     continue
                                 repositories.append(repo)
-                            cluster['Repositories'] = repositories
+                            cluster['Repositories'] = sorted(repositories)
                             break
                         else:
                             i+=1
@@ -186,7 +186,7 @@ class RHUIManagerCds:
         if cluster != {}:
             clusterlist.append(cluster)
         Expect.enter(connection, 'q')
-        return clusterlist
+        return sorted(clusterlist)
 
     @staticmethod
     def move_cds(connection, cdslist, clustername):
