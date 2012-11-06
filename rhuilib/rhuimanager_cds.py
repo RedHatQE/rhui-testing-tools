@@ -2,6 +2,7 @@ import re
 
 from rhuilib.expect import *
 from rhuilib.rhuimanager import *
+from cds import RhuiCds
 
 
 class RHUIManagerCds:
@@ -119,12 +120,8 @@ class RHUIManagerCds:
         '''
         display detailed information on a CDS clusters
 
-        @param clusterlist - list of clusters
-        @returns list representing current state, e.g. [{'Instances': [{'hostname': 'cds1.example.com', 'client': 'cds1.example.com', 'CDS': 'cds1.example.com'},
-                                                                       {'hostname': 'cds2.example.com', 'client': 'cds2.example.com', 'CDS': 'cds2.example.com'}],
-                                                         'Repositories': ['repo1',
-                                                                          'Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)'],
-                                                         'Name': 'Cluster1'}]
+        @param clusterlist - list of clusters to examine
+        @returns a list of Cds instances
         '''
         RHUIManager.screen(connection, "cds")
         Expect.enter(connection, "i")
@@ -161,7 +158,9 @@ class RHUIManagerCds:
                                 cds = reslist[i].strip()
                                 hostname = reslist[i+1].strip().split(':')[1].strip()
                                 client = reslist[i+2].strip().split(':')[1].strip()
-                                instances.append({"CDS": reslist[i].strip(), "hostname": hostname, "client": client})
+                                instances.append(RhuiCds(name=reslist[i].strip(), hostname=hostname, client_hostname=client,
+                                    description='RHUI CDS',
+                                    cluster=cluster['Name']))
                                 i+=3
                             cluster['Instances'] = instances
                         elif line == "Repositories":
@@ -178,6 +177,10 @@ class RHUIManagerCds:
                                     continue
                                 repositories.append(repo)
                             cluster['Repositories'] = repositories
+                            # update all cluster CDSes with appropriate repo
+                            # records
+                            for cds in cluster['Instances']:
+                                cds.repos = repositories
                             break
                         else:
                             i+=1
@@ -185,8 +188,11 @@ class RHUIManagerCds:
 
         if cluster != {}:
             clusterlist.append(cluster)
+        cdses = []
+        for cluster in clusterlist:
+            cdses.extend(cluster['Instances'])
         Expect.enter(connection, 'q')
-        return clusterlist
+        return cdses
 
     @staticmethod
     def move_cds(connection, cdslist, clustername):

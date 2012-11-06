@@ -8,7 +8,8 @@ from rhuilib.expect import *
 from rhuilib.rhuisetup import *
 from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_cds import *
-from rhuilib.pulp_admin import PulpAdmin, Cds
+from rhuilib.pulp_admin import PulpAdmin
+from rhuilib.cds import Cds
 
 
 class test_tcms_178439(object):
@@ -39,35 +40,27 @@ class test_tcms_178439(object):
         RHUIManagerCds.move_cds(self.rs.RHUA, [self.cds.hostname],
                 self.cluster_b)
 
-    def test_04_check_cds_assignment(self):
-        """[test] assert cds is now associated with cluster_b"""
-        clusters = RHUIManagerCds.info(self.rs.RHUA, [self.cluster_b])
-        for cds in clusters[0]["Instances"]:
-            nose.tools.eq_(cds["hostname"],  self.cds.hostname,
-                self.cds.hostname)
-
-    def test_05_cluster_a_removed(self):
-        """[test] assert cluster_a no longer exists"""
-        result = RHUIManagerCds.list(self.rs.RHUA)
-        # check cluster_a doesn't exist anymore
-        pattern = re.compile(str(self.cluster_a))
-        match = pattern.match(result)
-        nose.tools.ok_(match is None)
-
-    def test_06_assert_propper_pulp_list(self):
-        """[test] assert cluster_a no longer exists in pulp and cluster_b exists"""
+    def test_04_assert_propper_pulp_list(self):
+        """[test] assert cluster_a no longer exists in pulp and cluster_b contains the cds"""
         cdses = PulpAdmin.cds_list(self.rs.RHUA)
         cds = Cds(name = self.cds.hostname,
                 hostname = self.cds.hostname,
                 description = 'RHUI CDS',
                 cluster = self.cluster_b)
-        nose.tools.eq_(cdses, [cds])
+        nose.tools.assert_equals(cdses, [cds])
 
-    def test_07_remove_cds(self):
+    def test_05_clusters_consistent(self):
+        """[test] assert pulp and rhui cds list is the same (i.e. cluster_a no longer exists in RHUI)"""
+        rhui_cdses = RHUIManagerCds.info(self.rs.RHUA, [self.cluster_b])
+        pulp_cdses = PulpAdmin.cds_list(self.rs.RHUA)
+        nose.tools.assert_equals(rhui_cdses, pulp_cdses)
+
+    def test_06_remove_cds(self):
         """[teardown] remove the cds"""
         RHUIManagerCds.delete_cds(self.rs.RHUA, self.cluster_b,
                 [self.cds.hostname])
 
 
 if __name__ == "__main__":
-    nose.run(defaultTest=__name__, argv=[__file__, '-v'])
+    nose.run(defaultTest=__name__, argv=[__file__, '-v', '--with-outputsave',
+         '--save-directory=%s.logs' % __file__])

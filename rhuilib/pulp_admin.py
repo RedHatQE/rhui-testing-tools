@@ -1,45 +1,6 @@
 import re
 from rhuilib.expect import Expect, ExpectFailed
-
-class Cds(object):
-    """A CDS attributes container"""
-    def __init__(self,
-            name = None,
-            hostname = None,
-            description = None,
-            cluster = None,
-            sync = None,
-            repos = [],
-            last_sync = None,
-            last_heartbeat = None):
-        self.name = name
-        self.hostname = hostname
-        self.description = description
-        self.cluster = cluster
-        self.sync = sync
-        self.repos = repos
-        self.last_sync = last_sync
-        self.last_heartbeat = last_heartbeat
-    def __repr__(self):
-        return "Cds(" + \
-                "name = %r, " % self.name + \
-                "hostname = %r, " % self.hostname + \
-                "description = %r, " % self.description + \
-                "cluster = %r, " % self.cluster + \
-                "sync_schedule = %r, " % self.sync + \
-                "repos = %r, " % self.repos + \
-                "last_sync = %r, " % self.last_sync + \
-                "last_heartbeat = %r)" % self.last_heartbeat
-    def __eq__(self, other):
-        """ doesn't take care about sync_schedule, last_sync and last_heartbeat"""
-        ret = True
-        ret &= self.name == other.name
-        ret &= self.hostname == other.hostname
-        ret &= self.description == other.description
-        ret &= self.cluster == other.cluster
-        ret &= self.repos == other.repos
-        return ret
-
+from cds import PulpCds
 
 class PulpAdmin(object):
     """pulp-admin handler"""
@@ -69,7 +30,7 @@ class PulpAdmin(object):
             if words[0] == 'Name':
                 # the Name attribute means a start of a new cds record
                 # push current cds instance and create a fresh one
-                cds = Cds()
+                cds = PulpCds()
                 cdses.append(cds)
                 cds.name = words[1]
             if words[0] == 'Hostname':
@@ -91,4 +52,4 @@ class PulpAdmin(object):
                     cds.last_heartbeat = " ".join(words[2:])
         return cdses
 
-__all__ = [PulpAdmin, Cds]
+__all__ = [PulpAdmin]
