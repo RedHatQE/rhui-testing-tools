@@ -17,7 +17,7 @@ class test_tcms_178476(object):
         argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178476')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
         if len(self.rs.CDS) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 

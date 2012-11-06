@@ -34,7 +34,7 @@ class test_178468(object):
     repo = "repo-1"
     cluster = "cluster-1"
     rs = RHUIsetup()
-    rs.setup_from_rolesfile()
+    rs.setup_from_yamlfile()
     def __init__(self):
         argparser = argparse.ArgumentParser(description=\
                 '178468: Synchronize Unassociated Repositories')

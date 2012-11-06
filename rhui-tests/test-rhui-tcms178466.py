@@ -24,7 +24,7 @@ class test_tcms_178466(object):
         if not self.cert:
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
         if len(self.rs.CDS) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 

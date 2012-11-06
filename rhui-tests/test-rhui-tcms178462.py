@@ -24,7 +24,7 @@ class test_tcms_178462(object):
         if not self.cert:
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
 
     def __del__(self):
         self.rs.__del__()

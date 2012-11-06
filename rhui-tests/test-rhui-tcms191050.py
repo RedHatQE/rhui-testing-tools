@@ -20,7 +20,7 @@ class test_tcms_191050(object):
         args = argparser.parse_args()
         self.rhrpm = args.rhrpm
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
         (self.rhrpmnvr, self.rhrpmname) = Util.get_rpm_details(self.rhrpm)
 
     def __del__(self):

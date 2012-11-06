@@ -16,7 +16,7 @@ class test_tcms_178434(object):
         argparser = argparse.ArgumentParser(description='RHUI TCMS testcase 178434: Unregister a CDS belonging to a Single-node Cluster')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
 
     def __del__(self):
         self.rs.__del__()

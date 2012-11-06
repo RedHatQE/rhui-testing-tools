@@ -12,7 +12,7 @@ class test_bug_867803(object):
         argparser = argparse.ArgumentParser(description='RHUI bug 867803')
         args = argparser.parse_args()
         self.rs = RHUIsetup()
-        self.rs.setup_from_rolesfile()
+        self.rs.setup_from_yamlfile()
 
     def __del__(self):
         self.rs.__del__()
