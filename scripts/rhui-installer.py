@@ -9,6 +9,7 @@ import logging
 import os
 import random
 import string
+import yaml
 
 
 class Instance(SSHClient):
@@ -184,8 +185,8 @@ argparser.add_argument('--debug', action='store_const', const=True,
                        default=False, help='debug output to the console (in addition to /var/log/rhui-installer.log)')
 argparser.add_argument('--iso', required=True,
                        help='use supplied ISO file')
-argparser.add_argument('--rolesfile',
-                       default="/etc/testing_roles", help='use supplied testing roles file')
+argparser.add_argument('--yamlfile',
+                       default="/etc/rhui-testing.yaml", help='use specified YAML config file')
 args = argparser.parse_args()
 
 ISONAME = args.iso
@@ -214,32 +215,28 @@ rhua = []
 cds = []
 cli = []
 try:
-    froles = open(args.rolesfile, "r")
-    for line in froles.readlines():
-        if line[-1:] == '\n':
-            line = line[:-1]
-        [role, hostname, public_ip, private_ip] = line.split("\t")
-        role = role.upper()
-        if role == "RHUA":
-            logger.info("Adding RHUA instance " + hostname)
-            instance = RHUA(hostname, public_ip, private_ip, args.iso)
+    fd = open(args.yamlfile, "r")
+    yamlconfig = yaml.load(fd)
+    for instance in yamlconfig['Instances']:
+        if instance['role'].upper() == "RHUA":
+            logger.info("Adding RHUA instance " + instance['hostname'])
+            instance = RHUA(instance['hostname'], instance['public_ip'], instance['private_ip'], args.iso)
             rhua.append(instance)
-        elif role == "CDS":
-            logger.info("Adding CDS instance " + hostname)
-            instance = CDS(hostname, public_ip, private_ip, args.iso)
+        elif instance['role'].upper() == "CDS":
+            logger.info("Adding CDS instance " + instance['hostname'])
+            instance = CDS(instance['hostname'], instance['public_ip'], instance['private_ip'], args.iso)
             cds.append(instance)
-        elif role == "CLI":
-            logger.info("Adding CLI instance " + hostname)
-            instance = CLI(hostname, public_ip, private_ip)
+        elif instance['role'].upper() == "CLI":
+            logger.info("Adding CLI instance " + instance['hostname'])
+            instance = CLI(instance['hostname'], instance['public_ip'], instance['private_ip'])
             cli.append(instance)
-        elif role == "MASTER":
-            logger.debug("Skipping master node " + hostname)
-            pass
+        elif instance['role'].upper() == "MASTER":
+            logger.debug("Skipping master node " + instance['hostname'])
         else:
-            logger.info("host with unknown role " + role + " " + hostname + ", skipping")
-    froles.close()
+            logger.info("host with unknown role " + instance['role'] + " " + instance['hostname'] + ", skipping")
+    fd.close()
 except Exception, e:
-    logger.error("Failed to parse rolesfile " + args.rolesfile +
+    logger.error("Failed to parse config file " + args.yamlfile +
                   " " + str(e.__class__) + ': ' + str(e))
     sys.exit(1)
 logger.debug("RHUA: " + repr(rhua))
