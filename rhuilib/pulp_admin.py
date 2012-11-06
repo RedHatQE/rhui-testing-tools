@@ -28,7 +28,7 @@ class PulpAdmin(object):
             # New cds found
                 if cds != {}:
                     # Appending previous cds
-                    cdslist.append(cds)
+                    cdslist.append(cds.copy())
                 cds['Name'] = line.split('\t')[1].strip()
             elif line[0:9] == 'Hostname ':
                 cds['Hostname'] = line.split('\t')[1].strip()
@@ -43,7 +43,7 @@ class PulpAdmin(object):
 
         if cds != {}:
             # Appending last cds
-            cdslist.append(cds)
+            cdslist.append(cds.copy())
 
         Expect.enter(connection, "")
-        return cdslist
+        return sorted(cdslist)
