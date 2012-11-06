@@ -58,6 +58,6 @@ class RHUIsetup:
             elif instance['role'].upper() == "CLI":
                 self.addCLI(instance['hostname'])
         if 'Config' in yamlconfig.keys():
-            logging.debug("Config found: " + yamlconfig['Config'])
+            logging.debug("Config found: " + str(yamlconfig['Config']))
             self.config = yamlconfig['Config'].copy()
         fd.close()
