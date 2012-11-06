@@ -11,7 +11,7 @@ from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_entitlements import *
-from rhuilib.pulp_admin import PulpAdmin
+from rhuilib.pulp_admin import PulpAdmin, Cds
 
 
 class test_tcms_178462(object):
@@ -55,8 +55,13 @@ class test_tcms_178462(object):
 
     def test_07_pulp_admin_list(self):
         ''' Check pulp-admin cds list '''
-        result = PulpAdmin.cds_list(self.rs.RHUA)
-        nose.tools.assert_equals(result, [{'Status': 'Yes', 'Cluster': 'Cluster1', 'Repos': 'rhel-x86_64-6-rhui-2-rpms-6Server-x86_64', 'Hostname': 'cds1.example.com', 'Name': 'cds1.example.com'}])
+        cdses = PulpAdmin.cds_list(self.rs.RHUA)
+        cds = Cds(name = 'cds1.example.com',
+                hostname = 'cds1.example.com',
+                description = 'RHUI CDS',
+                cluster = 'Cluster1',
+                repos = ['rhel-x86_64-6-rhui-2-rpms-6Server-x86_64'])
+        nose.tools.eq_(cdses, [cds])
 
     def test_08_check_cds_content(self):
         ''' Check certs created for RH repo '''
