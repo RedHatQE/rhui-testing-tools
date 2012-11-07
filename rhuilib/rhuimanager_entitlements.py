@@ -12,8 +12,8 @@ class RHUIManagerEntitlements:
         upload a new or updated Red Hat content certificate
         '''
         if certpath[:1] == '/':
-            Expect.enter(connection, "mkdir -p `dirname " + certpath + "`")
-            Expect.expect(connection, "root@")
+            Expect.enter(connection, "mkdir -p `dirname " + certpath + "` && echo SUCCESS")
+            Expect.expect(connection, "[^ ]SUCCESS")
         connection.sftp.put(certpath, certpath)
         RHUIManager.screen(connection, "entitlements")
         Expect.enter(connection, "u")
