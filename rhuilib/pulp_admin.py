@@ -41,7 +41,7 @@ class PulpAdmin(object):
     def cds_list(connection, username="admin", password="admin"):
         """returns the output of pulp-admin cds list; header stripped off"""
         command = "cds list"
-        header = "Cds Instances"
+        header = "CDS Instances"
         pattern_tuple = PulpAdmin.output_list_pattern(command, header)
         lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
