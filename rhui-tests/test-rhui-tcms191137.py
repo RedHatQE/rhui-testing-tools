@@ -15,7 +15,7 @@ from rhuilib.rhuimanager_entitlements import *
 
 class test_tcms_191137(RHUITestcase):
     def __init__(self):
-        RHUITestcase.__init__()
+        RHUITestcase.__init__(self)
         if not 'rhrpm' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH-signed RPM")
         self.rhrpm = self.rs.config['rhrpm']

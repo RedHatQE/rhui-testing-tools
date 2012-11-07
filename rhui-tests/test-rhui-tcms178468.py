@@ -33,7 +33,7 @@ class test_tcms_178468(RHUITestcase):
     repo = "repo-1"
     cluster = "cluster-1"
     def __init__(self):
-        RHUITestcase.__init__()
+        RHUITestcase.__init__(self)
         self.cds = Cds(self.rs.CDS[0])
 
     def test_01_initial_run(self):

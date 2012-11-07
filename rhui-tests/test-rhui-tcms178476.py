@@ -13,7 +13,7 @@ from rhuilib.rhuimanager_sync import *
 
 class test_tcms_178476(RHUITestcase):
     def __init__(self):
-        RHUITestcase.__init__()
+        RHUITestcase.__init__(self)
         if len(self.rs.CDS) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 

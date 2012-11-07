@@ -15,7 +15,7 @@ from rhuilib.pulp_admin import PulpAdmin, Cds
 
 class test_tcms_178462(RHUITestcase):
     def __init__(self):
-        RHUITestcase.__init__()
+        RHUITestcase.__init__(self)
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']

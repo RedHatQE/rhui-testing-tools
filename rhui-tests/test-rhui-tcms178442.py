@@ -13,7 +13,7 @@ from rhuilib.cds import RhuiCds
 
 class test_bug_tcms178442(RHUITestcase):
     def __init__(self):
-        RHUITestcase.__init__()
+        RHUITestcase.__init__(self)
         if len(self.rs.CDS) < 3:
             raise nose.exc.SkipTest("can't test without having at least three CDSes!")
 

@@ -14,7 +14,7 @@ from rhuilib.rhuimanager_entitlements import *
 
 class test_bug_tcms178467(RHUITestcase):
     def __init__(self):
-        RHUITestcase.__init__()
+        RHUITestcase.__init__(self)
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']

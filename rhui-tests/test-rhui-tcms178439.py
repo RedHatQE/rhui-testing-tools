@@ -16,7 +16,7 @@ class test_tcms_178439(RHUITestcase):
     cluster_b = "cluster_b"
 
     def __init__(self):
-        RHUITestcase.__init__()
+        RHUITestcase.__init__(self)
         self.cds = self.rs.CDS[0]
 
     def test_01_initial_run(self):
