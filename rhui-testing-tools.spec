@@ -37,15 +37,19 @@ rm -rf $RPM_BUILD_ROOT
 %{python_sitelib}/rhuilib/*.pyc
 %{python_sitelib}/rhuilib/*.pyo
 %{_datadir}/%name/cfn
-%{_datadir}/%name/rhui-tests
+%dir %{_datadir}/%name/rhui-tests
+%attr(0644, root, root) %{_datadir}/%name/rhui-tests/*.py
+%exclude %{_datadir}/%name/rhui-tests/*.py?
 %{_datadir}/%name/testing-data
 %{_sharedstatedir}/%{name}
 
 %changelog
 * Mon Nov 05 2012 Vitaly Kuznetsov <vitty@redhat.com> 0.1-4
 - new tests and library improvements
+
 * Thu Oct 25 2012 Vitaly Kuznetsov <vitty@redhat.com> 0.1-3
 - use nose testing framework (vitty@redhat.com)
+
 * Tue Oct 23 2012 Vitaly Kuznetsov <vitty@redhat.com> 0.1-2
 - packaging: hot fixes (vitty@redhat.com)
 
