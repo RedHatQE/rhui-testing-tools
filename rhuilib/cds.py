@@ -36,16 +36,21 @@ class Cds(object):
 
 
 class RhuiCds(Cds):
+    """A Cds the way RHUI tracks it"""
     def __init__(self,
             name = None,
             hostname = None,
             client_hostname = None,
-            description = None,
+            description = 'RHUI CDS',
             cluster = None,
             repos = []):
+        # by default RHUI assigns all names to hostnames; simulating the same
+        if client_hostname is None:
+            client_hostname = hostname
+        if name is None:
+            name = hostname
         Cds.__init__(self,name,hostname,description,cluster,repos)
         self.client_hostname = client_hostname
-
         def __eq__(self, other):
             ret = Cds.__eq__(self, other)
             if isinstance(other, RhuiCds):
@@ -56,6 +61,7 @@ class RhuiCds(Cds):
                     ", client_hostname = %r)" % self.client_hostname
 
 class PulpCds(Cds):
+    """A Cds the way Pulp tracks it"""
     def __init__(self,
             name = None,
             hostname = None,

@@ -8,7 +8,8 @@ from rhuilib.rhuisetup import *
 from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_repo import *
-from rhuilib.pulp_admin import *
+from rhuilib.pulp_admin import PulpAdmin
+from rhuilib.cds import RhuiCds
 
 class test_bug_tcms178442(object):
     def __init__(self):
@@ -25,32 +26,48 @@ class test_bug_tcms178442(object):
         RHUIManager.initial_run(self.rs.RHUA)
 
     def test_02_add_cds(self):
-        ''' Add cdses '''
+        ''' Add cdses: cds0, cds2 -> cluster1; cds1 -> cluster2'''
         RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
         RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].hostname)
         RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[2].hostname)
 
     def test_03_add_custom_repos(self):
-        ''' Create custom repo '''
+        ''' Create custom repo1 '''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo1")
 
     def test_04_associate_repo_cds(self):
-        ''' Associate repo with clusters '''
+        ''' Associate repo1 with both the clusters'''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1"])
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster2", ["repo1"])
 
     def test_05_move_cds(self):
-        ''' Move cds '''
+        ''' Move cds2 to cluster2'''
         RHUIManagerCds.move_cds(self.rs.RHUA, [self.rs.CDS[2].hostname], "Cluster2")
 
     def test_06_info_screen(self):
-        ''' Check cds info screen '''
-        nose.tools.assert_equal(RHUIManagerCds.info(self.rs.RHUA, ["Cluster1", "Cluster2"]), sorted([{'Instances': sorted([{'hostname': 'cds1.example.com', 'client': 'cds1.example.com', 'CDS': 'cds1.example.com'}]), 'Repositories': ['repo1'], 'Name': 'Cluster1'}, {'Instances': [{'hostname': 'cds2.example.com', 'client': 'cds2.example.com', 'CDS': 'cds2.example.com'}, {'hostname': 'cds3.example.com', 'client': 'cds3.example.com', 'CDS': 'cds3.example.com'}], 'Repositories': ['repo1'], 'Name': 'Cluster2'}]))
+        ''' Check that cds2 moved to cluster2'''
+        cds0 = RhuiCds(
+                hostname = self.rs.CDS[0].hostname,
+                cluster = 'Cluster1',
+                repos = ['repo1'])
+        cds1 = RhuiCds(
+                hostname = self.rs.CDS[1].hostname,
+                cluster = 'Cluster2',
+                repos = ['repo1']
+                )
+        cds2 = RhuiCds(
+                hostname = self.rs.CDS[2].hostname,
+                cluster = 'Cluster2',
+                repos = ['repo1']
+                )
+        nose.tools.assert_equal(sorted(RHUIManagerCds.info(self.rs.RHUA,
+            ["Cluster1", "Cluster2"])), sorted([cds0, cds1, cds2]))
 
     def test_07_pulp_admin_list(self):
-        ''' Check pulp-admin cds list '''
-        result = PulpAdmin.cds_list(self.rs.RHUA)
-        nose.tools.assert_equals(result, sorted([{'Status': 'Yes', 'Cluster': 'Cluster2', 'Repos': 'repo1', 'Hostname': 'cds3.example.com', 'Name': 'cds3.example.com'}, {'Status': 'Yes', 'Cluster': 'Cluster2', 'Repos': 'repo1', 'Hostname': 'cds2.example.com', 'Name': 'cds2.example.com'}, {'Status': 'Yes', 'Cluster': 'Cluster1', 'Repos': 'repo1', 'Hostname': 'cds1.example.com', 'Name': 'cds1.example.com'}]))
+        ''' Check pulp-admin and rhui cluster info are the same'''
+        nose.tools.assert_equals(sorted(PulpAdmin.cds_list(self.rs.RHUA)),
+                sorted(RHUIManagerCds.info(self.rs.RHUA, ['Cluster1',
+                    'Cluster2'])))
 
     def test_08_delete_custom_repo(self):
         ''' Delete custom repos '''
