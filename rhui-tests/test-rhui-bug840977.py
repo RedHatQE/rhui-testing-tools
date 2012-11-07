@@ -10,23 +10,21 @@ from rhuilib.rhuimanager_repo import *
 
 
 class test_bug_840977(RHUITestcase):
-    def test_01_initial_run(self):
+    def __init__(self):
+        RHUITestcase.__init__(self)
         '''[Bug#840977 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
-    def test_02_add_cds(self):
         '''[Bug#840977 setup] Add cds '''
         RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
 
-    def test_03_add_protected_repo(self):
         '''[Bug#840977 setup] Create protected repo '''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "custom_repo_1")
 
-    def test_04_add_unprotected_repo(self):
         '''[Bug#840977 setup] Create unprotected repo '''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "custom_repo_2", entitlement="n")
 
-    def test_05_test_repo_assignment(self):
+    def test_bug_840977(self):
         '''[Bug#840977 test] Test repos assignment '''
         RHUIManager.screen(self.rs.RHUA, "cds")
         Expect.enter(self.rs.RHUA, "i")
@@ -34,13 +32,14 @@ class test_bug_840977(RHUITestcase):
         Expect.expect(self.rs.RHUA, "Repositories.*\(None\).*rhui \(cds\) =>")
         Expect.ping_pong(self.rs.RHUA, "q", "root@")
 
-    def test_06_remove_cds(self):
+    def __del__(self):
         '''[Bug#840977 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
-    def test_07_delete_custom_repo(self):
         '''[Bug#840977 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["custom_repo_1", "custom_repo_2"])
+
+        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":
