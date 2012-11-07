@@ -13,8 +13,7 @@ from rhuilib.cds import RhuiCds
 
 
 class test_tcms_178465(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         '''[TCMS#178465 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
@@ -28,7 +27,7 @@ class test_tcms_178465(RHUITestcase):
         '''[TCMS#178465 setup] Associate repos with cluster '''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1", "repo2"])
 
-    def test_tcms_178465(self):
+    def _test(self):
         '''[TCMS#178465 test] Check repos are associated '''
         cds = RhuiCds(
                 hostname=self.rs.CDS[0].hostname,
@@ -53,14 +52,13 @@ class test_tcms_178465(RHUITestcase):
         rhui_cdses = RHUIManagerCds.info(self.rs.RHUA, ["Cluster1"])
         nose.tools.assert_equals(pulp_cdses, rhui_cdses)
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178465 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
         '''[TCMS#178465 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1", "repo2"])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

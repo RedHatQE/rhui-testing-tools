@@ -15,8 +15,7 @@ class test_tcms_178439(RHUITestcase):
     cluster_a = "cluster_a"
     cluster_b = "cluster_b"
 
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         self.cds = self.rs.CDS[0]
 
         """[TCMS#178439 setup] initial rhui-manager login"""
@@ -26,7 +25,7 @@ class test_tcms_178439(RHUITestcase):
         RHUIManagerCds.add_cds(self.rs.RHUA, self.cluster_a,
                 self.cds.hostname)
 
-    def test_tcms_178439(self):
+    def _test(self):
         """[TCMS#178439 test] move the cds to cluster_b"""
         RHUIManagerCds.move_cds(self.rs.RHUA, [self.cds.hostname],
                 self.cluster_b)
@@ -44,12 +43,11 @@ class test_tcms_178439(RHUITestcase):
         pulp_cdses = PulpAdmin.cds_list(self.rs.RHUA)
         nose.tools.assert_equals(rhui_cdses, pulp_cdses)
 
-    def __del__(self):
+    def _cleanup(self):
         """[TCMS#178439 teardown] remove the cds"""
         RHUIManagerCds.delete_cds(self.rs.RHUA, self.cluster_b,
                 [self.cds.hostname])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

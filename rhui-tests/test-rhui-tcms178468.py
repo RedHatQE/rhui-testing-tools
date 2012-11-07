@@ -36,8 +36,7 @@ class test_tcms_178468(RHUITestcase):
     repo = "repo-1"
     cluster = "cluster-1"
 
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         self.cds = Cds(self.rs.CDS[0])
 
         '''[TCMS#178468 setup] Do initial rhui-manager run'''
@@ -58,7 +57,7 @@ class test_tcms_178468(RHUITestcase):
         '''[TCMS#178468 setup] Sync cdses having uploaded content'''
         RHUIManagerSync.sync_cds(self.rs.RHUA, [self.cds.hostname])
 
-    def test_tcms_178468(self):
+    def _test(self):
         '''[TCMS#178468 test] assert repo contents is present on the CDS'''
         nose.tools.ok_(self.repo in self.cds.get_reponames())
 
@@ -71,14 +70,13 @@ class test_tcms_178468(RHUITestcase):
         '''[TCMS#178468 test] assert repo contents is present on the CDS no more'''
         nose.tools.ok_(self.repo not in self.cds.get_reponames())
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178468 teardown] Remove the custom repo'''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, [self.repo])
 
         """[TCMS#178468 teardown] check removing a cds from single node cluster"""
         RHUIManagerCds.delete_cds(self.rs.RHUA, "cluster-1", [self.rs.CDS[0].hostname])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

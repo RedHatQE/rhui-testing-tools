@@ -11,8 +11,7 @@ from rhuilib.rhuimanager_repo import *
 
 
 class test_bug_860117(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if len(self.rs.CDS) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 
@@ -31,7 +30,7 @@ class test_bug_860117(RHUITestcase):
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo5")
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo6")
 
-    def test_bug_860117(self):
+    def _test(self):
         '''[Bug#860117 test] Associate custom repos with cluster '''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1", "repo3", "repo6"])
 
@@ -41,15 +40,13 @@ class test_bug_860117(RHUITestcase):
         '''[Bug#860117 test] Create configuration rpm '''
         RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
-    def __del__(self):
+    def _cleanup(self):
         '''[Bug#860117 cleanup] Remove cdses '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
 
         '''[Bug#860117 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1", "repo2", "repo3", "repo4", "repo5", "repo6"])
-
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

@@ -13,8 +13,7 @@ class test_tcms_178463(RHUITestcase):
     cluster = "cluster"
     repo = "repo"
 
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         '''[TCMS#178463 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
@@ -27,11 +26,11 @@ class test_tcms_178463(RHUITestcase):
         '''[TCMS#178463 setup] Associate custom repo with a cluster'''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, self.cluster, [self.repo])
 
-    def test_tcms_178463(self):
+    def _test(self):
         '''[TCMS#178463 test] Un-associate a custom repo from a cluster'''
         RHUIManagerCds.unassociate_repo_cds(self.rs.RHUA, self.cluster, [self.repo])
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178463 teardown] Remove the custom repo'''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, [self.repo])
 
@@ -39,7 +38,6 @@ class test_tcms_178463(RHUITestcase):
         RHUIManagerCds.delete_cds(self.rs.RHUA, self.cluster,
                 [self.rs.CDS[0].hostname])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

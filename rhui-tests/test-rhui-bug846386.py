@@ -10,8 +10,7 @@ from rhuilib.rhuimanager_repo import *
 
 
 class test_bug_846386(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         '''[Bug#846386 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
@@ -30,21 +29,19 @@ class test_bug_846386(RHUITestcase):
         '''[Bug#846386 setup] Associate cdses with cluster '''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["custom_repo_1", "custom_repo_2"])
 
-    def test_bug_846386(self):
+    def _test(self):
         '''[Bug#846386 test] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["custom_repo_1"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
         '''[Bug#846386 test] Create configuration rpm '''
         RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0", ["custom_repo_2"])
 
-    def __del__(self):
+    def _cleanup(self):
         '''[Bug#846386 clenup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
         '''[Bug#846386 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["custom_repo_1", "custom_repo_2"])
-
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

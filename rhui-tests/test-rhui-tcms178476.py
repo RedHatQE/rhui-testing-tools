@@ -12,8 +12,7 @@ from rhuilib.rhuimanager_sync import *
 
 
 class test_tcms_178476(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if len(self.rs.CDS) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 
@@ -50,7 +49,7 @@ class test_tcms_178476(RHUITestcase):
         self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
         Util.install_rpm_from_master(self.rs.CLI[0], "/root/repo1-3.0-1.noarch.rpm")
 
-    def test_tcms_178476(self):
+    def _test(self):
         '''[TCMS#178476 test] Test client with 2 cdses up '''
         Expect.ping_pong(self. rs.CLI[0], "yum clean metadata && yum check-update && echo SUCCESS", "[^ ]SUCCESS")
 
@@ -65,7 +64,7 @@ class test_tcms_178476(RHUITestcase):
         Expect.ping_pong(self.rs.CDS[1], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS")
         Expect.ping_pong(self.rs.CLI[0], "yum clean metadata && yum check-update && echo SUCCESS", "[^ ]SUCCESS")
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178476 cleanup] Recover from tests '''
         # enabling httpd on slave
         Expect.ping_pong(self.rs.CDS[1], "service httpd start && echo SUCCESS", "[^ ]SUCCESS")
@@ -76,7 +75,6 @@ class test_tcms_178476(RHUITestcase):
         '''[TCMS#178476 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1"])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

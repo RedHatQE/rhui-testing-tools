@@ -12,8 +12,7 @@ from rhuilib.rhuimanager_sync import *
 
 
 class test_tcms_191050(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if not 'rhrpm' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH-signed RPM")
         self.rhrpm = self.rs.config['rhrpm']
@@ -66,7 +65,7 @@ class test_tcms_191050(RHUITestcase):
             raise nose.exc.SkipTest("can't test without RH rpm")
         Expect.ping_pong(self. rs.CLI[0], "yum install -y --nogpgcheck " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
-    def test_tcms_191050(self):
+    def _test(self):
         '''[TCMS#191050 test] Installing signed rpm to the client '''
         Expect.ping_pong(self. rs.CLI[0], "yum install -y --nogpgcheck custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
@@ -78,7 +77,7 @@ class test_tcms_191050(RHUITestcase):
             raise nose.exc.SkipTest("can't test without RH rpm")
         Expect.ping_pong(self. rs.CLI[0], "rpm -e " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#191050 cleanup] Removing signed rpm from the client '''
         Expect.ping_pong(self. rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
@@ -91,7 +90,6 @@ class test_tcms_191050(RHUITestcase):
         '''[TCMS#191050 cleanup] Delete custom repo '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1"])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

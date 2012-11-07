@@ -13,8 +13,7 @@ from rhuilib.rhuimanager_entitlements import *
 
 
 class test_bug_tcms178467(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']
@@ -57,12 +56,12 @@ class test_bug_tcms178467(RHUITestcase):
         '''[TCMS#178467 setup] Sync cds '''
         self._sync([self.rs.CDS[0].hostname])
 
-    def test_tcms_178467(self):
+    def _test(self):
         '''[TCMS#178467 test] Check repo content on cds '''
         Expect.ping_pong(self.rs.CDS[0], "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS")
         Expect.ping_pong(self.rs.CDS[0], "find /var/lib/pulp-cds/ -name 'mongodb*.rpm' | grep mongodb && echo SUCCESS", "[^ ]SUCCESS")
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178467 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1"])
 
@@ -75,7 +74,6 @@ class test_bug_tcms178467(RHUITestcase):
         '''[TCMS#178467 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

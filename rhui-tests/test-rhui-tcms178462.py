@@ -14,8 +14,7 @@ from rhuilib.pulp_admin import PulpAdmin, Cds
 
 
 class test_tcms_178462(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']
@@ -35,7 +34,7 @@ class test_tcms_178462(RHUITestcase):
         '''[TCMS#178462 setup] Associate repo with cluster '''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
-    def test_tcms_178462(self):
+    def _test(self):
         '''[TCMS#178462 test] Check cds info screen '''
         nose.tools.assert_equal(RHUIManagerCds.info(self.rs.RHUA, ["Cluster1"]), [{'Instances': [{'hostname': 'cds1.example.com', 'client': 'cds1.example.com', 'CDS': 'cds1.example.com'}], 'Repositories': ['Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)'], 'Name': 'Cluster1'}])
 
@@ -54,7 +53,7 @@ class test_tcms_178462(RHUITestcase):
         Expect.ping_pong(self.rs.RHUA, "test -f /etc/pki/pulp/content/rhel-x86_64-6-rhui-2-rpms-6Server-x86_64/feed-rhel-x86_64-6-rhui-2-rpms-6Server-x86_64.ca && echo SUCCESS", "[^ ]SUCCESS")
         Expect.ping_pong(self.rs.RHUA, "test -f /etc/pki/pulp/content/rhel-x86_64-6-rhui-2-rpms-6Server-x86_64/consumer-rhel-x86_64-6-rhui-2-rpms-6Server-x86_64.cert && echo SUCCESS", "[^ ]SUCCESS")
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178462 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
@@ -64,7 +63,6 @@ class test_tcms_178462(RHUITestcase):
         '''[TCMS#178462 cleanup] Remove RH certificate from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.RHUA)
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

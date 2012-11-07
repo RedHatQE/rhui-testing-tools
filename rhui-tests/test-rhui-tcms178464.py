@@ -12,8 +12,7 @@ from rhuilib.cds import RhuiCds
 
 
 class test_tcms_178464(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         '''[TCMS#178464 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
@@ -26,7 +25,7 @@ class test_tcms_178464(RHUITestcase):
         '''[TCMS#178464 setup] Associate repos with clusters '''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1"])
 
-    def test_tcms_178464(self):
+    def _test(self):
         '''[TCMS#178464 test] Check cds info screen '''
         cds = RhuiCds(
                 hostname=self.rs.CDS[0].hostname,
@@ -43,14 +42,13 @@ class test_tcms_178464(RHUITestcase):
         Expect.ping_pong(self.rs.RHUA, "test -f /etc/pki/pulp/content/repo1/consumer-repo1.cert && echo SUCCESS", "[^ ]SUCCESS")
         Expect.ping_pong(self.rs.RHUA, "test -f /etc/pki/pulp/content/repo1/consumer-repo1.ca && echo SUCCESS", "[^ ]SUCCESS")
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178464 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
         '''[TCMS#178464 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1"])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

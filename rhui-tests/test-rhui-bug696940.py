@@ -9,20 +9,17 @@ from rhuilib.rhui_testcase import *
 
 
 class test_bug_696940(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         '''[Bug#696940 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
-    def test_bug_696940(self):
+    def _test(self):
         '''[Bug#696940 test] Create custom repo '''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "custom_repo1", "protected repo1", "/protected/x86_64/os", "1", "y", "/protected/$basearch/os")
 
-    def __del__(self):
+    def _cleanup(self):
         '''[Bug#696940 cleanup] Delete custom repo '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["protected repo1"])
-
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

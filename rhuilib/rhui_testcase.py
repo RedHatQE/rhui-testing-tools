@@ -5,7 +5,19 @@ class RHUITestcase(object):
         self.rs = RHUIsetup()
         self.rs.setup_from_yamlfile()
 
-    def __del__(self):
+    def test_01_setup(self):
+        if hasattr(self,"_setup"):
+            self._setup()
+        self.rs.__del__()
+
+    def test_02_test(self):
+        if hasattr(self,"_test"):
+            self._test()
+        self.rs.__del__()
+
+    def test_03_cleanup(self):
+        if hasattr(self,"_cleanup"):
+            self._cleanup()
         self.rs.__del__()
 
     def _sync(self, cdslist):

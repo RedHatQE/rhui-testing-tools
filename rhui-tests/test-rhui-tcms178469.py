@@ -12,8 +12,7 @@ from rhuilib.rhuimanager_sync import *
 
 
 class test_bug_tcms178469(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if len(self.rs.CDS) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 
@@ -43,7 +42,7 @@ class test_bug_tcms178469(RHUITestcase):
         '''[TCMS#178469 setup] Sync cdses '''
         self._sync([self.rs.CDS[0].hostname, self.rs.CDS[1].hostname])
 
-    def test_tcms_178469(self):
+    def _test(self):
         '''[TCMS#178469 test] Check repo content on cdses '''
         for cds in self.rs.CDS:
             Expect.ping_pong(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS")
@@ -58,12 +57,11 @@ class test_bug_tcms178469(RHUITestcase):
         for cds in self.rs.CDS:
             Expect.ping_pong(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm || echo FAILURE", "[^ ]FAILURE")
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178469 cleanup] Remove cdses '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

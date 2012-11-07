@@ -14,8 +14,7 @@ from rhuilib.rhuimanager_entitlements import *
 
 
 class test_0_update_simple(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']
@@ -64,11 +63,11 @@ class test_0_update_simple(RHUITestcase):
         self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
         Util.install_rpm_from_master(self.rs.RHUA, "/root/repo1-3.0-1.noarch.rpm")
 
-    def test_0_update_simple(self):
+    def _test(self):
         '''[Update Simple test] Upgrade RHUI '''
         Expect.ping_pong(self.rs.RHUA, "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 120)
 
-    def __del__(self):
+    def _cleanup(self):
         '''[Update Simple cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
@@ -81,7 +80,6 @@ class test_0_update_simple(RHUITestcase):
         '''[Update Simple cleanup] Remove rhui configuration rpm from RHUA '''
         Util.remove_conf_rpm(self.rs.RHUA)
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

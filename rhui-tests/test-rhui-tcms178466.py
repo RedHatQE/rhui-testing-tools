@@ -15,8 +15,7 @@ from rhuilib.cds import RhuiCds
 
 
 class test_tcms_178466(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']
@@ -43,7 +42,7 @@ class test_tcms_178466(RHUITestcase):
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1", "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster2", ["repo1", "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
-    def test_tcms_178466(self):
+    def _test(self):
         '''[TCMS#178466 test] Check cds info screen '''
         cds0 = RhuiCds(
                 hostname=self.rs.CDS[0].hostname,
@@ -65,7 +64,7 @@ class test_tcms_178466(RHUITestcase):
         rhui_cdses = RHUIManagerCds.info(self.rs.RHUA, ["Cluster1", "Cluster2"])
         nose.tools.assert_equals(sorted(pulp_cdses), sorted(rhui_cdses))
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178466 cleanup] Remove cdses '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
@@ -79,7 +78,6 @@ class test_tcms_178466(RHUITestcase):
         '''[TCMS#178466 cleanup] Remove RH certificate from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.RHUA)
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

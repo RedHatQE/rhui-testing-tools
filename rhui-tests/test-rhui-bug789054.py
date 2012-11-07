@@ -10,8 +10,7 @@ from rhuilib.rhuimanager_repo import *
 
 
 class test_bug_789054(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         '''[Bug#789054 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
@@ -23,7 +22,7 @@ class test_bug_789054(RHUITestcase):
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo2")
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo3")
 
-    def test_bug_789054(self):
+    def _test(self):
         '''[Bug#789054 setup] Associate custom repos with cluster '''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1", "repo2", "repo3"])
 
@@ -35,13 +34,12 @@ class test_bug_789054(RHUITestcase):
         Expect.expect(self.rs.RHUA, "Name of the certificate.*contained with it:")
         Expect.ping_pong(self.rs.RHUA, "cert with spaces", "The name can not contain spaces")
 
-    def __del__(self):
+    def _cleanup(self):
         '''[Bug#789054 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
         '''[Bug#789054 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1", "repo2", "repo3"])
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

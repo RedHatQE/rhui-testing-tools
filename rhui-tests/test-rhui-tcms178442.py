@@ -13,8 +13,7 @@ from rhuilib.cds import RhuiCds
 
 
 class test_bug_tcms178442(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if len(self.rs.CDS) < 3:
             raise nose.exc.SkipTest("can't test without having at least three CDSes!")
 
@@ -33,7 +32,7 @@ class test_bug_tcms178442(RHUITestcase):
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1"])
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster2", ["repo1"])
 
-    def test_bug_tcms178442(self):
+    def _test(self):
         '''[TCMS#178442 test] Move cds2 to cluster2'''
         RHUIManagerCds.move_cds(self.rs.RHUA, [self.rs.CDS[2].hostname], "Cluster2")
 
@@ -60,7 +59,7 @@ class test_bug_tcms178442(RHUITestcase):
                 sorted(RHUIManagerCds.info(self.rs.RHUA, ['Cluster1',
                     'Cluster2'])))
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#178442 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1"])
 
@@ -69,7 +68,6 @@ class test_bug_tcms178442(RHUITestcase):
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[2].hostname])
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

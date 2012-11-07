@@ -14,8 +14,7 @@ from rhuilib.rhuimanager_entitlements import *
 
 
 class test_tcms_191137(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if not 'rhrpm' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH-signed RPM")
         self.rhrpm = self.rs.config['rhrpm']
@@ -85,7 +84,7 @@ class test_tcms_191137(RHUITestcase):
         self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
         Util.install_rpm_from_master(self.rs.CLI[0], "/root/repo1-3.0-1.noarch.rpm")
 
-    def test_tcms_191137(self):
+    def _test(self):
         '''[TCMS#191137 test] Installing RH rpm from RH repo to the client '''
         Expect.ping_pong(self.rs.CLI[0], "yum install -y pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
 
@@ -98,7 +97,7 @@ class test_tcms_191137(RHUITestcase):
         '''[TCMS#191137 test] Trying to install unsigned rpm from custom repo to the client '''
         Expect.ping_pong(self.rs.CLI[0], "yum install -y custom-unsigned-rpm || echo FAILURE", "[^ ]FAILURE", 60)
 
-    def __del__(self):
+    def _cleanup(self):
         '''[TCMS#191137 cleanup] Removing RH rpm from RH repo from the client '''
         Expect.ping_pong(self.rs.CLI[0], "rpm -e pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
 
@@ -120,7 +119,6 @@ class test_tcms_191137(RHUITestcase):
         '''[TCMS#191137 cleanup] Remove RH certs from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.RHUA)
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":

@@ -15,8 +15,7 @@ from rhuilib.rhuimanager_entitlements import *
 
 
 class test_workflow_simple(RHUITestcase):
-    def __init__(self):
-        RHUITestcase.__init__(self)
+    def _setup(self):
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']
@@ -24,7 +23,7 @@ class test_workflow_simple(RHUITestcase):
         '''[Simple Workflow setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
-    def test_workflow_simple(self):
+    def _test(self):
         '''[Simple Workflow test] Add cdses '''
         for cds in self.rs.CDS:
             RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", cds.hostname)
@@ -92,7 +91,7 @@ class test_workflow_simple(RHUITestcase):
         RHUIManagerUsers.change_password(self.rs.RHUA, "admin", "admin2")
         RHUIManagerUsers.change_password(self.rs.RHUA, "admin", "admin")
 
-    def __del__(self):
+    def _cleanup(self):
         '''[Simple Workflow cleanup] Remove cdses '''
         for cds in self.rs.CDS:
             RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [cds.hostname])
@@ -103,7 +102,6 @@ class test_workflow_simple(RHUITestcase):
         '''[Simple Workflow cleanup] Remove rh certificate '''
         RHUIManager.remove_rh_certs(self.rs.RHUA)
 
-        RHUITestcase.__del__()
 
 
 if __name__ == "__main__":
