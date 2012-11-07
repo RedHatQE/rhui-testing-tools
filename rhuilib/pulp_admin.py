@@ -52,4 +52,4 @@ class PulpAdmin(object):
                     cds.last_heartbeat = " ".join(words[2:])
         return cdses
 
-__all__ = [PulpAdmin]
+__all__ = ['PulpAdmin']
