@@ -65,10 +65,16 @@ class test_0_update_simple(RHUITestcase):
 
     def _test(self):
         '''[Update Simple test] Upgrade RHUI '''
+        if not 'rhcert' in self.rs.config.keys():
+            raise nose.exc.SkipTest("can't test without RH certificate")
+        self.cert = self.rs.config['rhcert']
         Expect.ping_pong(self.rs.RHUA, "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 120)
 
     def _cleanup(self):
         '''[Update Simple cleanup] Remove cds '''
+        if not 'rhcert' in self.rs.config.keys():
+            raise nose.exc.SkipTest("can't test without RH certificate")
+        self.cert = self.rs.config['rhcert']
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
         '''[Update Simple cleanup] Delete RH repo '''

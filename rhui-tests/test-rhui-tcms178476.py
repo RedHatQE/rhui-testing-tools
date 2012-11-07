@@ -12,10 +12,11 @@ from rhuilib.rhuimanager_sync import *
 
 
 class test_tcms_178476(RHUITestcase):
-    def _setup(self):
+    def _init(self):
         if len(self.rs.CDS) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 
+    def _setup(self):
         '''[TCMS#178476 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 

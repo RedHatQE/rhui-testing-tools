@@ -36,9 +36,10 @@ class test_tcms_178468(RHUITestcase):
     repo = "repo-1"
     cluster = "cluster-1"
 
-    def _setup(self):
+    def _init(self):
         self.cds = Cds(self.rs.CDS[0])
 
+    def _setup(self):
         '''[TCMS#178468 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 

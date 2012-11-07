@@ -12,12 +12,13 @@ from rhuilib.rhuimanager_sync import *
 
 
 class test_tcms_191050(RHUITestcase):
-    def _setup(self):
+    def _init(self):
         if not 'rhrpm' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH-signed RPM")
         self.rhrpm = self.rs.config['rhrpm']
         (self.rhrpmnvr, self.rhrpmname) = Util.get_rpm_details(self.rhrpm)
 
+    def _setup(self):
         '''[TCMS#191050 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
@@ -61,8 +62,6 @@ class test_tcms_191050(RHUITestcase):
         Util.install_rpm_from_master(self.rs.CLI[0], "/root/repo1-3.0-1.noarch.rpm")
 
         '''[TCMS#191050 setup] Installing RH rpm to the client '''
-        if not self.rhrpmname:
-            raise nose.exc.SkipTest("can't test without RH rpm")
         Expect.ping_pong(self. rs.CLI[0], "yum install -y --nogpgcheck " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def _test(self):
@@ -73,8 +72,6 @@ class test_tcms_191050(RHUITestcase):
         Expect.ping_pong(self. rs.CLI[0], "yum install -y --nogpgcheck custom-unsigned-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#191050 test] Removing RH rpm from the client '''
-        if not self.rhrpmname:
-            raise nose.exc.SkipTest("can't test without RH rpm")
         Expect.ping_pong(self. rs.CLI[0], "rpm -e " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def _cleanup(self):

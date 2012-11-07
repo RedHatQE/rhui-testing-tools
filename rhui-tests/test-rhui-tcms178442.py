@@ -13,10 +13,11 @@ from rhuilib.cds import RhuiCds
 
 
 class test_bug_tcms178442(RHUITestcase):
-    def _setup(self):
+    def _init(self):
         if len(self.rs.CDS) < 3:
             raise nose.exc.SkipTest("can't test without having at least three CDSes!")
 
+    def _setup(self):
         '''[TCMS#178442 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
@@ -67,7 +68,6 @@ class test_bug_tcms178442(RHUITestcase):
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[2].hostname])
-
 
 
 if __name__ == "__main__":

@@ -16,24 +16,22 @@ class test_tcms_178439(RHUITestcase):
     cluster_b = "cluster_b"
 
     def _setup(self):
-        self.cds = self.rs.CDS[0]
-
         """[TCMS#178439 setup] initial rhui-manager login"""
         RHUIManager.initial_run(self.rs.RHUA)
 
         """[TCMS#178439 setup] create a single-node cluster_a containing a cds"""
         RHUIManagerCds.add_cds(self.rs.RHUA, self.cluster_a,
-                self.cds.hostname)
+                self.rs.CDS[0].hostname)
 
     def _test(self):
         """[TCMS#178439 test] move the cds to cluster_b"""
-        RHUIManagerCds.move_cds(self.rs.RHUA, [self.cds.hostname],
+        RHUIManagerCds.move_cds(self.rs.RHUA, [self.rs.CDS[0].hostname],
                 self.cluster_b)
 
         """[TCMS#178439 test] assert cluster_a no longer exists in pulp and cluster_b contains the cds"""
         cdses = PulpAdmin.cds_list(self.rs.RHUA)
-        cds = Cds(name=self.cds.hostname,
-                hostname=self.cds.hostname,
+        cds = Cds(name=self.rs.CDS[0].hostname,
+                hostname=self.rs.CDS[0].hostname,
                 description='RHUI CDS',
                 cluster=self.cluster_b)
         nose.tools.assert_equals(cdses, [cds])
@@ -46,8 +44,7 @@ class test_tcms_178439(RHUITestcase):
     def _cleanup(self):
         """[TCMS#178439 teardown] remove the cds"""
         RHUIManagerCds.delete_cds(self.rs.RHUA, self.cluster_b,
-                [self.cds.hostname])
-
+                [self.rs.CDS[0].hostname])
 
 
 if __name__ == "__main__":

@@ -4,6 +4,8 @@ class RHUITestcase(object):
     def __init__(self):
         self.rs = RHUIsetup()
         self.rs.setup_from_yamlfile()
+        if hasattr(self,"_init"):
+            self._init()
 
     def test_01_setup(self):
         if hasattr(self,"_setup"):

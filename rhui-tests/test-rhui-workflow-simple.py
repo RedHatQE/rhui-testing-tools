@@ -15,11 +15,12 @@ from rhuilib.rhuimanager_entitlements import *
 
 
 class test_workflow_simple(RHUITestcase):
-    def _setup(self):
+    def _init(self):
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']
 
+    def _setup(self):
         '''[Simple Workflow setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 

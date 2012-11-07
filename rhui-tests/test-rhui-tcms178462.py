@@ -14,11 +14,12 @@ from rhuilib.pulp_admin import PulpAdmin, Cds
 
 
 class test_tcms_178462(RHUITestcase):
-    def _setup(self):
+    def _init(self):
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']
 
+    def _setup(self):
         '''[TCMS#178462 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
@@ -62,7 +63,6 @@ class test_tcms_178462(RHUITestcase):
 
         '''[TCMS#178462 cleanup] Remove RH certificate from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.RHUA)
-
 
 
 if __name__ == "__main__":
