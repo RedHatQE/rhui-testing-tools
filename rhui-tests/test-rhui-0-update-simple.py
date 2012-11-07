@@ -4,7 +4,7 @@ import nose
 import time
 
 from rhuilib.util import *
-from rhuilib.rhuisetup import *
+from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_client import *
@@ -13,43 +13,39 @@ from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_entitlements import *
 
 
-class test_rhui_update_simple(object):
+class test_rhui_update_simple(RHUITestcase):
     def __init__(self):
-        self.rs = RHUIsetup()
-        self.rs.setup_from_yamlfile()
+        RHUITestcase.__init__()
         if not 'rhcert' in self.rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
         self.cert = self.rs.config['rhcert']
 
-    def __del__(self):
-        self.rs.__del__()
-
     def test_01_initial_run(self):
-        ''' Do initial rhui-manager run'''
+        '''[Update Simple setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
     def test_02_add_cds(self):
-        ''' Add cds '''
+        '''[Update Simple setup] Add cds '''
         RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
 
     def test_03_upload_content_cert(self):
-        ''' Upload RH content certificate '''
+        '''[Update Simple setup] Upload RH content certificate '''
         RHUIManagerEntitlements.upload_content_cert(self.rs.RHUA, self.cert)
 
     def test_04_add_rh_repo_by_repo(self):
-        ''' Add rh repo '''
+        '''[Update Simple setup] Add rh repo '''
         RHUIManagerRepo.add_rh_repo_by_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
     def test_05_associate_repo_cds(self):
-        ''' Associate repos with cluster '''
+        '''[Update Simple setup] Associate repos with cluster '''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
     def test_06_cli_remove_conf_rpm(self):
-        ''' Remove rhui configuration rpm from RHUA '''
+        '''[Update Simple setup] Remove rhui configuration rpm from RHUA '''
         Util.remove_conf_rpm(self.rs.RHUA)
 
     def test_07_sync_repo(self):
-        ''' Sync RH repo '''
+        '''[Update Simple setup] Sync RH repo '''
         RHUIManagerSync.sync_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
         reposync = ["In Progress", "", ""]
         while reposync[0] == "In Progress":
@@ -58,7 +54,7 @@ class test_rhui_update_simple(object):
         nose.tools.assert_equal(reposync[2], "Success")
 
     def test_08_sync_cds(self):
-        ''' Sync cds '''
+        '''[Update Simple setup] Sync cds '''
         RHUIManagerSync.sync_cds(self.rs.RHUA, [self.rs.CDS[0].hostname])
         cdssync = ["UP", "In Progress", "", ""]
         while cdssync[1] == "In Progress":
@@ -67,36 +63,36 @@ class test_rhui_update_simple(object):
         nose.tools.assert_equal(cdssync[3], "Success")
 
     def test_09_generate_ent_cert(self):
-        ''' Generate entitlement certificate '''
+        '''[Update Simple setup] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\)"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
     def test_10_create_conf_rpm(self):
-        ''' Create configuration rpm '''
+        '''[Update Simple setup] Create configuration rpm '''
         RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
     def test_11_install_conf_rpm_client(self):
-        ''' Install configuration rpm to RHUA '''
+        '''[Update Simple setup] Install configuration rpm to RHUA '''
         self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
         Util.install_rpm_from_master(self.rs.RHUA, "/root/repo1-3.0-1.noarch.rpm")
 
     def test_12_update(self):
-        ''' Upgrade RHUI '''
+        '''[Update Simple test] Upgrade RHUI '''
         Expect.ping_pong(self.rs.RHUA, "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 120)
 
     def test_13_remove_cds(self):
-        ''' Remove cds '''
+        '''[Update Simple cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
 
     def test_14_delete_rh_repo(self):
-        ''' Delete RH repo '''
+        '''[Update Simple cleanup] Delete RH repo '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
     def test_15_delete_rh_cert(self):
-        ''' Remove RH certs from RHUI '''
+        '''[Update Simple cleanup] Remove RH certs from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.RHUA)
 
     def test_16_cli_remove_conf_rpm(self):
-        ''' Remove rhui configuration rpm from RHUA '''
+        '''[Update Simple cleanup] Remove rhui configuration rpm from RHUA '''
         Util.remove_conf_rpm(self.rs.RHUA)
 
 

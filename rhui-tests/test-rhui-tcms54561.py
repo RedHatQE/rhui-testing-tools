@@ -3,20 +3,12 @@
 import nose
 
 from rhuilib.expect import *
-from rhuilib.rhuisetup import *
-from rhuilib.rhuimanager import *
+from rhuilib.rhui_testcase import *
 
 
-class test_tcms_54561(object):
-    def __init__(self):
-        self.rs = RHUIsetup()
-        self.rs.setup_from_yamlfile()
-
-    def __del__(self):
-        self.rs.__del__()
-
+class test_tcms_54561(RHUITestcase):
     def test_01_check_selinux(self):
-        """checking selinux on RHUA and CDS instances"""
+        """[TCMS#54561 test] checking selinux on RHUA and CDS instances"""
         for instance in [self.rs.RHUA] + self.rs.CDS:
             Expect.ping_pong(instance, 'getenforce', 'Enforcing')
             Expect.ping_pong(instance, 'cat /etc/sysconfig/selinux | grep "SELINUX=[^ ]"', 'SELINUX=enforcing')
