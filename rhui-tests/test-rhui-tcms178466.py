@@ -11,6 +11,7 @@ from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_entitlements import *
 from rhuilib.pulp_admin import PulpAdmin
+from rhuilib.cds import RhuiCds
 
 
 class test_tcms_178466(object):
@@ -54,13 +55,27 @@ class test_tcms_178466(object):
 
     def test_07_info_screen(self):
         ''' Check cds info screen '''
-        nose.tools.assert_equal(RHUIManagerCds.info(self.rs.RHUA, ["Cluster1", "Cluster2"]), [{'Instances': [{'hostname': 'cds1.example.com', 'client': 'cds1.example.com', 'CDS': 'cds1.example.com'}], 'Repositories': ['repo1', 'Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)'], 'Name': 'Cluster1'}, {'Instances': [{'hostname': 'cds2.example.com', 'client': 'cds2.example.com', 'CDS': 'cds2.example.com'}], 'Repositories': ['repo1', 'Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)'], 'Name': 'Cluster2'}])
+        cds0 = RhuiCds(
+                hostname = self.rs.CDS[0].hostname,
+                cluster = "Cluster1",
+                repos = ["repo1",
+                "Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)"]
+                )
+        cds1 = RhuiCds(
+                hostname = self.rs.CDS[1].hostname,
+                cluster = "Cluster2",
+                repos = ["repo1",
+                    "Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)"]
+                )
+        nose.tools.assert_equal(sorted(RHUIManagerCds.info(self.rs.RHUA, ["Cluster1", "Cluster2"])),
+                sorted([cds0, cds1]))
 
     def test_08_pulp_admin_list(self):
-        ''' Check pulp-admin cds list '''
-        result = PulpAdmin.cds_list(self.rs.RHUA)
-        nose.tools.assert_equals(result, [{'Status': 'Yes', 'Cluster': 'Cluster2', 'Repos': 'repo1, rhel-x86_64-6-rhui-2-rpms-6Server-x86_64', 'Hostname': 'cds2.example.com', 'Name': 'cds2.example.com'}, {'Status': 'Yes', 'Cluster': 'Cluster2', 'Repos': 'repo1, rhel-x86_64-6-rhui-2-rpms-6Server-x86_64', 'Hostname': 'cds2.example.com', 'Name': 'cds2.example.com'}])
-        
+        ''' Check pulp-admin cds list and rhui cds info are the same '''
+        pulp_cdses = PulpAdmin.cds_list(self.rs.RHUA)
+        rhui_cdses = RHUIManagerCds.info(self.rs.RHUA, ["Cluster1", "Cluster2"])
+        nose.tools.assert_equals(sorted(pulp_cdses), sorted(rhui_cdses))
+
     def test_09_remove_cds(self):
         ''' Remove cdses '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])

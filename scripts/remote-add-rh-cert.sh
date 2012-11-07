@@ -10,7 +10,7 @@ usage() {
     echo "Usage: $0 <master hostname> <keyfile>  <RH cert for testing>"
     exit 1
 }
-
+set -x
 if [ -z "$CERT" ] || [ ! -f "$CERT" ]; then
     usage
 fi
