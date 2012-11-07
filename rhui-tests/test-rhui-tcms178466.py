@@ -50,7 +50,7 @@ class test_tcms_178466(RHUITestcase):
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster2", ["repo1", "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
     def test_07_info_screen(self):
-        ''' Check cds info screen '''
+        '''[TCMS#178466 test] Check cds info screen '''
         cds0 = RhuiCds(
                 hostname = self.rs.CDS[0].hostname,
                 cluster = "Cluster1",
@@ -67,7 +67,7 @@ class test_tcms_178466(RHUITestcase):
                 sorted([cds0, cds1]))
 
     def test_08_pulp_admin_list(self):
-        ''' Check pulp-admin cds list and rhui cds info are the same '''
+        '''[TCMS#178466 test] Check pulp-admin cds list and rhui cds info are the same '''
         pulp_cdses = PulpAdmin.cds_list(self.rs.RHUA)
         rhui_cdses = RHUIManagerCds.info(self.rs.RHUA, ["Cluster1", "Cluster2"])
         nose.tools.assert_equals(sorted(pulp_cdses), sorted(rhui_cdses))
