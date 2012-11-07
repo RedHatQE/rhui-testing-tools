@@ -65,8 +65,8 @@ class Util:
         Transfer RPM package to instance and install it
         @param rpmpath: path to RPM package on Master node
         '''
-        Expect.enter(connection, "mkdir -p `dirname " + rpmpath + "`")
-        Expect.expect(connection, "root@")
+        Expect.enter(connection, "mkdir -p `dirname " + rpmpath + "` && echo SUCCESS")
+        Expect.expect(connection, "[^ ]SUCCESS")
         connection.sftp.put(rpmpath, rpmpath)
         Expect.enter(connection, "yum install " + rpmpath + " && echo 'NO ERRORS'")
         Expect.expect(connection, "Is this ok \[y/N\]:", 30)
