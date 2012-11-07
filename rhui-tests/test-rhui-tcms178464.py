@@ -9,6 +9,7 @@ from rhuilib.rhuimanager_cds import *
 from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 from rhuilib.pulp_admin import PulpAdmin
+from rhuilib.cds import RhuiCds
 
 
 class test_tcms_178464(object):
@@ -37,13 +38,17 @@ class test_tcms_178464(object):
 
     def test_05_info_screen(self):
         ''' Check cds info screen '''
-        nose.tools.assert_equal(RHUIManagerCds.info(self.rs.RHUA, ["Cluster1"]), [{'Instances': [{'hostname': 'cds1.example.com', 'client': 'cds1.example.com', 'CDS': 'cds1.example.com'}], 'Repositories': ['repo1'], 'Name': 'Cluster1'}])
+        cds = RhuiCds(
+                hostname = self.rs.CDS[0].hostname,
+                cluster = "Cluster1",
+                repos = ["repo1"]
+                )
+        nose.tools.assert_equal(RHUIManagerCds.info(self.rs.RHUA, ["Cluster1"]), [cds])
 
     def test_06_pulp_admin_list(self):
         ''' Check pulp-admin cds list '''
-        result = PulpAdmin.cds_list(self.rs.RHUA)
-        nose.tools.assert_equals(result, [{'Status': 'Yes', 'Cluster': 'Cluster1', 'Repos': 'repo1', 'Hostname': 'cds1.example.com', 'Name': 'cds1.example.com'}])
-        
+        nose.tools.assert_equals(PulpAdmin.cds_list(self.rs.RHUA),
+                RHUIManagerCds.info(self.rs.RHUA, ["Cluster1"]))
     def test_07_check_cds_content(self):
         ''' Check certs created for custom repo '''
         Expect.ping_pong(self.rs.RHUA, "test -f /etc/pki/pulp/content/repo1/consumer-repo1.cert && echo SUCCESS", "[^ ]SUCCESS")
