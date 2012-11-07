@@ -65,6 +65,7 @@ class Expect():
         @param timeout: timeout (default to 5)
 
         '''
+        logging.debug("MATCHING: " + regexp.pattern)
         result = ""
         count = 0
         while count < timeout:
