@@ -35,8 +35,8 @@ class PulpAdmin(object):
         returns a tuple (pattern, group_id); group_id points to the group
         command output will be stored in after a match
         """
-        return (re.compile(".*" + command +\
-            "(\r\n)+(.*)(\r\n)+\[.*@.*\][\$#]", re.DOTALL), 2)
+        return (re.compile("[^\n]+(\r?\n)+(.*)(\r\n)+\[.*@.*\][\$#]"
+            , re.DOTALL), 2)
     @staticmethod
     def cds_list(connection, username="admin", password="admin"):
         """returns the output of pulp-admin cds list; header stripped off"""
@@ -98,7 +98,7 @@ class PulpAdmin(object):
         objects
         """
         command = "repo list"
-        header = "List of Available Reoisitories"
+        header = "List of Available Repositories"
         pattern_tuple = PulpAdmin.output_list_pattern(command, header)
         lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
@@ -110,7 +110,7 @@ class PulpAdmin(object):
         """
         command = "repo info --id %s" % repo_id
         pattern_tuple = PulpAdmin.output_info_pattern(command)
-        lines = PulpAdmin.command(connection, command, pattern_tuple,
+        lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
         return PulpAdmin._repo_lines_parser(lines)[0]
     @staticmethod
@@ -120,19 +120,32 @@ class PulpAdmin(object):
         repo = None
         for line in lines:
             words = line.split()
+            if words == []:
+                # skip empty lines
+                continue
             if words[0] == 'Id':
                 # Id means a start of a new repo record
                 # push current repo and create a fresh one
                 repo = PulpRepo(id = words[1])
                 repos.append(repo)
             if words[0] == 'Name':
-                repo.name = words[1]
+                repo.name = " ".join(words[1:])
             if words[0] == 'Repo':
                 if words[1] == 'URL':
                     repo.url = "".join(words[2:])
             if words[0] == 'Packages':
-                repo.package_count = int(word[1])
+                repo.package_count = int(words[1])
         return repos
+    @staticmethod
+    def explode_pulp_repos(connection, cdses, username="admin",
+            password="admin"):
+        """
+        convert CDS repo IDs into PulpRepo instances reading
+        particular ID pulp-admin repo info command output
+        """
+        for cds in cdses:
+            cds.repos = [PulpAdmin.repo_info(connection, repo_id, username,
+                password) for repo_id in cds.repos]
 
 
 __all__ = ['PulpAdmin']

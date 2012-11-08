@@ -9,7 +9,7 @@ class Repo(object):
     def __repr__(self):
         return "Repo(" +\
             "name = %r" % self.name +\
-            "package_count = %r)" % self.package_count
+            ", package_count = %r)" % self.package_count
     def __eq__(self, other):
         ret = True
         ret &= self.name == other.name
