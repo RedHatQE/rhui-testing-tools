@@ -87,6 +87,5 @@ class test_0_update_simple(RHUITestcase):
         Util.remove_conf_rpm(self.rs.RHUA)
 
 
-
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])

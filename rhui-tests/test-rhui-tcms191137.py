@@ -121,6 +121,5 @@ class test_tcms_191137(RHUITestcase):
         RHUIManager.remove_rh_certs(self.rs.RHUA)
 
 
-
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])

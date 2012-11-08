@@ -3,6 +3,7 @@ from rhuilib.expect import Expect, ExpectFailed
 from cds import PulpCds
 from repo import PulpRepo
 
+
 class PulpAdmin(object):
     """pulp-admin handler"""
 
@@ -19,6 +20,7 @@ class PulpAdmin(object):
         # reset prompt
         Expect.enter(connection, "")
         return ret.split('\r\n')
+
     @staticmethod
     def output_list_pattern(command, header):
         """
@@ -26,8 +28,9 @@ class PulpAdmin(object):
         returns a tuple (pattern, group_id); group_id points to the group
         command output will be stored in after a match
         """
-        return (re.compile(".*" + command + "\r\n\+-+\+\r\n\s*"+ header +\
+        return (re.compile(".*" + command + "\r\n\+-+\+\r\n\s*" + header +\
                 "\s*\r\n\+-+\+(\r\n)+(.*)\[.*@.*\][\$#]", re.DOTALL), 2)
+
     @staticmethod
     def output_info_pattern(command):
         """
@@ -37,6 +40,7 @@ class PulpAdmin(object):
         """
         return (re.compile(".*" + command +\
             "(\r\n)+(.*)(\r\n)+\[.*@.*\][\$#]", re.DOTALL), 2)
+
     @staticmethod
     def cds_list(connection, username="admin", password="admin"):
         """returns the output of pulp-admin cds list; header stripped off"""
@@ -46,6 +50,7 @@ class PulpAdmin(object):
         lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
         return PulpAdmin._cds_lines_parser(lines)
+
     @staticmethod
     def cds_info(connection, cds_id, username="admin", password="admin"):
         """returns PulpCds object based on output of pulp-admin cds info
@@ -56,6 +61,7 @@ class PulpAdmin(object):
         lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
         return PulpAdmin._cds_lines_parser(lines)[0]
+
     @staticmethod
     def _cds_lines_parser(lines):
         """returns a list of PulpCds instances"""
@@ -91,6 +97,7 @@ class PulpAdmin(object):
                 if words[1] == 'Heartbeat':
                     cds.last_heartbeat = " ".join(words[2:])
         return cdses
+
     @staticmethod
     def repo_list(connection, username="admin", password="admin"):
         """
@@ -103,6 +110,7 @@ class PulpAdmin(object):
         lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
         return PulpAdmin._repo_lines_parser(lines)
+
     @staticmethod
     def repo_info(connection, repo_id, username="admin", password="admin"):
         """
@@ -113,6 +121,7 @@ class PulpAdmin(object):
         lines = PulpAdmin.command(connection, command, pattern_tuple,
                 username, password)
         return PulpAdmin._repo_lines_parser(lines)[0]
+
     @staticmethod
     def _repo_lines_parser(lines):
         """ returns a list of PulpRepo objects """
@@ -123,7 +132,7 @@ class PulpAdmin(object):
             if words[0] == 'Id':
                 # Id means a start of a new repo record
                 # push current repo and create a fresh one
-                repo = PulpRepo(id = words[1])
+                repo = PulpRepo(id=words[1])
                 repos.append(repo)
             if words[0] == 'Name':
                 repo.name = words[1]

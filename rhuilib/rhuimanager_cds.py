@@ -136,41 +136,41 @@ class RHUIManagerCds:
         while i < len(reslist):
             line = reslist[i]
             # Readling lines and searching for clusters
-            if line.strip()!='':
+            if line.strip() != '':
                 if line[:2] == '  ' and not line[2:3] in [' ', '-']:
                     # We've found a new cluster!
                     if cluster != {}:
                         clusterlist.append(cluster)
-                        cluster={}
+                        cluster = {}
                     cluster['Name'] = line[2:]
-                    i+=2
+                    i += 2
                     while reslist[i][:4] == '    ' or reslist[i] == '':
                         if reslist[i] == '':
-                            i+=1
+                            i += 1
                             continue
                         line = reslist[i].strip()
                         if line == "CDS Instances":
                             # Figuring out cds instances
                             instances = []
-                            i+=2
-                            while reslist[i].strip()!="":
+                            i += 2
+                            while reslist[i].strip() != "":
                                 # New cds
                                 cds = reslist[i].strip()
-                                hostname = reslist[i+1].strip().split(':')[1].strip()
-                                client = reslist[i+2].strip().split(':')[1].strip()
+                                hostname = reslist[i + 1].strip().split(':')[1].strip()
+                                client = reslist[i + 2].strip().split(':')[1].strip()
                                 instances.append(RhuiCds(name=reslist[i].strip(), hostname=hostname, client_hostname=client,
                                     description='RHUI CDS',
                                     cluster=cluster['Name']))
-                                i+=3
+                                i += 3
                             cluster['Instances'] = sorted(instances)
                         elif line == "Repositories":
                             # Figuring out repositories
                             repositories = []
-                            i+=2
-                            while reslist[i].strip()!="":
+                            i += 2
+                            while reslist[i].strip() != "":
                                 # New repo
                                 repo = reslist[i].strip()
-                                i+=1
+                                i += 1
                                 if repo == '(None)':
                                     # no repos, continue with next (empty)
                                     # line
@@ -183,8 +183,8 @@ class RHUIManagerCds:
                                 cds.repos = repositories
                             break
                         else:
-                            i+=1
-            i+=1
+                            i += 1
+            i += 1
 
         if cluster != {}:
             clusterlist.append(cluster)

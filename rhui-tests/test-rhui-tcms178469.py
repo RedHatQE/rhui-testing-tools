@@ -64,6 +64,5 @@ class test_bug_tcms178469(RHUITestcase):
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
 
 
-
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])
