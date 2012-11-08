@@ -47,15 +47,10 @@ class test_bug_tcms178467(RHUITestcase):
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1", "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#178467 setup] Sync RH repo '''
-        RHUIManagerSync.sync_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
-        reposync = ["In Progress", "", ""]
-        while reposync[0] == "In Progress":
-            time.sleep(10)
-            reposync = RHUIManagerSync.get_repo_status(self.rs.RHUA, "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)")
-        nose.tools.assert_equal(reposync[2], "Success")
+        self._sync_repo(self, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#178467 setup] Sync cds '''
-        self._sync([self.rs.CDS[0].hostname])
+        self._sync_cds([self.rs.CDS[0].hostname])
 
     def _test(self):
         '''[TCMS#178467 test] Check repo content on cds '''
@@ -70,7 +65,7 @@ class test_bug_tcms178467(RHUITestcase):
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#178467 cleanup] Sync cds '''
-        self._sync([self.rs.CDS[0].hostname])
+        self._sync_cds([self.rs.CDS[0].hostname])
 
         '''[TCMS#178467 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])

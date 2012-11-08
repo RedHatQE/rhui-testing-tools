@@ -41,7 +41,7 @@ class test_bug_tcms178469(RHUITestcase):
         RHUIManagerRepo.upload_content(self.rs.RHUA, ["repo1"], "/root/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
 
         '''[TCMS#178469 setup] Sync cdses '''
-        self._sync([self.rs.CDS[0].hostname, self.rs.CDS[1].hostname])
+        self._sync_cds([self.rs.CDS[0].hostname, self.rs.CDS[1].hostname])
 
     def _test(self):
         '''[TCMS#178469 test] Check repo content on cdses '''
@@ -52,7 +52,7 @@ class test_bug_tcms178469(RHUITestcase):
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1"])
 
         '''[TCMS#178469 test] Sync cdses '''
-        self._sync([self.rs.CDS[0].hostname, self.rs.CDS[1].hostname])
+        self._sync_cds([self.rs.CDS[0].hostname, self.rs.CDS[1].hostname])
 
         '''[TCMS#178469 test] Check repo content on cdses '''
         for cds in self.rs.CDS:
