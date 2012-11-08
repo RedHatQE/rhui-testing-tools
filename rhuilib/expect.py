@@ -4,7 +4,7 @@ import logging
 import socket
 
 
-class ExpectFailed(Exception):
+class ExpectFailed(AssertionError):
     '''
     Exception to represent expectation error
     '''
