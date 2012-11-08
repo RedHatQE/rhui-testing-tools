@@ -3,25 +3,26 @@ import nose
 from rhuilib.rhuisetup import *
 from rhuilib.rhuimanager_sync import *
 
+
 class RHUITestcase(object):
     def __init__(self):
         self.rs = RHUIsetup()
         self.rs.setup_from_yamlfile()
-        if hasattr(self,"_init"):
+        if hasattr(self, "_init"):
             self._init()
 
     def test_01_setup(self):
-        if hasattr(self,"_setup"):
+        if hasattr(self, "_setup"):
             self._setup()
         self.rs.__del__()
 
     def test_02_test(self):
-        if hasattr(self,"_test"):
+        if hasattr(self, "_test"):
             self._test()
         self.rs.__del__()
 
     def test_03_cleanup(self):
-        if hasattr(self,"_cleanup"):
+        if hasattr(self, "_cleanup"):
             self._cleanup()
         self.rs.__del__()
 

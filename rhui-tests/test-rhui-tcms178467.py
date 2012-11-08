@@ -47,7 +47,7 @@ class test_bug_tcms178467(RHUITestcase):
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["repo1", "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#178467 setup] Sync RH repo '''
-        self._sync_repo(self, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
+        self._sync_repo(["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#178467 setup] Sync cds '''
         self._sync_cds([self.rs.CDS[0].hostname])
@@ -69,7 +69,6 @@ class test_bug_tcms178467(RHUITestcase):
 
         '''[TCMS#178467 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
-
 
 
 if __name__ == "__main__":

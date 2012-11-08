@@ -39,6 +39,5 @@ class test_tcms_178463(RHUITestcase):
                 [self.rs.CDS[0].hostname])
 
 
-
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])

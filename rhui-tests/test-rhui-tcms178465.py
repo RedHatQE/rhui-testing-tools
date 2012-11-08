@@ -60,6 +60,5 @@ class test_tcms_178465(RHUITestcase):
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1", "repo2"])
 
 
-
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])
