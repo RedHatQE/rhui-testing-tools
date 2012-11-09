@@ -5,26 +5,30 @@ from rhuilib.rhuimanager_sync import *
 
 
 class RHUITestcase(object):
+    @classmethod
+    def setupAll(typeinstance):
+        typeinstance.rs = RHUIsetup()
+        typeinstance.rs.setup_from_yamlfile()
+
+    @classmethod
+    def teardownAll(typeinstance):
+        typeinstance.rs.__del__()
+
     def __init__(self):
-        self.rs = RHUIsetup()
-        self.rs.setup_from_yamlfile()
         if hasattr(self, "_init"):
             self._init()
 
     def test_01_setup(self):
         if hasattr(self, "_setup"):
             self._setup()
-        self.rs.__del__()
 
     def test_02_test(self):
         if hasattr(self, "_test"):
             self._test()
-        self.rs.__del__()
 
     def test_03_cleanup(self):
         if hasattr(self, "_cleanup"):
             self._cleanup()
-        self.rs.__del__()
 
     def _sync_cds(self, cdslist):
         RHUIManagerSync.sync_cds(self.rs.RHUA, cdslist)
