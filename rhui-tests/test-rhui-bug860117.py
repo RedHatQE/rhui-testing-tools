@@ -10,11 +10,7 @@ from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 
 
-class test_bug_860117(RHUITestcase):
-    def _init(self):
-        if len(self.rs.CDS) < 2:
-            raise nose.exc.SkipTest("can't test without having at least two CDSes!")
-
+class test_bug_860117(RHUITestcase, RHUI_has_two_CDSes):
     def _setup(self):
         '''[Bug#860117 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)

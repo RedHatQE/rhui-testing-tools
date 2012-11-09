@@ -14,14 +14,7 @@ from rhuilib.pulp_admin import PulpAdmin
 from rhuilib.cds import RhuiCds
 
 
-class test_tcms_178466(RHUITestcase):
-    def _init(self):
-        if not 'rhcert' in self.rs.config.keys():
-            raise nose.exc.SkipTest("can't test without RH certificate")
-        self.cert = self.rs.config['rhcert']
-        if len(self.rs.CDS) < 2:
-            raise nose.exc.SkipTest("can't test without having at least two CDSes!")
-
+class test_tcms_178466(RHUITestcase, RHUI_has_RH_cert, RHUI_has_two_CDSes):
     def _setup(self):
 
         '''[TCMS#178466 setup] Do initial rhui-manager run'''

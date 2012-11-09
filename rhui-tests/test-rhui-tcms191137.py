@@ -13,16 +13,7 @@ from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_entitlements import *
 
 
-class test_tcms_191137(RHUITestcase):
-    def _init(self):
-        if not 'rhrpm' in self.rs.config.keys():
-            raise nose.exc.SkipTest("can't test without RH-signed RPM")
-        self.rhrpm = self.rs.config['rhrpm']
-        if not 'rhcert' in self.rs.config.keys():
-            raise nose.exc.SkipTest("can't test without RH certificate")
-        self.cert = self.rs.config['rhcert']
-        (self.rhrpmnvr, self.rhrpmname) = Util.get_rpm_details(self.rhrpm)
-
+class test_tcms_191137(RHUITestcase, RHUI_has_RH_cert, RHUI_has_RH_rpm):
     def _setup(self):
         '''[TCMS#191137 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)

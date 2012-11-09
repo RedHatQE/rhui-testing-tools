@@ -13,12 +13,7 @@ from rhuilib.rhuimanager_entitlements import *
 from rhuilib.pulp_admin import PulpAdmin, Cds
 
 
-class test_tcms_178462(RHUITestcase):
-    def _init(self):
-        if not 'rhcert' in self.rs.config.keys():
-            raise nose.exc.SkipTest("can't test without RH certificate")
-        self.cert = self.rs.config['rhcert']
-
+class test_tcms_178462(RHUITestcase, RHUI_has_RH_cert):
     def _setup(self):
         '''[TCMS#178462 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
