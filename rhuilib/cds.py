@@ -28,7 +28,8 @@ class Cds(object):
         ret &= self.hostname == other.hostname
         ret &= self.description == other.description
         ret &= self.cluster == other.cluster
-        ret &= self.repos == other.repos
+        # repos order doesn't matter
+        ret &= sorted(self.repos) == sorted(other.repos)
         return ret
 
     def __cmp__(self, other):

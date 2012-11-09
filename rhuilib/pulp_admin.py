@@ -41,7 +41,7 @@ class PulpAdmin(object):
         return (re.compile("[^\n]+(\r?\n)+(.*)(\r\n)+\[.*@.*\][\$#]"
             , re.DOTALL), 2)
     @staticmethod
-    def cds_list(connection, username="admin", password="admin"):
+    def cds_list_native(connection, username="admin", password="admin"):
         """returns the output of pulp-admin cds list; header stripped off"""
         command = "cds list"
         header = "CDS Instances"
@@ -49,6 +49,24 @@ class PulpAdmin(object):
         lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
         return PulpAdmin._cds_lines_parser(lines)
+    @staticmethod
+    def cds_list(connection, username="admin", password="admin"):
+        """
+        a wrapper for
+            - cds_list
+            - explode_pulp_repos
+            - <reduce repo instances to name>
+        as many a testcase would do the same to be able to compare rhui cds
+        list and pulp cds list. Rhui cds list provides repo names whereas pulp
+        cds list provides repo IDs
+
+        @returns a list of PulpCds instances with repo names instead repo IDs
+        """
+        cdses = PulpAdmin.cds_list_native(connection, username, password)
+        PulpAdmin.explode_pulp_repos(connection, cdses, username, password)
+        for cds in cdses:
+            cds.repos = [repo.name for repo in cds.repos]
+        return cdses
 
     @staticmethod
     def cds_info(connection, cds_id, username="admin", password="admin"):
@@ -89,7 +107,10 @@ class PulpAdmin(object):
                     cds.sync_schedule = " ".join(words[1:])
             if words[0] == 'Repos':
                 if not words[1] == 'None':
-                    cds.repos = words[1:]
+                    # repos are separated by ", "---have to resplit
+                    repostring = " ".join(words[1:])
+                    repos = repostring.split(", ")
+                    cds.repos = repos
             if words[0] == 'Last':
                 if words[1] == 'Sync':
                     cds.last_sync = " ".join(words[2:])
