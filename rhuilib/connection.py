@@ -19,6 +19,15 @@ class Connection():
         self.sftp = self.cli.open_sftp()
         self.channel.setblocking(0)
 
+    def reconnect(self):
+        '''
+        Close connection and open a new one
+        '''
+        self.cli.close()
+        self.cli.connect(hostname=self.private_hostname, username=self.username, key_filename=self.key_filename)
+        self.channel = self.cli.invoke_shell()
+        self.sftp = self.cli.open_sftp()
+
     def exec_command(self, command, bufsize=-1):
         '''
         execute a command in the connection

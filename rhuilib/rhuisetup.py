@@ -22,6 +22,13 @@ class RHUIsetup:
             instance.sftp.close()
             instance.cli.close()
 
+    def reconnect_all(self):
+        '''
+        Re-establish connection to all instances
+        '''
+        for instance in self.CDS + self.CLI + [self.RHUA]:
+            instance.reconnect()
+
     def setRHUA(self, private_hostname, public_hostname, username="root", key_filename=None):
         '''
         set RHUA instance
