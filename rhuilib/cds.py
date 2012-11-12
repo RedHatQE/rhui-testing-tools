@@ -57,15 +57,15 @@ class RhuiCds(Cds):
         Cds.__init__(self, name, hostname, description, cluster, repos)
         self.client_hostname = client_hostname
 
-        def __eq__(self, other):
-            ret = Cds.__eq__(self, other)
-            if isinstance(other, RhuiCds):
-                ret &= self.client_hostname == other.client_hostname
-            return ret
+    def __eq__(self, other):
+        ret = Cds.__eq__(self, other)
+        if isinstance(other, RhuiCds):
+            ret &= self.client_hostname == other.client_hostname
+        return ret
 
-        def __repr__(self):
-            return "Rhui" + Cds.__repr__(self).strip(')') + \
-                    ", client_hostname = %r)" % self.client_hostname
+    def __repr__(self):
+        return "Rhui" + Cds.__repr__(self).strip(')') + \
+                ", client_hostname = %r)" % self.client_hostname
 
 
 class PulpCds(Cds):
