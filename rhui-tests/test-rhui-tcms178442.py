@@ -12,7 +12,7 @@ from rhuilib.pulp_admin import PulpAdmin
 from rhuilib.cds import RhuiCds
 
 
-class test_bug_tcms178442(RHUITestcase, RHUI_has_two_CDSes):
+class test_bug_tcms178442(RHUITestcase, RHUI_has_three_CDSes):
     def _setup(self):
         '''[TCMS#178442 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
