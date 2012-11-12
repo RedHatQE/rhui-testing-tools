@@ -19,7 +19,7 @@ class test_tcms_178462(RHUITestcase, RHUI_has_RH_cert):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[TCMS#178462 setup] Add cds '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
 
         '''[TCMS#178462 setup] Upload RH content certificate '''
         RHUIManagerEntitlements.upload_content_cert(self.rs.RHUA, self.cert)
@@ -51,7 +51,7 @@ class test_tcms_178462(RHUITestcase, RHUI_has_RH_cert):
 
     def _cleanup(self):
         '''[TCMS#178462 cleanup] Remove cds '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
 
         '''[TCMS#178462 cleanup] Delete RH repo '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])

@@ -17,8 +17,8 @@ class test_bug_tcms178469(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[TCMS#178469 setup] Add cdses '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].private_hostname)
 
         '''[TCMS#178469 setup] Create custom repo '''
         self.rs.RHUA.sftp.put("/usr/share/rhui-testing-tools/testing-data/public.key", "/root/public.key")
@@ -37,7 +37,7 @@ class test_bug_tcms178469(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManagerRepo.upload_content(self.rs.RHUA, ["repo1"], "/root/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
 
         '''[TCMS#178469 setup] Sync cdses '''
-        self._sync_cds([self.rs.CDS[0].hostname, self.rs.CDS[1].hostname])
+        self._sync_cds([self.rs.CDS[0].private_hostname, self.rs.CDS[1].private_hostname])
 
     def _test(self):
         '''[TCMS#178469 test] Check repo content on cdses '''
@@ -48,7 +48,7 @@ class test_bug_tcms178469(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1"])
 
         '''[TCMS#178469 test] Sync cdses '''
-        self._sync_cds([self.rs.CDS[0].hostname, self.rs.CDS[1].hostname])
+        self._sync_cds([self.rs.CDS[0].private_hostname, self.rs.CDS[1].private_hostname])
 
         '''[TCMS#178469 test] Check repo content on cdses '''
         for cds in self.rs.CDS:
@@ -56,8 +56,8 @@ class test_bug_tcms178469(RHUITestcase, RHUI_has_two_CDSes):
 
     def _cleanup(self):
         '''[TCMS#178469 cleanup] Remove cdses '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].private_hostname])
 
 
 if __name__ == "__main__":

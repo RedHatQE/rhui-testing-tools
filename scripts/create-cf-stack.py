@@ -283,9 +283,13 @@ for i in con_ec2.get_all_instances():
     for ii in  i.instances:
         if ii.id in instances:
             try:
-                hostname = ii.tags["Hostname"]
+                public_hostname = ii.tags["PublicHostname"]
             except KeyError:
-                hostname = None
+                public_hostname = None
+            try:
+                private_hostname = ii.tags["PrivateHostname"]
+            except KeyError:
+                private_hostname = None
             try:
                 role = ii.tags["Role"]
             except KeyError:
@@ -293,11 +297,15 @@ for i in con_ec2.get_all_instances():
             public_ip = ii.ip_address
             private_ip = ii.private_ip_address
             instances_detail.append({"id": ii.id,
-                                     "hostname": hostname,
+                                     "public_hostname": public_hostname,
+                                     "private_hostname": private_hostname,
                                      "role": role,
                                      "public_ip": public_ip,
                                      "private_ip": private_ip})
-            hostsfile.write(private_ip + "\t" + hostname + "\n")
+            if private_hostname and private_ip:
+                hostsfile.write(private_ip + "\t" + private_hostname + "\n")
+            if public_hostname and public_ip:
+                hostsfile.write(public_ip + "\t" + public_hostname + "\n")
 yamlconfig = {'Instances': instances_detail[:]}
 yamlfile.write(yaml.safe_dump(yamlconfig))
 yamlfile.close()
@@ -307,19 +315,18 @@ master_keys = []
 for instance in instances_detail:
     if instance["public_ip"]:
         ip = instance["public_ip"]
-        logging.info("Instance with public ip created: " + instance["role"] + ":" + instance["hostname"] + ":" + ip)
+        logging.info("Instance with public ip created: " + instance["role"] + ":" + instance["public_hostname"] + ":" + ip)
     else:
         ip = instance["private_ip"]
-        logging.info("Instance with private ip created: " + instance["role"] + ":" + instance["hostname"] + ":" + ip)
+        logging.info("Instance with private ip created: " + instance["role"] + ":" + instance["private_hostname"] + ":" + ip)
     (instance["client"], instance["sftp"]) = setup_host_ssh(ip, SSHKEY)
     if instance["role"] == "Master":
         master_keys.append(setup_master(instance["client"]))
 
 for instance in instances_detail:
-    if instance["public_ip"]:
-        ip = instance["public_ip"]
+    if instance["private_hostname"]:
+        hostname = instance["private_hostname"]
     else:
-        ip = instance["private_ip"]
-    setup_slave(instance["client"], instance["sftp"],
-                instance["hostname"], hostsfile.name,
-                yamlfile.name, master_keys)
+        hostname = instance["public_hostname"]
+    setup_slave(instance["client"], instance["sftp"], hostname,
+                hostsfile.name, yamlfile.name, master_keys)

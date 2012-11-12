@@ -17,10 +17,10 @@ class test_tcms_178434(RHUITestcase):
 
         """[TCMS#178434 setup] check creating a single-node cds cluster"""
         RHUIManagerCds.add_cds(self.rs.RHUA, "cluster-1",
-                self.rs.CDS[0].hostname)
+                self.rs.CDS[0].private_hostname)
 
         """[TCMS#178434 setup] check removing a cds from single node cluster"""
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "cluster-1", [self.rs.CDS[0].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "cluster-1", [self.rs.CDS[0].private_hostname])
 
     def _test(self):
         """[TCMS#178434 test] check the cluster no longer exists"""

@@ -18,7 +18,7 @@ class test_bug_tcms178467(RHUITestcase, RHUI_has_RH_cert):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[TCMS#178467 setup] Add cds '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
 
         '''[TCMS#178467 setup] Create custom repo '''
         self.rs.RHUA.sftp.put("/usr/share/rhui-testing-tools/testing-data/public.key", "/root/public.key")
@@ -45,7 +45,7 @@ class test_bug_tcms178467(RHUITestcase, RHUI_has_RH_cert):
         self._sync_repo(["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#178467 setup] Sync cds '''
-        self._sync_cds([self.rs.CDS[0].hostname])
+        self._sync_cds([self.rs.CDS[0].private_hostname])
 
     def _test(self):
         '''[TCMS#178467 test] Check repo content on cds '''
@@ -60,10 +60,10 @@ class test_bug_tcms178467(RHUITestcase, RHUI_has_RH_cert):
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#178467 cleanup] Sync cds '''
-        self._sync_cds([self.rs.CDS[0].hostname])
+        self._sync_cds([self.rs.CDS[0].private_hostname])
 
         '''[TCMS#178467 cleanup] Remove cds '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
 
 
 if __name__ == "__main__":

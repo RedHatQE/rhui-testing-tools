@@ -18,7 +18,7 @@ class test_tcms_191048(RHUITestcase, RHUI_has_RH_rpm):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[TCMS#191048 setup] Add cds '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
 
         '''[TCMS#191048 setup] Remove rhui configuration rpm from client '''
         for cli in self.rs.CLI:
@@ -44,18 +44,18 @@ class test_tcms_191048(RHUITestcase, RHUI_has_RH_rpm):
         RHUIManagerRepo.upload_content(self.rs.RHUA, ["repo1"], "/root/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
 
         '''[TCMS#191048 setup] Sync cds '''
-        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.rs.CDS[0].hostname])
+        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.rs.CDS[0].private_hostname])
         cdssync = ["UP", "In Progress", "", ""]
         while cdssync[1] == "In Progress":
             time.sleep(10)
-            cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA, self.rs.CDS[0].hostname)
+            cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA, self.rs.CDS[0].private_hostname)
         nose.tools.assert_equal(cdssync[3], "Success")
 
         '''[TCMS#191048 setup] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["repo1"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
         '''[TCMS#191048 setup] Create configuration rpm '''
-        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
+        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
         '''[TCMS#191048 setup] Install configuration rpm to client '''
         self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
@@ -76,7 +76,7 @@ class test_tcms_191048(RHUITestcase, RHUI_has_RH_rpm):
         Expect.ping_pong(self. rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#191048 cleanup] Remove cds '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
 
         '''[TCMS#191048 cleanup] Delete custom repo '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1"])

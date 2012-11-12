@@ -12,15 +12,15 @@ from rhuilib.pulp_admin import PulpAdmin
 from rhuilib.cds import RhuiCds
 
 
-class test_bug_tcms178442(RHUITestcase, RHUI_has_two_CDSes):
+class test_bug_tcms178442(RHUITestcase, RHUI_has_three_CDSes):
     def _setup(self):
         '''[TCMS#178442 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[TCMS#178442 setup] Add cdses: cds0, cds2 -> cluster1; cds1 -> cluster2'''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].hostname)
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[2].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].private_hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[2].private_hostname)
 
         '''[TCMS#178442 setup] Create custom repo1 '''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo1")
@@ -31,20 +31,20 @@ class test_bug_tcms178442(RHUITestcase, RHUI_has_two_CDSes):
 
     def _test(self):
         '''[TCMS#178442 test] Move cds2 to cluster2'''
-        RHUIManagerCds.move_cds(self.rs.RHUA, [self.rs.CDS[2].hostname], "Cluster2")
+        RHUIManagerCds.move_cds(self.rs.RHUA, [self.rs.CDS[2].private_hostname], "Cluster2")
 
         '''[TCMS#178442 test] Check that cds2 moved to cluster2'''
         cds0 = RhuiCds(
-                hostname=self.rs.CDS[0].hostname,
+                hostname=self.rs.CDS[0].private_hostname,
                 cluster='Cluster1',
                 repos=['repo1'])
         cds1 = RhuiCds(
-                hostname=self.rs.CDS[1].hostname,
+                hostname=self.rs.CDS[1].private_hostname,
                 cluster='Cluster2',
                 repos=['repo1']
                 )
         cds2 = RhuiCds(
-                hostname=self.rs.CDS[2].hostname,
+                hostname=self.rs.CDS[2].private_hostname,
                 cluster='Cluster2',
                 repos=['repo1']
                 )
@@ -61,9 +61,9 @@ class test_bug_tcms178442(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1"])
 
         '''[TCMS#178442 cleanup] Remove cdses '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[2].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[2].private_hostname])
 
 
 if __name__ == "__main__":

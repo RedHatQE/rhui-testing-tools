@@ -14,7 +14,7 @@ from rhuilib.rhuimanager_users import *
 from rhuilib.rhuimanager_entitlements import *
 
 
-class test_workflow_simple(RHUITestcase, RHUI_had_RH_cert):
+class test_workflow_simple(RHUITestcase, RHUI_has_RH_cert):
     def _setup(self):
         '''[Simple Workflow setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
@@ -22,7 +22,7 @@ class test_workflow_simple(RHUITestcase, RHUI_had_RH_cert):
     def _test(self):
         '''[Simple Workflow test] Add cdses '''
         for cds in self.rs.CDS:
-            RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", cds.hostname)
+            RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", cds.private_hostname)
 
         '''[Simple Workflow test] Remove rhui configuration rpm from client '''
         for cli in self.rs.CLI:
@@ -41,7 +41,7 @@ class test_workflow_simple(RHUITestcase, RHUI_had_RH_cert):
         '''[Simple Workflow test] Sync cdses '''
         cdslist = []
         for cds in self.rs.CDS:
-            cdslist.append(cds.hostname)
+            cdslist.append(cds.private_hostname)
         RHUIManagerSync.sync_cds(self.rs.RHUA, cdslist)
 
         '''[Simple Workflow test] Generate entitlement certificate '''
@@ -66,7 +66,7 @@ class test_workflow_simple(RHUITestcase, RHUI_had_RH_cert):
 
         '''[Simple Workflow test] Syncronize repo '''
         self._sync_repo(["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
-        self._sync_cds([self.rs.CDS[0].hostname])
+        self._sync_cds([self.rs.CDS[0].private_hostname])
 
         '''[Simple Workflow test] Associate rh repo with cds '''
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
@@ -75,7 +75,7 @@ class test_workflow_simple(RHUITestcase, RHUI_had_RH_cert):
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["repo1", "Red Hat Update Infrastructure 2 \(RPMs\)"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
         '''[Simple Workflow test] Create configuration rpm '''
-        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
+        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
         '''[Simple Workflow test] Install configuration rpm to client'''
         self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
@@ -91,7 +91,7 @@ class test_workflow_simple(RHUITestcase, RHUI_had_RH_cert):
     def _cleanup(self):
         '''[Simple Workflow cleanup] Remove cdses '''
         for cds in self.rs.CDS:
-            RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [cds.hostname])
+            RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [cds.private_hostname])
 
         '''[Simple Workflow cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1", "repo2", "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])

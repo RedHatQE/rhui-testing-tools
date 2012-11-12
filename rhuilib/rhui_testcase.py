@@ -33,6 +33,7 @@ class RHUITestcase(object):
 
     def test_03_cleanup(self):
         if hasattr(self, "_cleanup"):
+            self.rs.reconnect_all()
             self._cleanup()
 
     def _sync_cds(self, cdslist):
