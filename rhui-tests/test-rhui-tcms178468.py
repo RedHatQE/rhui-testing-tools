@@ -19,7 +19,7 @@ class Cds(object):
 
     def __init__(self, connection, clientname=None, displayname=None):
         self.connection = connection
-        self.hostname = connection.hostname
+        self.hostname = connection.private_hostname
         if clientname is None:
             self.clientname = self.hostname
         if displayname is None:
@@ -76,7 +76,7 @@ class test_tcms_178468(RHUITestcase):
         RHUIManagerRepo.delete_repo(self.rs.RHUA, [self.repo])
 
         """[TCMS#178468 teardown] check removing a cds from single node cluster"""
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "cluster-1", [self.rs.CDS[0].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "cluster-1", [self.rs.CDS[0].private_hostname])
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ class test_bug_846386(RHUITestcase):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[Bug#846386 setup] Add cds '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
 
         '''[Bug#846386 setup] Create protected repo '''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "custom_repo_1")
@@ -34,11 +34,11 @@ class test_bug_846386(RHUITestcase):
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["custom_repo_1"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
         '''[Bug#846386 test] Create configuration rpm '''
-        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0", ["custom_repo_2"])
+        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0", ["custom_repo_2"])
 
     def _cleanup(self):
         '''[Bug#846386 clenup] Remove cds '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
 
         '''[Bug#846386 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["custom_repo_1", "custom_repo_2"])

@@ -18,7 +18,7 @@ class test_tcms_178463(RHUITestcase):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[TCMS#178463 setup] Add cds creating a cluster'''
-        RHUIManagerCds.add_cds(self.rs.RHUA, self.cluster, self.rs.CDS[0].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, self.cluster, self.rs.CDS[0].private_hostname)
 
         '''[TCMS#178463 setup] Create custom repo'''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, self.repo)
@@ -36,7 +36,7 @@ class test_tcms_178463(RHUITestcase):
 
         '''[TCMS#178463 teardown] Remove the cds'''
         RHUIManagerCds.delete_cds(self.rs.RHUA, self.cluster,
-                [self.rs.CDS[0].hostname])
+                [self.rs.CDS[0].private_hostname])
 
 
 if __name__ == "__main__":

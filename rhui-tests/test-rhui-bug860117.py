@@ -16,8 +16,8 @@ class test_bug_860117(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[Bug#860117 setup] Add cdses '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].private_hostname)
 
         '''[Bug#860117 setup] Create custom repos '''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo1")
@@ -35,12 +35,12 @@ class test_bug_860117(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["repo1", "repo3", "repo6"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
         '''[Bug#860117 test] Create configuration rpm '''
-        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
+        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
     def _cleanup(self):
         '''[Bug#860117 cleanup] Remove cdses '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].private_hostname])
 
         '''[Bug#860117 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1", "repo2", "repo3", "repo4", "repo5", "repo6"])

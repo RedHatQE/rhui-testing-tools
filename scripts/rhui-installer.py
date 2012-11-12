@@ -218,22 +218,30 @@ try:
     fd = open(args.yamlfile, "r")
     yamlconfig = yaml.load(fd)
     for instance in yamlconfig['Instances']:
-        if instance['role'].upper() == "RHUA":
-            logger.info("Adding RHUA instance " + instance['hostname'])
-            instance = RHUA(instance['hostname'], instance['public_ip'], instance['private_ip'], args.iso)
-            rhua.append(instance)
-        elif instance['role'].upper() == "CDS":
-            logger.info("Adding CDS instance " + instance['hostname'])
-            instance = CDS(instance['hostname'], instance['public_ip'], instance['private_ip'], args.iso)
-            cds.append(instance)
-        elif instance['role'].upper() == "CLI":
-            logger.info("Adding CLI instance " + instance['hostname'])
-            instance = CLI(instance['hostname'], instance['public_ip'], instance['private_ip'])
-            cli.append(instance)
-        elif instance['role'].upper() == "MASTER":
-            logger.debug("Skipping master node " + instance['hostname'])
+        if instance['private_hostname']:
+            hostname = instance['private_hostname']
         else:
-            logger.info("host with unknown role " + instance['role'] + " " + instance['hostname'] + ", skipping")
+            hostname = instance['public_hostname']
+        public_ip = instance['public_ip']
+        private_ip = instance['private_ip']
+        role = instance['role'].upper()
+
+        if role == "RHUA":
+            logger.info("Adding RHUA instance " + hostname)
+            instance = RHUA(hostname, public_ip, private_ip, args.iso)
+            rhua.append(instance)
+        elif role == "CDS":
+            logger.info("Adding CDS instance " + hostname)
+            instance = CDS(hostname, public_ip, private_ip, args.iso)
+            cds.append(instance)
+        elif role == "CLI":
+            logger.info("Adding CLI instance " + hostname)
+            instance = CLI(hostname, public_ip, private_ip)
+            cli.append(instance)
+        elif role == "MASTER":
+            logger.debug("Skipping master node " + hostname)
+        else:
+            logger.info("host with unknown role " + role + " " + hostname + ", skipping")
     fd.close()
 except Exception, e:
     logger.error("Failed to parse config file " + args.yamlfile +

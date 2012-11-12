@@ -21,8 +21,8 @@ class test_tcms_178466(RHUITestcase, RHUI_has_RH_cert, RHUI_has_two_CDSes):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[TCMS#178466 setup] Add cdses '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster2", self.rs.CDS[1].private_hostname)
 
         '''[TCMS#178466 setup] Create custom repo '''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo1")
@@ -40,13 +40,13 @@ class test_tcms_178466(RHUITestcase, RHUI_has_RH_cert, RHUI_has_two_CDSes):
     def _test(self):
         '''[TCMS#178466 test] Check cds info screen '''
         cds0 = RhuiCds(
-                hostname=self.rs.CDS[0].hostname,
+                hostname=self.rs.CDS[0].private_hostname,
                 cluster="Cluster1",
                 repos=["repo1",
                 "Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)"]
                 )
         cds1 = RhuiCds(
-                hostname=self.rs.CDS[1].hostname,
+                hostname=self.rs.CDS[1].private_hostname,
                 cluster="Cluster2",
                 repos=["repo1",
                     "Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)"]
@@ -61,8 +61,8 @@ class test_tcms_178466(RHUITestcase, RHUI_has_RH_cert, RHUI_has_two_CDSes):
 
     def _cleanup(self):
         '''[TCMS#178466 cleanup] Remove cdses '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster2", [self.rs.CDS[1].private_hostname])
 
         '''[TCMS#178466 cleanup] Delete RH repo '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])

@@ -15,7 +15,7 @@ class test_bug_840977(RHUITestcase):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[Bug#840977 setup] Add cds '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
 
         '''[Bug#840977 setup] Create protected repo '''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "custom_repo_1")
@@ -33,7 +33,7 @@ class test_bug_840977(RHUITestcase):
 
     def _cleanup(self):
         '''[Bug#840977 cleanup] Remove cds '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
 
         '''[Bug#840977 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["custom_repo_1", "custom_repo_2"])

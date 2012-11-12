@@ -19,7 +19,7 @@ class test_0_update_simple(RHUITestcase, RHUI_has_RH_cert):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[Update Simple setup] Add cds '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
 
         '''[Update Simple setup] Upload RH content certificate '''
         RHUIManagerEntitlements.upload_content_cert(self.rs.RHUA, self.cert)
@@ -42,18 +42,18 @@ class test_0_update_simple(RHUITestcase, RHUI_has_RH_cert):
         nose.tools.assert_equal(reposync[2], "Success")
 
         '''[Update Simple setup] Sync cds '''
-        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.rs.CDS[0].hostname])
+        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.rs.CDS[0].private_hostname])
         cdssync = ["UP", "In Progress", "", ""]
         while cdssync[1] == "In Progress":
             time.sleep(10)
-            cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA, self.rs.CDS[0].hostname)
+            cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA, self.rs.CDS[0].private_hostname)
         nose.tools.assert_equal(cdssync[3], "Success")
 
         '''[Update Simple setup] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\)"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
         '''[Update Simple setup] Create configuration rpm '''
-        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
+        RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
         '''[Update Simple setup] Install configuration rpm to RHUA '''
         self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
@@ -65,7 +65,7 @@ class test_0_update_simple(RHUITestcase, RHUI_has_RH_cert):
 
     def _cleanup(self):
         '''[Update Simple cleanup] Remove cds '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
 
         '''[Update Simple cleanup] Delete RH repo '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])

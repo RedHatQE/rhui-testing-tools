@@ -22,26 +22,26 @@ class RHUIsetup:
             instance.sftp.close()
             instance.cli.close()
 
-    def setRHUA(self, hostname, username="root", key_filename=None):
+    def setRHUA(self, private_hostname, public_hostname, username="root", key_filename=None):
         '''
         set RHUA instance
         '''
-        logging.debug("Adding RHUA with hostname " + hostname)
-        self.RHUA = Connection(hostname, username, key_filename)
+        logging.debug("Adding RHUA with private_hostname " + private_hostname + ", public_hostname " + public_hostname)
+        self.RHUA = Connection(private_hostname, public_hostname, username, key_filename)
 
-    def addCDS(self, hostname, username="root", key_filename=None):
+    def addCDS(self, private_hostname, public_hostname, username="root", key_filename=None):
         '''
         add CDS instance
         '''
-        logging.debug("Adding CDS with hostname " + hostname)
-        self.CDS.append(Connection(hostname, username, key_filename))
+        logging.debug("Adding CDS with private_hostname " + private_hostname + ", public_hostname " + public_hostname)
+        self.CDS.append(Connection(private_hostname, public_hostname, username, key_filename))
 
-    def addCLI(self, hostname, username="root", key_filename=None):
+    def addCLI(self, private_hostname, public_hostname, username="root", key_filename=None):
         '''
         add CLI instance
         '''
-        logging.debug("Adding CLI with hostname " + hostname)
-        self.CLI.append(Connection(hostname, username, key_filename))
+        logging.debug("Adding CLI with private_hostname " + private_hostname + ", public_hostname " + public_hostname)
+        self.CLI.append(Connection(private_hostname, public_hostname, username, key_filename))
 
     def setup_from_yamlfile(self, yamlfile="/etc/rhui-testing.yaml"):
         '''
@@ -52,11 +52,11 @@ class RHUIsetup:
         yamlconfig = yaml.load(fd)
         for instance in yamlconfig['Instances']:
             if instance['role'].upper() == "RHUA":
-                self.setRHUA(instance['hostname'])
+                self.setRHUA(instance['private_hostname'], instance['public_hostname'])
             elif instance['role'].upper() == "CDS":
-                self.addCDS(instance['hostname'])
+                self.addCDS(instance['private_hostname'], instance['public_hostname'])
             elif instance['role'].upper() == "CLI":
-                self.addCLI(instance['hostname'])
+                self.addCLI(instance['private_hostname'], instance['public_hostname'])
         if 'Config' in yamlconfig.keys():
             logging.debug("Config found: " + str(yamlconfig['Config']))
             self.config = yamlconfig['Config'].copy()

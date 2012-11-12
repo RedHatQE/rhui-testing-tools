@@ -84,7 +84,7 @@
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
-	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_Master", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "Master"}, {"Key": "Hostname", "Value": "master.example.com"}]
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_Master", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "Master"}, {"Key": "PrivateHostname", "Value": "master.example.com"}, {"Key": "PublicHostname", "Value": "master_pub.example.com"}]
         }
     },
     "rhua": {
@@ -94,7 +94,7 @@
         "InstanceType" : "m1.large",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
-	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUA", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "RHUA"}, {"Key": "Hostname", "Value": "rhua.example.com"}]
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUA", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "RHUA"}, {"Key": "PrivateHostname", "Value": "rhua.example.com"}, {"Key": "PublicHostname", "Value": "rhua_pub.example.com"}]
       }
     },
     "cds1": {
@@ -104,7 +104,7 @@
         "InstanceType" : "m1.large",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
-	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["CDS1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CDS"}, {"Key": "Hostname", "Value": "cds1.example.com"}]
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["CDS1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CDS"}, {"Key": "PrivateHostname", "Value": "cds1.example.com"}, {"Key": "PublicHostname", "Value": "cds1_pub.example.com"}]
       }
     },
     "cli1": {
@@ -114,7 +114,7 @@
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
-	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_CLI1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CLI"}, {"Key": "Hostname", "Value": "cli1.example.com"}]
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_CLI1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CLI"}, {"Key": "PrivateHostname", "Value": "cli1.example.com"}, {"Key": "PublicHostname", "Value": "cli1_pub.example.com"}]
       }
     }
   },

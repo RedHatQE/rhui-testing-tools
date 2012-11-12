@@ -18,7 +18,7 @@ class test_tcms_178465(RHUITestcase):
         RHUIManager.initial_run(self.rs.RHUA)
 
         '''[TCMS#178465 setup] Add cds '''
-        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname)
 
         '''[TCMS#178465 setup] Create custom repos repo1, repo2'''
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo1")
@@ -30,7 +30,7 @@ class test_tcms_178465(RHUITestcase):
     def _test(self):
         '''[TCMS#178465 test] Check repos are associated '''
         cds = RhuiCds(
-                hostname=self.rs.CDS[0].hostname,
+                hostname=self.rs.CDS[0].private_hostname,
                 cluster="Cluster1",
                 repos=["repo1", "repo2"]
                 )
@@ -41,7 +41,7 @@ class test_tcms_178465(RHUITestcase):
 
         '''[TCMS#178465 test] Check repo1 has been unassociated'''
         cds = RhuiCds(
-                hostname=self.rs.CDS[0].hostname,
+                hostname=self.rs.CDS[0].private_hostname,
                 cluster="Cluster1",
                 repos=["repo2"]
                 )
@@ -54,7 +54,7 @@ class test_tcms_178465(RHUITestcase):
 
     def _cleanup(self):
         '''[TCMS#178465 cleanup] Remove cds '''
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
 
         '''[TCMS#178465 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA, ["repo1", "repo2"])
