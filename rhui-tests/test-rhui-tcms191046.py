@@ -75,6 +75,12 @@ class test_tcms_191046(RHUITestcase, RHUI_has_RH_rpm):
         '''[TCMS#191046 cleanup] Removing unsigned rpm from the client '''
         Expect.ping_pong(self. rs.CLI[0], "rpm -e custom-unsigned-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
+        '''[TCMS#191046 cleanup] Removing configuration rpm from the client '''
+        Util.remove_conf_rpm(self.rs.CLI[0])
+
+        '''[TCMS#191046 cleanup] Removing gpg key from the client '''
+        Expect.ping_pong(self. rs.CLI[0], "rpm -e gpg-pubkey-b6963d12-5080038c && echo SUCCESS", "[^ ]SUCCESS", 60)
+
         '''[TCMS#191046 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
 

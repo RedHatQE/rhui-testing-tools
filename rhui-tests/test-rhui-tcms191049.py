@@ -24,7 +24,6 @@ class test_tcms_191049(RHUITestcase, RHUI_has_RH_rpm):
             Util.remove_conf_rpm(cli)
 
         '''[TCMS#191049 setup] Create custom repo '''
-        self.rs.RHUA.sftp.put("/usr/share/rhui-testing-tools/testing-data/public.key", "/root/public.key")
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo1", redhat_gpg="y")
 
         '''[TCMS#191049 setup] Associate custom repo with cluster '''
