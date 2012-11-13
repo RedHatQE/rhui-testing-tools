@@ -133,8 +133,8 @@ class Translator(object):
                 'skipped': self.skipped_end,
                 'failure': self.error_end
                 }
+        self.data_reset()
         self.nitrate = NitrateMaintainer(test_plan_id)
-        self.data = None
         self.parser = expat.ParserCreate()
         self.parser.StartElementHandler = self.start
         self.parser.EndElementHandler = self.end
@@ -169,21 +169,23 @@ Testsuite Stats
     def testcase_end(self):
         """in case status not failed/error/waived it is idle -> mark passed"""
         if self.nitrate.status == nitrate.Status('IDLE'):
-            self.nitrate.success(log=self.data)
+            self.nitrate.success(log=self.text)
     def error_start(self, args):
-        """just reset data; will read some error details"""
-        self.data = None
+        """just reset text; will read some error details"""
+        self.data_reset()
     def error_end(self):
         """current case run set to failed here, because current error cdata
         should be processed now"""
-        self.nitrate.fail(log=self.data)
+        self.nitrate.fail(log=self.text)
     def skipped_end(self):
         """current case run set to waived here, because current details cdata
         should be processed now"""
-        self.nitrate.waive(log=self.data)
-    def data(self, data):
-        self.data = data
-        logging.debug("stored data: %r" % self.data)
+        self.nitrate.waive(log=self.text)
+    def data_reset(self):
+        self.text = ""
+    def data(self, text):
+        self.text += text
+        logging.debug("stored data: %r" % self.text)
     def _get_case_id(self, class_name, test_name):
         try:
             # covers "Context types" as wel
