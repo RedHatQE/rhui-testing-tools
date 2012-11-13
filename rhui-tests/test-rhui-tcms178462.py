@@ -10,7 +10,8 @@ from rhuilib.rhuimanager_client import *
 from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_entitlements import *
-from rhuilib.pulp_admin import PulpAdmin, Cds
+from rhuilib.pulp_admin import PulpAdmin
+from rhuilib.cds import *
 
 
 class test_tcms_178462(RHUITestcase, RHUI_has_RH_cert):
@@ -32,16 +33,19 @@ class test_tcms_178462(RHUITestcase, RHUI_has_RH_cert):
 
     def _test(self):
         '''[TCMS#178462 test] Check cds info screen '''
-        nose.tools.assert_equal(RHUIManagerCds.info(self.rs.RHUA, ["Cluster1"]), [{'Instances': [{'hostname': 'cds1.example.com', 'client': 'cds1.example.com', 'CDS': 'cds1.example.com'}], 'Repositories': ['Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)'], 'Name': 'Cluster1'}])
+        rhui_cds = RhuiCds(name = 'cds1.example.com',
+                           hostname = 'cds1.example.com',
+                           description = 'RHUI CDS',
+                           cluster = 'Cluster1',
+                           repos = ['Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)'], 
+                           client_hostname = 'cds1.example.com')
+
+        nose.tools.assert_equal(RHUIManagerCds.info(self.rs.RHUA, ["Cluster1"]), [rhui_cds])
 
         '''[TCMS#178462 test] Check pulp-admin cds list '''
         cdses = PulpAdmin.cds_list(self.rs.RHUA)
-        cds = Cds(name='cds1.example.com',
-                hostname='cds1.example.com',
-                description='RHUI CDS',
-                cluster='Cluster1',
-                repos=['rhel-x86_64-6-rhui-2-rpms-6Server-x86_64'])
-        nose.tools.eq_(cdses, [cds])
+
+        nose.tools.eq_(cdses, [rhui_cds])
 
         '''[TCMS#178462 test] Check certs created for RH repo '''
         Expect.ping_pong(self.rs.RHUA, "test -f /etc/pki/pulp/content/rhel-x86_64-6-rhui-2-rpms-6Server-x86_64/consumer-rhel-x86_64-6-rhui-2-rpms-6Server-x86_64.ca && echo SUCCESS", "[^ ]SUCCESS")
