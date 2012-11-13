@@ -53,6 +53,12 @@ class Instance(SSHClient):
         stderr.close()
         return output
 
+    @staticmethod
+    def wildcard(hostname):
+        hostname_particles = hostname.split('.')
+        hostname_particles[0] = "*"
+        return ".".join(hostname_particles)
+
 
 class RHUI_Instance(Instance):
     '''
@@ -122,7 +128,12 @@ class RHUA(RHUI_Instance):
             # Creating server certs for RHUA and CDSs
             logger.debug("Creating cert for " + server.hostname)
             self.run_sync("openssl genrsa -out /etc/rhui/pem/" + server.hostname + ".key 2048", True)
-            self.run_sync("openssl req -new -key /etc/rhui/pem/" + server.hostname + ".key -subj \"/C=US/ST=NC/L=Raleigh/CN=" + server.hostname + "\" -out /etc/rhui/pem/" + server.hostname + ".csr", True)
+            if server.__class__ == RHUA:
+                self.run_sync("openssl req -new -key /etc/rhui/pem/" + server.hostname + ".key -subj \"/C=US/ST=NC/L=Raleigh/CN=" + server.hostname + "\" -out /etc/rhui/pem/" + server.hostname + ".csr", True)
+            else:
+                # Create domain wildcard certificates for CDSes
+                # otherwise CDS will not be accessible via public hostname
+                self.run_sync("openssl req -new -key /etc/rhui/pem/" + server.hostname + ".key -subj \"/C=US/ST=NC/L=Raleigh/CN=" + self.wildcard(server.hostname) + "\" -out /etc/rhui/pem/" + server.hostname + ".csr", True)
             self.run_sync("openssl x509 -req -days 365 -CA /etc/rhui/pem/ca.crt -CAkey /etc/rhui/pem/ca.key -passin \"pass:" + capassword + "\" -in /etc/rhui/pem/" + server.hostname + ".csr -out /etc/rhui/pem/" + server.hostname + ".crt", True)
             logger.debug("Adding " + server.hostname + " to answers")
             if server.__class__ == RHUA:
