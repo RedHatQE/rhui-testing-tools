@@ -27,23 +27,110 @@ logging.basicConfig(level=loglevel, format='%(asctime)s %(levelname)s %(message)
 nitrate.log.getLogger().setLevel(loglevel)
 
 
+class NitrateMaintainer(object):
+    """keeps track of current Nitrate state while parsing"""
+    def __init__(self, test_plan_id):
+        # load plan and create a run
+        self.test_plan = nitrate.TestPlan(id=test_plan_id)
+        logging.debug("loaded plan: %s" % self.test_plan)
+        self.test_run = nitrate.TestRun(testplan = self.test_plan)
+        logging.debug("created plan run: %s" % self.test_run)
+        # initialize a result-to-testcase map; this is used for updating
+        # a test result record as the parsing goes on
+        self.result_map = {}
+        for result in self.test_run:
+            self.result_map[result.testcase]=result
+            # initialize notes as well
+        self.reset()
+    def __del__(self):
+        # synchronize stuff back
+        for result, testcase in self.result_map.items():
+            testcase.update()
+            result.update()
+        self.test_run.update()
+    def reset(self, test_case = None):
+        """reset self state"""
+        self.test_case = test_case
+        logging.debug("state reset to: %s" % self.test_case)
+    def reset_to_id(self, test_id):
+        """reset current state to a test_case loaded by the id"""
+        logging.debug("resetting to id: %s" % test_id)
+        try:
+            test_case = nitrate.TestCase(id=test_id)
+            if self.test_case == test_case:
+                logging.debug("...already at the same id %d" % test_id)
+            else:
+                # new case id
+                if test_case in self.test_plan:
+                    logging.debug("...new test_case loaded for id %d" % test_id)
+                    self.reset(test_case)
+                else:
+                    logging.info("...skipped; id %d not in plan" % test_id)
+                    self.reset()
+        except nitrate.NitrateError as e:
+            logging.warning("unmatched test id: %s; error: %s" % (test_id, e))
+            self.reset()
+    @property
+    def in_test(self):
+        """check whether parser visited <test>"""
+        return self.test_case is not None
+    @property
+    def case_run(self):
+        """return current test case -> case run"""
+        return self.result_map[self.test_case]
+    @property
+    def status(self):
+        return self.case_run.status
+    @status.setter
+    def status(self, status):
+        """update current case run status"""
+        self.case_run.status = status
+        logging.debug("case run %s marked with status: %s" % (self.case_run,
+            status))
+    def fail(self, log=None):
+        """mark current test case run failed"""
+        self.status = nitrate.Status('FAILED')
+        if log is not None:
+           self.add_note(log)
+    def success(self, log=None):
+        """mark current test case run passed"""
+        self.status = nitrate.Status('PASSED')
+        if log is not None:
+           self.add_note(log)
+    def waive(self, log=None):
+        """mark current test case run waived"""
+        self.status = nitrate.Status('WAIVED')
+        if log is not None:
+           self.add_note(log)
+    def add_note(self, note):
+        """add a note to current case run"""
+        try:
+            self.case_run.notes.append(str(note))
+        except AttributeError:
+            # notes is None
+            self.case_run.notes = [str(note)]
+        logging.debug("note %s added to case run %s" % (self.case_run, note))
+
 class Translator(object):
     '''The xunit---nitrate transaltor'''
-    def __init__(self, result_path):
+    _case_id_pattern = re.compile('.*tcms(\d+).*')
+    def __init__(self, result_path, test_plan_id):
         self.start_element_map = {
                 'testsuite': self.testsuite_start,
                 'testcase': self.testcase_start,
                 'error': self.error_start,
-                'skipped': self.skipped_start,
-                'failure': self.failure_start,
+                'skipped': self.error_start,
+                'failure': self.error_start,
               }
         self.end_element_map = {
                 'testsuite': self.testsuite_end,
                 'testcase': self.testcase_end,
                 'error': self.error_end,
                 'skipped': self.skipped_end,
-                'failure': self.failure_end
+                'failure': self.error_end
                 }
+        self.nitrate = NitrateMaintainer(test_plan_id)
+        self.data = None
         self.parser = expat.ParserCreate()
         self.parser.StartElementHandler = self.start
         self.parser.EndElementHandler = self.end
@@ -52,10 +139,10 @@ class Translator(object):
             logging.debug("Reading results file: %s" % result_path)
             self.parser.ParseFile(result_file)
     def start(self, name, args):
-        logging.debug("Start element %s: %s" % (name, args))
+        logging.debug("Start element <%s %s>" % (name, args))
         self.start_element_map[name](args)
     def end(self, name):
-        logging.debug("End element %s" % name)
+        logging.debug("End element <%s/>" % name)
         self.end_element_map[name]()
     def testsuite_start(self, args):
         msg = """
@@ -70,23 +157,38 @@ Testsuite Stats
     def testsuite_end(self):
         pass
     def testcase_start(self, args):
-        pass
+        test_id = self._get_case_id(args['classname'], args['name'])
+        if test_id is None:
+            logging.info("...skipping non-tcms test: %(classname)s: %(name)s" % args)
+            return
+        self.nitrate.reset_to_id(test_id)
     def testcase_end(self):
-        pass
+        """in case status not failed/error/waived it is idle -> mark passed"""
+        if self.nitrate.status == nitrate.Status('IDLE'):
+            self.nitrate.success(log=self.data)
     def error_start(self, args):
-        pass
+        """just reset data; will read some error details"""
+        self.data = None
     def error_end(self):
-        pass
-    def skipped_start(self, args):
-        pass
+        """current case run set to failed here, because current error cdata
+        should be processed now"""
+        self.nitrate.fail(log=self.data)
     def skipped_end(self):
-        pass
-    def failure_start(self, args):
-        pass
-    def failure_end(self):
-        pass
+        """current case run set to waived here, because current details cdata
+        should be processed now"""
+        self.nitrate.waive(log=self.data)
     def data(self, data):
-        pass
+        self.data = data
+        logging.debug("stored data: %r" % self.data)
+    def _get_case_id(self, class_name, test_name):
+        try:
+            # covers "Context types" as wel
+            return int(Translator._case_id_pattern.match(class_name + \
+                    test_name).groups()[0])
+        except AttributeError:
+            # no match results to None -> attribute error
+            pass
+
 
 ### MAIN
-translator = Translator(args.result)
+translator = Translator(args.result, args.plan)
