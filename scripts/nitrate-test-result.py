@@ -44,10 +44,14 @@ class NitrateMaintainer(object):
         self.reset()
     def __del__(self):
         # synchronize stuff back
+        self.sync()
+    def sync(self):
+        """synchronize stuff"""
         for result, testcase in self.result_map.items():
             testcase.update()
             result.update()
         self.test_run.update()
+
     def reset(self, test_case = None):
         """reset self state"""
         self.test_case = test_case
@@ -155,7 +159,7 @@ Testsuite Stats
 """ % args
         logging.info(msg)
     def testsuite_end(self):
-        pass
+        self.nitrate.sync()
     def testcase_start(self, args):
         test_id = self._get_case_id(args['classname'], args['name'])
         if test_id is None:
