@@ -12,7 +12,7 @@ from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_entitlements import *
 
 
-class test_bug_tcms178467(RHUITestcase, RHUI_has_RH_cert):
+class test_tcms_178467(RHUITestcase, RHUI_has_RH_cert):
     def _setup(self):
         '''[TCMS#178467 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
