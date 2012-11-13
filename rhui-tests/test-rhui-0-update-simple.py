@@ -1,7 +1,6 @@
 #! /usr/bin/python -tt
 
 import nose
-import time
 
 from rhuilib.util import *
 from rhuilib.rhui_testcase import *
@@ -34,20 +33,10 @@ class test_0_update_simple(RHUITestcase, RHUI_has_RH_cert):
         Util.remove_conf_rpm(self.rs.RHUA)
 
         '''[Update Simple setup] Sync RH repo '''
-        RHUIManagerSync.sync_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
-        reposync = ["In Progress", "", ""]
-        while reposync[0] == "In Progress":
-            time.sleep(10)
-            reposync = RHUIManagerSync.get_repo_status(self.rs.RHUA, "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)")
-        nose.tools.assert_equal(reposync[2], "Success")
+        self._sync_repo(["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[Update Simple setup] Sync cds '''
-        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.rs.CDS[0].private_hostname])
-        cdssync = ["UP", "In Progress", "", ""]
-        while cdssync[1] == "In Progress":
-            time.sleep(10)
-            cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA, self.rs.CDS[0].private_hostname)
-        nose.tools.assert_equal(cdssync[3], "Success")
+        self._sync_cds([self.rs.CDS[0].private_hostname])
 
         '''[Update Simple setup] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\)"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
