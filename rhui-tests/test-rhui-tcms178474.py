@@ -32,10 +32,10 @@ class test_tcms_178474(RHUITestcase, RHUI_has_RH_cert):
         RHUIManagerCds.associate_repo_cds(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
     def _test(self):
-        '''[TCMS#178474 setup] Generate entitlement certificate '''
+        '''[TCMS#178474 test] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\)"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
-        '''[TCMS#178474 setup] Create configuration rpm '''
+        '''[TCMS#178474 test] Create configuration rpm '''
         RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].public_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
     def _cleanup(self):
