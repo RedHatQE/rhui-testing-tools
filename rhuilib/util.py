@@ -60,19 +60,17 @@ class Util:
         Expect.expect(connection, "[^ ]SUCCESS.*root@", 60)
 
     @staticmethod
-    def install_rpm_from_master(connection, rpmpath):
+    def install_rpm_from_rhua(rhua_connection, connection, rpmpath):
         '''
-        Transfer RPM package to instance and install it
-        @param rpmpath: path to RPM package on Master node
+        Transfer RPM package from RHUA host to the instance and install it
+        @param rpmpath: path to RPM package on RHUA node
         '''
-        Expect.enter(connection, "mkdir -p `dirname " + rpmpath + "` && echo SUCCESS")
-        Expect.expect(connection, "[^ ]SUCCESS")
-        connection.sftp.put(rpmpath, rpmpath)
-        Expect.enter(connection, "yum install " + rpmpath + " && echo 'NO ERRORS'")
-        Expect.expect(connection, "Is this ok \[y/N\]:", 30)
-        Expect.enter(connection, "y")
-        # Check the result to address https://bugzilla.redhat.com/show_bug.cgi?id=617014
-        Expect.expect(connection, "NO ERRORS.*root@", 60)
+        tf = tempfile.NamedTemporaryFile(delete=False)
+        tf.close()
+        rhua_connection.sftp.get(rpmpath, tf.name )
+        connection.sftp.put(tf.name, tf.name + ".rpm")
+        os.unlink(tf.name)
+        Expect.ping_pong(connection, "yum install -y " + tf.name + ".rpm" + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     @staticmethod
     def get_ca_password(connection, pwdfile="/etc/rhui/pem/ca.pwd"):
