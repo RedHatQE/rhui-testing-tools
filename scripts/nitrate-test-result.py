@@ -196,21 +196,28 @@ Testsuite Stats
             logging.info("...skipping non-tcms test: %(classname)s: %(name)s" % args)
             return
         self.nitrate.reset_to_id(test_id)
-        self.nitrate.add_note("## %(name)s\n" % args)
+        self.nitrate.add_note("## %(name)s: " % args)
     def testcase_end(self):
         """in case status not failed/error/waived it is idle -> mark passed"""
         if self.nitrate.status == nitrate.Status('IDLE'):
-            self.nitrate.success(log=self.text)
+            # first time run just mark passed
+            self.nitrate.success()
+        if self.nitrate.status == nitrate.Status('PASSED'):
+            # add log
+            self.nitrate.add_note(" OK\n" + self.text)
+
     def error_start(self, args):
         """just reset text; will read some error details"""
         self.data_reset()
     def error_end(self):
         """current case run set to failed here, because current error cdata
         should be processed now"""
+        self.nitrate.add_note(" ERROR\n")
         self.nitrate.fail(log=self.text)
     def skipped_end(self):
         """current case run set to waived here, because current details cdata
         should be processed now"""
+        self.nitrate.add_note(" WAIVED\n")
         self.nitrate.waive(log=self.text)
     def data_reset(self):
         self.text = ""
