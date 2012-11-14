@@ -8,12 +8,14 @@ from xml.parsers import expat
 
 # deal with arguments
 argparser = argparse.ArgumentParser(
-    description='Assign test result a Nitrate plan/run id'
+    description='Assign test result a Nitrate plan/run id',
+    epilog="""Remember to fill in your minimal ~/.nitrate file; see pydoc
+    nitrate"""
     )
 
-argparser.add_argument('--result', help='nosetest xunit result file')
-argparser.add_argument('--plan', help='nitrate plan id', type=int)
-argparser.add_argument('--debug', help='debug mode', action='store_const',
+argparser.add_argument('result_file', help='nosetest xunit result file')
+argparser.add_argument('plan_id', help='nitrate plan id', type=int)
+argparser.add_argument('-d', '--debug', help='debug mode', action='store_const',
         const=True)
 args = argparser.parse_args()
 
@@ -81,13 +83,22 @@ class NitrateMaintainer(object):
     @property
     def case_run(self):
         """return current test case -> case run"""
+        if not self.in_test:
+            return None
         return self.result_map[self.test_case]
     @property
     def status(self):
+        if not self.in_test:
+            return None
         return self.case_run.status
     @status.setter
     def status(self, status):
         """update current case run status"""
+        if not self.in_test:
+            # can't set status if not in test case
+            logging.warning("setting status %s skipped; no test case available" %
+                    status)
+            return
         self.case_run.status = status
         logging.debug("case run %s marked with status: %s" % (self.case_run,
             status))
@@ -108,6 +119,11 @@ class NitrateMaintainer(object):
            self.add_note(log)
     def add_note(self, note):
         """add a note to current case run"""
+        if not self.in_test:
+            # can't add note if not in test case
+            logging.warning("adding note %s skipped; no test case available" %
+                    note)
+            return
         try:
             self.case_run.notes.append(str(note))
         except AttributeError:
@@ -197,4 +213,25 @@ Testsuite Stats
 
 
 ### MAIN
-translator = Translator(args.result, args.plan)
+# Mode of operation:
+#  - the result file is read assuming all the tests belong to the nitrate
+#    test plan specified
+#  - if either test class name or test name in the results file suggests
+#    a test change, new Nitrate Test Case instance is loaded from nitrate
+#    server specified in one's ~/.nitrate config file
+#  - only tests from results file matching the pattern .*tcms(\d+).* are
+#    considered
+#  - nitrate case id is the number following tcms in the pattern
+#  - if a nitrate case id can't be loaded, the test result is skipped
+#  - if a nitrate case id isn't present in the nitrate plan specified the test
+#    result is skipped
+#
+# Notes
+#  - one's ~/.nitrate configuration is used
+#  - minimal nitrate configuration can be figured out issuing pydoc nitrate:
+#      [nitrate]
+#      url = https://nitrate.server/xmlrpc/
+#  - current kerberos ticket is used to authenticate the user if no
+#    other login information has been specified in ~/.nitrate
+
+translator = Translator(args.result_file, args.plan_id)
