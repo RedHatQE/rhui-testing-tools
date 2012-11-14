@@ -137,10 +137,10 @@ class NitrateMaintainer(object):
                     note)
             return
         try:
-            self.case_run.notes.append(str(note))
-        except AttributeError:
-            # notes is None
-            self.case_run.notes = [str(note)]
+            self.case_run.notes += str(note)
+        except TypeError:
+            # notes is None---first note
+            self.case_run.notes = str(note)
         logging.debug("note %s added to case run %s" % (self.case_run, note))
 
 class Translator(object):
@@ -194,6 +194,7 @@ Testsuite Stats
             logging.info("...skipping non-tcms test: %(classname)s: %(name)s" % args)
             return
         self.nitrate.reset_to_id(test_id)
+        self.nitrate.add_note("## %(name)s\n" % args)
     def testcase_end(self):
         """in case status not failed/error/waived it is idle -> mark passed"""
         if self.nitrate.status == nitrate.Status('IDLE'):
