@@ -294,14 +294,23 @@ for i in con_ec2.get_all_instances():
                 role = ii.tags["Role"]
             except KeyError:
                 role = None
+
             public_ip = ii.ip_address
             private_ip = ii.private_ip_address
-            instances_detail.append({"id": ii.id,
-                                     "public_hostname": public_hostname,
-                                     "private_hostname": private_hostname,
-                                     "role": role,
-                                     "public_ip": public_ip,
-                                     "private_ip": private_ip})
+
+            details_dict = {"id": ii.id,
+                            "public_hostname": public_hostname,
+                            "private_hostname": private_hostname,
+                            "role": role,
+                            "public_ip": public_ip,
+                            "private_ip": private_ip}
+
+            for tag_key in ii.tags.keys():
+                if tag_key not in ["PublicHostname", "PrivateHostname", "Role"]:
+                    details_dict[tag_key] = ii.tags[tag_key]
+
+            instances_detail.append(details_dict)
+
             if private_hostname and private_ip:
                 hostsfile.write(private_ip + "\t" + private_hostname + "\n")
             if public_hostname and public_ip:
