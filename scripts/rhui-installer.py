@@ -124,6 +124,8 @@ class RHUA(RHUI_Instance):
         answersfile.write("qpid_ca: /etc/rhui/qpid/ca.crt\n")
         answersfile.write("qpid_client: /etc/rhui/qpid/client.crt\n")
         answersfile.write("qpid_nss_db: /etc/rhui/qpid/nss\n")
+
+        cds_number = 1
         for server in [self] + cds_list:
             # Creating server certs for RHUA and CDSs
             logger.debug("Creating cert for " + server.hostname)
@@ -139,7 +141,8 @@ class RHUA(RHUI_Instance):
             if server.__class__ == RHUA:
                 answersfile.write("[rhua]\n")
             else:
-                answersfile.write("[" + server.hostname + "]\n")
+                answersfile.write("[cds-" + str(cds_number) + "]\n")
+                cds_number += 1
             answersfile.write("hostname: " + server.hostname + "\n")
             answersfile.write("rpm_name: " + server.hostname + "\n")
             answersfile.write("ssl_cert: /etc/rhui/pem/" + server.hostname + ".crt\n")
