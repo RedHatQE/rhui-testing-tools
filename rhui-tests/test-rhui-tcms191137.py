@@ -62,8 +62,7 @@ class test_tcms_191137(RHUITestcase, RHUI_has_RH_cert, RHUI_has_RH_rpm):
         RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0", ["repo1"])
 
         '''[TCMS#191137 setup] Install configuration rpm to client '''
-        self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
-        Util.install_rpm_from_master(self.rs.CLI[0], "/root/repo1-3.0-1.noarch.rpm")
+        Util.install_rpm_from_rhua(self.rs.RHUA, self.rs.CLI[0], "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
 
     def _test(self):
         '''[TCMS#191137 test] Installing RH rpm from RH repo to the client '''

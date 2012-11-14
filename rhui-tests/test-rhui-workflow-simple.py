@@ -78,8 +78,7 @@ class test_workflow_simple(RHUITestcase, RHUI_has_RH_cert):
         RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
         '''[Simple Workflow test] Install configuration rpm to client'''
-        self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
-        Util.install_rpm_from_master(self.rs.CLI[0], "/root/repo1-3.0-1.noarch.rpm")
+        Util.install_rpm_from_rhua(self.rs.RHUA, self.rs.CLI[0], "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
 
         '''[Simple Workflow test] Generate new identity '''
         RHUIManagerIdentity.generate_new(self.rs.RHUA)

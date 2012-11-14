@@ -45,8 +45,7 @@ class test_0_update_simple(RHUITestcase, RHUI_has_RH_cert):
         RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster1", self.rs.CDS[0].private_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
         '''[Update Simple setup] Install configuration rpm to RHUA '''
-        self.rs.RHUA.sftp.get("/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm", "/root/repo1-3.0-1.noarch.rpm")
-        Util.install_rpm_from_master(self.rs.RHUA, "/root/repo1-3.0-1.noarch.rpm")
+        Expect.ping_pong(self.rs.RHUA, "yum install -y /root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def _test(self):
         '''[Update Simple test] Upgrade RHUI '''
