@@ -145,8 +145,9 @@ class NitrateMaintainer(object):
 
 class Translator(object):
     '''The xunit---nitrate transaltor'''
-    _case_id_pattern = re.compile('.*tcms(\d+).*')
-    def __init__(self, result_path, nitrate):
+    _case_id_pattern = re.compile('.*tcms[-_]?(\d+).*')
+    def __init__(self, result_path, nitrate,
+            processlogs=True):
         self.start_element_map = {
                 'testsuite': self.testsuite_start,
                 'testcase': self.testcase_start,
@@ -166,7 +167,8 @@ class Translator(object):
         self.parser = expat.ParserCreate()
         self.parser.StartElementHandler = self.start
         self.parser.EndElementHandler = self.end
-        self.parser.CharacterDataHandler = self.data
+        if processlogs:
+            self.parser.CharacterDataHandler = self.data
         with open(result_path) as result_file:
             logging.debug("Reading results file: %s" % result_path)
             self.parser.ParseFile(result_file)
@@ -232,9 +234,9 @@ Testsuite Stats
 #  - if either test class name or test name in the results file suggests
 #    a test change, new Nitrate Test Case instance is loaded from nitrate
 #    server specified in one's ~/.nitrate config file
-#  - only tests from results file matching the pattern .*tcms(\d+).* are
-#    considered
-#  - nitrate case id is the number following tcms in the pattern
+#  - only tests from results file matching the pattern
+#    Translator._case_id_pattern are considered
+#  - nitrate case id is the number following tcms string in the pattern
 #  - if a nitrate case id can't be loaded, the test result is skipped
 #  - if a nitrate case id isn't present in the nitrate plan specified the test
 #    result is skipped
@@ -251,4 +253,5 @@ nitrate.setCacheLevel(nitrate.CACHE_CHANGES)
 
 Translator(args.result_file,
         NitrateMaintainer(args.plan_id,
-            args.dryrun))
+            args.dryrun),
+        processlogs=False)
