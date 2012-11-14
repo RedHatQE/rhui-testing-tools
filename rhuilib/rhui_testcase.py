@@ -84,3 +84,15 @@ class RHUI_has_three_CDSes(object):
     def check(self, rs):
         if len(rs.CDS) < 3:
             raise nose.exc.SkipTest("can't test without having at least three CDSes!")
+
+
+class RHUI_has_two_CLIs_RHEL6(object):
+    @classmethod
+    def check(self, rs):
+        if len(rs.CLI) < 2:
+            raise nose.exc.SkipTest("can't test without having at least two CLIs!")
+        try:
+            if rs.CLI[0].parameters['OS']!="RHEL6" or rs.CLI[1].parameters['OS']!="RHEL6":
+                raise nose.exc.SkipTest("Clietnts OSes shoud be RHEL6 (got %s,%s), skipping test" % (rs.CLI[0].parameters['OS'], rs.CLI[1].parameters['OS']))
+        except KeyError:
+             raise nose.exc.SkipTest("No OS specified for clients in config, skipping test")
