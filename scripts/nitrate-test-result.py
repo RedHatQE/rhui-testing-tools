@@ -15,8 +15,12 @@ argparser = argparse.ArgumentParser(
 
 argparser.add_argument('result_file', help='nosetest xunit result file')
 argparser.add_argument('plan_id', help='nitrate plan id', type=int)
-argparser.add_argument('-d', '--debug', help='debug mode', action='store_const',
-        const=True)
+argparser.add_argument('-d', '--debug', help='debug mode',
+        action='store_true')
+argparser.add_argument('--dryrun',
+        help='no sync will be done to update anything',
+        action='store_true')
+
 args = argparser.parse_args()
 
 # deal with logging
@@ -31,7 +35,7 @@ nitrate.log.getLogger().setLevel(loglevel)
 
 class NitrateMaintainer(object):
     """keeps track of current Nitrate state while parsing"""
-    def __init__(self, test_plan_id):
+    def __init__(self, test_plan_id, dryrun=False):
         # load plan and create a run
         self.test_plan = nitrate.TestPlan(id=test_plan_id)
         logging.debug("loaded plan: %s" % self.test_plan)
@@ -44,11 +48,19 @@ class NitrateMaintainer(object):
             self.result_map[result.testcase]=result
             # initialize notes as well
         self.reset()
+        self.dryrun = dryrun
+        if self.dryrun:
+            def noFun():
+                pass
+            self.test_run.__del__ = noFun
     def __del__(self):
         # synchronize stuff back
         self.sync()
     def sync(self):
         """synchronize stuff"""
+        if self.dryrun:
+            logging.info("Won't synchronize updates; dryrun mode")
+            return
         for result, testcase in self.result_map.items():
             testcase.update()
             result.update()
@@ -134,7 +146,7 @@ class NitrateMaintainer(object):
 class Translator(object):
     '''The xunit---nitrate transaltor'''
     _case_id_pattern = re.compile('.*tcms(\d+).*')
-    def __init__(self, result_path, test_plan_id):
+    def __init__(self, result_path, nitrate):
         self.start_element_map = {
                 'testsuite': self.testsuite_start,
                 'testcase': self.testcase_start,
@@ -150,7 +162,7 @@ class Translator(object):
                 'failure': self.error_end
                 }
         self.data_reset()
-        self.nitrate = NitrateMaintainer(test_plan_id)
+        self.nitrate = nitrate
         self.parser = expat.ParserCreate()
         self.parser.StartElementHandler = self.start
         self.parser.EndElementHandler = self.end
@@ -234,4 +246,8 @@ Testsuite Stats
 #  - current kerberos ticket is used to authenticate the user if no
 #    other login information has been specified in ~/.nitrate
 
-translator = Translator(args.result_file, args.plan_id)
+nitrate.setCacheLevel(nitrate.CACHE_CHANGES)
+
+Translator(args.result_file,
+        NitrateMaintainer(args.plan_id,
+            args.dryrun))
