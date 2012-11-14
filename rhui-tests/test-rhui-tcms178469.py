@@ -11,7 +11,7 @@ from rhuilib.rhuimanager_repo import *
 from rhuilib.rhuimanager_sync import *
 
 
-class test_bug_tcms178469(RHUITestcase, RHUI_has_two_CDSes):
+class test_tcms_178469(RHUITestcase, RHUI_has_two_CDSes):
     def _setup(self):
         '''[TCMS#178469 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)

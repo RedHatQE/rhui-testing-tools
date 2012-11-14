@@ -52,7 +52,7 @@ class RHUITestcase(object):
             while reposync[0] == "In Progress":
                 time.sleep(10)
                 reposync = RHUIManagerSync.get_repo_status(self.rs.RHUA, repo)
-                nose.tools.assert_equal(reposync[2], "Success")
+            nose.tools.assert_equal(reposync[2], "Success")
 
 
 class RHUI_has_RH_rpm(object):

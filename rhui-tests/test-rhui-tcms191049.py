@@ -24,7 +24,6 @@ class test_tcms_191049(RHUITestcase, RHUI_has_RH_rpm):
             Util.remove_conf_rpm(cli)
 
         '''[TCMS#191049 setup] Create custom repo '''
-        self.rs.RHUA.sftp.put("/usr/share/rhui-testing-tools/testing-data/public.key", "/root/public.key")
         RHUIManagerRepo.add_custom_repo(self.rs.RHUA, "repo1", redhat_gpg="y")
 
         '''[TCMS#191049 setup] Associate custom repo with cluster '''
@@ -43,12 +42,7 @@ class test_tcms_191049(RHUITestcase, RHUI_has_RH_rpm):
         RHUIManagerRepo.upload_content(self.rs.RHUA, ["repo1"], "/root/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
 
         '''[TCMS#191049 setup] Sync cds '''
-        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.rs.CDS[0].private_hostname])
-        cdssync = ["UP", "In Progress", "", ""]
-        while cdssync[1] == "In Progress":
-            time.sleep(10)
-            cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA, self.rs.CDS[0].private_hostname)
-        nose.tools.assert_equal(cdssync[3], "Success")
+        self._sync_cds([self.rs.CDS[0].private_hostname])
 
         '''[TCMS#191049 setup] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["repo1"], "cert-repo1", "/root/", validity_days="", cert_pw=None)

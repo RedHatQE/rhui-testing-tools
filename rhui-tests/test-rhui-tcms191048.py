@@ -44,12 +44,7 @@ class test_tcms_191048(RHUITestcase, RHUI_has_RH_rpm):
         RHUIManagerRepo.upload_content(self.rs.RHUA, ["repo1"], "/root/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
 
         '''[TCMS#191048 setup] Sync cds '''
-        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.rs.CDS[0].private_hostname])
-        cdssync = ["UP", "In Progress", "", ""]
-        while cdssync[1] == "In Progress":
-            time.sleep(10)
-            cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA, self.rs.CDS[0].private_hostname)
-        nose.tools.assert_equal(cdssync[3], "Success")
+        self._sync_cds([self.rs.CDS[0].private_hostname])
 
         '''[TCMS#191048 setup] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["repo1"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
@@ -74,6 +69,12 @@ class test_tcms_191048(RHUITestcase, RHUI_has_RH_rpm):
     def _cleanup(self):
         '''[TCMS#191048 cleanup] Removing signed rpm from the client '''
         Expect.ping_pong(self. rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
+
+        '''[TCMS#191048 cleanup] Removing configuration rpm from the client '''
+        Util.remove_conf_rpm(self.rs.CLI[0])
+
+        '''[TCMS#191048 cleanup] Removing gpg key from the client '''
+        Expect.ping_pong(self. rs.CLI[0], "rpm -e gpg-pubkey-b6963d12-5080038c && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#191048 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])

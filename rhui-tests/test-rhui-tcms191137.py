@@ -1,7 +1,6 @@
 #! /usr/bin/python -tt
 
 import nose
-import time
 
 from rhuilib.util import *
 from rhuilib.rhui_testcase import *
@@ -51,20 +50,10 @@ class test_tcms_191137(RHUITestcase, RHUI_has_RH_cert, RHUI_has_RH_rpm):
         RHUIManagerRepo.upload_content(self.rs.RHUA, ["repo1"], "/root/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
 
         '''[TCMS#191137 setup] Sync RH repo '''
-        RHUIManagerSync.sync_repo(self.rs.RHUA, ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
-        reposync = ["In Progress", "", ""]
-        while reposync[0] == "In Progress":
-            time.sleep(10)
-            reposync = RHUIManagerSync.get_repo_status(self.rs.RHUA, "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)")
-        nose.tools.assert_equal(reposync[2], "Success")
+        self._sync_repo(["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#191137 setup] Sync cds '''
-        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.rs.CDS[0].private_hostname])
-        cdssync = ["UP", "In Progress", "", ""]
-        while cdssync[1] == "In Progress":
-            time.sleep(10)
-            cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA, self.rs.CDS[0].private_hostname)
-        nose.tools.assert_equal(cdssync[3], "Success")
+        self._sync_cds([self.rs.CDS[0].private_hostname])
 
         '''[TCMS#191137 setup] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\)"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
@@ -98,6 +87,12 @@ class test_tcms_191137(RHUITestcase, RHUI_has_RH_cert, RHUI_has_RH_rpm):
 
         '''[TCMS#191137 cleanup] Removing signed rpm from the client '''
         Expect.ping_pong(self.rs.CLI[0], "rpm -e custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
+
+        '''[TCMS#191137 cleanup] Removing configuration rpm from the client '''
+        Util.remove_conf_rpm(self.rs.CLI[0])
+
+        '''[TCMS#191137 cleanup] Removing gpg key from the client '''
+        Expect.ping_pong(self. rs.CLI[0], "rpm -e gpg-pubkey-b6963d12-5080038c && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#191137 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])

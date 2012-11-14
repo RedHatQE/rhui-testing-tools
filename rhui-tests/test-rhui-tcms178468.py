@@ -36,10 +36,9 @@ class test_tcms_178468(RHUITestcase):
     repo = "repo-1"
     cluster = "cluster-1"
 
-    def _init(self):
+    def _setup(self):
         self.cds = Cds(self.rs.CDS[0])
 
-    def _setup(self):
         '''[TCMS#178468 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA)
 
@@ -59,6 +58,8 @@ class test_tcms_178468(RHUITestcase):
         RHUIManagerSync.sync_cds(self.rs.RHUA, [self.cds.hostname])
 
     def _test(self):
+        self.cds = Cds(self.rs.CDS[0])
+
         '''[TCMS#178468 test] assert repo contents is present on the CDS'''
         nose.tools.ok_(self.repo in self.cds.get_reponames())
 
