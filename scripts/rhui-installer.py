@@ -25,14 +25,6 @@ class Instance(SSHClient):
         self.set_missing_host_key_policy(AutoAddPolicy())
         self.connect(hostname=hostname, username="root")
         self.sftp = self.open_sftp()
-        self.ephemeral_device = None
-        for device in self.run_sync("ls -1 /dev/xvd*").strip().split('\n'):
-            # searching for the first unused block device
-            if self.run_sync("grep " + device + " /proc/mounts").strip() == "":
-                self.ephemeral_device = device
-                logger.debug("Using " + device + " as additional storage")
-                self.run_sync("mkfs.ext3 " + device, True)
-                break
 
     def __repr__(self):
         return (self.__class__.__name__ + ":" + self.hostname + ":" + self.public_ip + ":" + self.private_ip)
@@ -68,6 +60,15 @@ class RHUI_Instance(Instance):
         Instance.__init__(self, hostname, private_ip, public_ip)
         self.iso = iso
         self.version = "1.0"
+        self.ephemeral_device = None
+        for device in self.run_sync("ls -1 /dev/xvd*").strip().split('\n'):
+            if device!="":
+                # searching for the first unused block device
+                if self.run_sync("grep " + device + " /proc/mounts").strip() == "":
+                    self.ephemeral_device = device
+                    logger.debug("Using " + device + " as additional storage")
+                    self.run_sync("mkfs.ext3 " + device, True)
+                    break
 
     def setup(self):
         logger.info("Common RHUI instance setup for " + self.hostname)
