@@ -37,7 +37,7 @@ class RHUIManagerSync:
         '''
         RHUIManager.screen(connection, "sync")
         Expect.enter(connection, "dc")
-        res_list = Expect.match(connection, re.compile(".*\n" + cdsname.replace(".", "\.") + "[\.\s]*\[([^\n]*)\].*" + cdsname.replace(".", "\.") + "\s*\r\n([^\n]*)\r\n", re.DOTALL), [1, 2], 30)
+        res_list = Expect.match(connection, re.compile(".*\n" + cdsname.replace(".", "\.") + "[\.\s]*\[([^\n]*)\].*" + cdsname.replace(".", "\.") + "\s*\r\n([^\n]*)\r\n", re.DOTALL), [1, 2], 60)
         connection.cli.exec_command("killall -s SIGINT rhui-manager")
         ret_list = []
         for val in [res_list[0]] + res_list[1].split("             "):
@@ -67,7 +67,7 @@ class RHUIManagerSync:
         RHUIManager.screen(connection, "sync")
         Expect.enter(connection, "dr")
         reponame_quoted = reponame.replace(".", "\.")
-        res = Expect.match(connection, re.compile(".*" + reponame_quoted + "\s*\r\n([^\n]*)\r\n.*", re.DOTALL), [1], 30)[0]
+        res = Expect.match(connection, re.compile(".*" + reponame_quoted + "\s*\r\n([^\n]*)\r\n.*", re.DOTALL), [1], 60)[0]
         connection.cli.exec_command("killall -s SIGINT rhui-manager")
         res = Util.uncolorify(res)
         ret_list = res.split("             ")
