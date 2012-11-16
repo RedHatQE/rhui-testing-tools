@@ -70,7 +70,7 @@ class Util:
         rhua_connection.sftp.get(rpmpath, tf.name )
         connection.sftp.put(tf.name, tf.name + ".rpm")
         os.unlink(tf.name)
-        Expect.ping_pong(connection, "yum install -y " + tf.name + ".rpm" + " && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(connection, "rpm -i " + tf.name + ".rpm" + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     @staticmethod
     def get_ca_password(connection, pwdfile="/etc/rhui/pem/ca.pwd"):
