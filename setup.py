@@ -17,6 +17,7 @@ setup(name='rhuilib',
              ('share/rhui-testing-tools/cfn', glob.glob('cfn/*.json')),
              ('share/rhui-testing-tools/testing-data', glob.glob('testing-data/*.key') + glob.glob('testing-data/*.rpm')),
              ('share/rhui-testing-tools/rhui-tests', glob.glob('rhui-tests/*.py')),
+             ('/etc', ['etc/rhui-testing.cfg'])
     ],
     classifiers=[
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',

@@ -114,7 +114,7 @@ argparser = argparse.ArgumentParser(description='Create CloudFormation stack and
 argparser.add_argument('--cloudformation', required=True,
                        help='use supplied JSON file to setup CloudFormation stack')
 argparser.add_argument('--config',
-                       default="/etc/validation.cfg", help='use supplied config file')
+                       default="/etc/rhui-testing.cfg", help='use supplied config file')
 argparser.add_argument('--debug', action='store_const', const=True,
                        default=False, help='debug mode')
 argparser.add_argument('--dry-run', action='store_const', const=True,
@@ -142,13 +142,24 @@ else:
     logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 config = ConfigParser.ConfigParser()
-config.read(args.config)
+# Try all possible configs
+config_read = False
+for possible_config in [args.config, "rhui-testing.cfg", "/etc/validation.cfg"]:
+    if config.read(possible_config)!=[]:
+        logging.debug("reading config values from " + possible_config)
+        config_read = True
+        break
+    else:
+        logging.debug("unable to read config values from " + possible_config)
+
+if not config_read:
+    logging.error("You should create rhui-testing.cfg in /etc or current directory or use --config option!")
+    sys.exit(1)
+
 AWS_ACCESS_KEY_ID = config.get('EC2-Keys', 'ec2-key')
 AWS_SECRET_ACCESS_KEY = config.get('EC2-Keys', 'ec2-secret-key')
-BZUSER = config.get('Bugzilla-Info', 'bugzilla_usr')
-BZPASS = config.get('Bugzilla-Info', 'bugzilla_pwd')
-if None in [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, BZUSER, BZPASS]:
-    logging.error("You must specify ec2 and bugzilla credentials in configfile!")
+if None in [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]:
+    logging.error("You must specify ec2 credentials in configfile!")
     sys.exit(1)
 SSHKEY_NAME_AP_S = config.get('SSH-Info', 'ssh-key-name_apsouth')
 SSHKEY_AP_S = config.get('SSH-Info', 'ssh-key-path_apsouth')
