@@ -40,8 +40,8 @@ class test_tcms_178478(RHUITestcase, RHUI_has_RH_cert, RHUI_has_two_CLIs_RHEL6, 
         self._sync_cds([self.rs.CDS[0].private_hostname, self.rs.CDS[1].private_hostname])
 
         '''[TCMS#178478 setup] Remove rhui configuration rpm from clients '''
-        Util.remove_conf_rpm(self.rs.CLI[0])
-        Util.remove_conf_rpm(self.rs.CLI[1])
+        Util.remove_conf_rpm(self.rhel6client1)
+        Util.remove_conf_rpm(self.rhel6client2)
 
         '''[TCMS#178478 setup] Generate entitlement certificates '''
         RHUIManagerClient.generate_ent_cert(self.rs.RHUA, "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\)"], "cert1", "/root/", validity_days="", cert_pw=None)
@@ -52,22 +52,22 @@ class test_tcms_178478(RHUITestcase, RHUI_has_RH_cert, RHUI_has_two_CLIs_RHEL6, 
         RHUIManagerClient.create_conf_rpm(self.rs.RHUA, "Cluster2", self.rs.CDS[1].private_hostname, "/root", "/root/cert2.crt", "/root/cert2.key", "repo2", "3.0")
 
         '''[TCMS#178478 setup] Install configuration rpm to client '''
-        Util.install_rpm_from_rhua(self.rs.RHUA, self.rs.CLI[0], "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
-        Util.install_rpm_from_rhua(self.rs.RHUA, self.rs.CLI[1], "/root/repo2-3.0/build/RPMS/noarch/repo2-3.0-1.noarch.rpm")
+        Util.install_rpm_from_rhua(self.rs.RHUA, rhel6client1, "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
+        Util.install_rpm_from_rhua(self.rs.RHUA, rhel6client2, "/root/repo2-3.0/build/RPMS/noarch/repo2-3.0-1.noarch.rpm")
 
     def _test(self):
         '''[TCMS#178478 test] Installing RH rpm to the clients '''
-        Expect.ping_pong(self.rs.CLI[0], "yum install -y pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
-        Expect.ping_pong(self.rs.CLI[1], "yum install -y pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rhel6client1, "yum install -y pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rhel6client2, "yum install -y pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def _cleanup(self):
         '''[TCMS#178478 cleanup] Removing RH rpm from the clients '''
-        Expect.ping_pong(self.rs.CLI[0], "rpm -e pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
-        Expect.ping_pong(self.rs.CLI[1], "rpm -e pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rhel6client1, "rpm -e pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rhel6client2, "rpm -e pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#178478 cleanup] Removing configuration rpm from the client '''
-        Util.remove_conf_rpm(self.rs.CLI[0])
-        Util.remove_conf_rpm(self.rs.CLI[1])
+        Util.remove_conf_rpm(self.rhel6client1)
+        Util.remove_conf_rpm(self.rhel6client2)
 
         '''[TCMS#178478 cleanup] Remove cdses '''
         RHUIManagerCds.delete_cds(self.rs.RHUA, "Cluster1", [self.rs.CDS[0].private_hostname])
