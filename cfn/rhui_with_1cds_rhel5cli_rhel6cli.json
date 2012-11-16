@@ -1,0 +1,162 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "RHUI with 1 CDS, RHEL5 and RHEL6 clients",
+
+  "Parameters" : {
+    "KeyName" : {
+      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instances",
+      "Type" : "String"
+    }
+  },
+
+  "Mappings": {
+        "RHEL63Map": {
+            "us-east-1": {
+                "AMI": "ami-cc5af9a5"
+            },
+            "us-west-1": {
+                "AMI": "ami-51f4ae14"
+            },
+            "us-west-2": {
+                "AMI": "ami-8a25a9ba"
+            },
+            "eu-west-1": {
+                "AMI": "ami-8bf2f7ff"
+            },
+            "sa-east-1": {
+                "AMI": "ami-4807d955"
+            },
+            "ap-southeast-1": {
+                "AMI": "ami-24e5a376"
+            },
+            "ap-northeast-1": {
+                "AMI": "ami-5453e055"
+            }
+        },
+
+        "RHEL58Map": {
+            "us-east-1": {
+                "AMI": "ami-fb0ddc92"
+            },
+            "us-west-1": {
+                "AMI": "ami-c5bde480"
+            },
+            "us-west-2": {
+                "AMI": "ami-3e0a870e"
+            },
+            "eu-west-1": {
+                "AMI": "ami-47615833"
+            },
+            "sa-east-1": {
+                "AMI": "ami-f46cb3e9"
+            },
+            "ap-southeast-1": {
+                "AMI": "ami-da8dc988"
+            },
+            "ap-northeast-1": {
+                "AMI": "ami-60229461"
+            }
+        },
+
+        "F17Map": {
+            "us-east-1": {
+                "AMI": "ami-2ea50247"
+            },
+            "us-west-1": {
+                "AMI": "ami-877e24c2"
+            },
+            "us-west-2": {
+                "AMI": "ami-8e69e5be"
+            },
+            "eu-west-1": {
+                "AMI": "ami-9980baed"
+            },
+            "sa-east-1": {
+                "AMI": "ami-eee23cf3"
+            },
+            "ap-southeast-1": {
+                "AMI": "ami-2e86c07c"
+            },
+            "ap-northeast-1": {
+                "AMI": "ami-26e65527"
+            }
+        }
+    },
+
+  "Resources" : {
+    "RHUIsecuritygroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "RHUI security group",
+        "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" }, { "IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0" }, { "IpProtocol" : "tcp", "FromPort" : "5674", "ToPort" : "5674", "CidrIp" : "0.0.0.0/0" } ]
+        }
+    },
+
+    "SSHsecuritygroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "SSH security group",
+        "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" } ]
+        }
+    },
+
+    "master": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap": [ "F17Map", { "Ref": "AWS::Region" }, "AMI" ]},
+        "InstanceType" : "m1.small",
+        "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_Master", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "Master"}, {"Key": "PrivateHostname", "Value": "pri.master.example.com"}, {"Key": "PublicHostname", "Value": "pub.master.example.com"}]
+        }
+    },
+    "rhua": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap": [ "RHEL63Map", { "Ref": "AWS::Region" }, "AMI" ]},
+        "InstanceType" : "m1.large",
+        "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUA", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "RHUA"}, {"Key": "PrivateHostname", "Value": "pri.rhua.example.com"}, {"Key": "PublicHostname", "Value": "pub.rhua.example.com"}]
+      }
+    },
+    "cds1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap": [ "RHEL63Map", { "Ref": "AWS::Region" }, "AMI" ]},
+        "InstanceType" : "m1.large",
+        "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [{ "Ref" : "RHUIsecuritygroup" }],
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["CDS1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CDS"}, {"Key": "PrivateHostname", "Value": "pri.cds1.example.com"}, {"Key": "PublicHostname", "Value": "pub.cds1.example.com"}]
+      }
+    },
+    "cli1": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap": [ "RHEL63Map", { "Ref": "AWS::Region" }, "AMI" ]},
+        "InstanceType" : "m1.small",
+        "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_CLI1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CLI"}, {"Key": "PrivateHostname", "Value": "pri.cli1.example.com"}, {"Key": "PublicHostname", "Value": "pub.cli1.example.com"}, {"Key": "OS", "Value": "RHEL6"}]
+      }
+    },
+    "cli2": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap": [ "RHEL58Map", { "Ref": "AWS::Region" }, "AMI" ]},
+        "InstanceType" : "m1.small",
+        "KeyName" : { "Ref" : "KeyName" },
+        "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_CLI2", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CLI"}, {"Key": "PrivateHostname", "Value": "pri.cli2.example.com"}, {"Key": "PublicHostname", "Value": "pub.cli2.example.com"}, {"Key": "OS", "Value": "RHEL5"}]
+      }
+    }
+  },
+
+  "Outputs" : {
+    "IPMaster": {
+      "Value": { "Fn::GetAtt" : [ "master", "PublicIp" ] },
+      "Description": "master.example.com IP"
+    }
+  }
+}
