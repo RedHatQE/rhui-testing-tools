@@ -91,8 +91,34 @@ class RHUI_has_two_CLIs_RHEL6(object):
     def check(self, rs):
         if len(rs.CLI) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CLIs!")
-        try:
-            if rs.CLI[0].parameters['OS']!="RHEL6" or rs.CLI[1].parameters['OS']!="RHEL6":
-                raise nose.exc.SkipTest("Clietnts OSes shoud be RHEL6 (got %s,%s), skipping test" % (rs.CLI[0].parameters['OS'], rs.CLI[1].parameters['OS']))
-        except KeyError:
-             raise nose.exc.SkipTest("No OS specified for clients in config, skipping test")
+        typeinstance.rhel6client1 = None
+        typeinstance.rhel6client2 = None
+        for cli in rs.CLI:
+            if cli.parameters.has_key('OS'):
+                if not typeinstance.rhel6client1 and cli.parameters['OS'] == "RHEL6":
+                    typeinstance.rhel6client1 = cli
+                elif not typeinstance.rhel6client2 and cli.parameters['OS'] == "RHEL6":
+                    typeinstance.rhel6client2 = cli
+        if not typeinstance.rhel6client1:
+            raise nose.exc.SkipTest("No RHEL6 clients (two required), skipping test")
+        if not typeinstance.rhel6client2:
+            raise nose.exc.SkipTest("Only one RHEL6 client (two required), skipping test")
+
+
+class RHUI_has_RHEL5_and_RHEL6_CLIs(object):
+    @classmethod
+    def check(typeinstance, rs):
+        if len(rs.CLI) < 2:
+            raise nose.exc.SkipTest("can't test without having at least two CLIs!")
+        typeinstance.rhel5client = None
+        typeinstance.rhel6client = None
+        for cli in rs.CLI:
+            if cli.parameters.has_key('OS'):
+                if not typeinstance.rhel6client and cli.parameters['OS'] == "RHEL6":
+                    typeinstance.rhel6client = cli
+                elif not typeinstance.rhel5client and cli.parameters['OS'] == "RHEL5":
+                    typeinstance.rhel5client = cli
+        if not typeinstance.rhel6client:
+            raise nose.exc.SkipTest("No RHEL6 clients, skipping test")
+        if not typeinstance.rhel5client:
+            raise nose.exc.SkipTest("No RHEL5 clients, skipping test")
