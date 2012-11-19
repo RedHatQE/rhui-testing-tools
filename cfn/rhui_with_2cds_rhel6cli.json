@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "RHUI with 2 CDS 1 CLI",
+  "Description" : "RHUI with 2 CDS and RHEL6 client",
 
   "Parameters" : {
     "KeyName" : {
