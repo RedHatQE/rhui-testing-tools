@@ -177,7 +177,11 @@ class RHUA(RHUI_Instance):
             self.run_sync("sed -i 's,^\[yum\],#&,' /etc/rhui/rhui-tools.conf", True)
 
             # Preventing access without proxy
-            self.run_sync("iptables -A OUTPUT ! -d " + self.hostname + " -p tcp --dport 443 -j REJECT", True)
+            for server in [self] + cds_list:
+                # Allowing to connect to all CDSes and RHUA itself
+                self.run_sync("iptables -A OUTPUT -d " + server.public_ip + " -j ACCEPT", True)
+                self.run_sync("iptables -A OUTPUT -d " + server.private_ip + " -j ACCEPT", True)
+            self.run_sync("iptables -A OUTPUT -p tcp --dport 443 -j REJECT", True)
             self.run_sync("service iptables save", True)
             # Restarting services
             self.run_sync("service pulp-server restart", True)
