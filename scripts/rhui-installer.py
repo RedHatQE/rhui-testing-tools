@@ -62,7 +62,7 @@ class RHUI_Instance(Instance):
         self.version = "1.0"
         self.ephemeral_device = None
         for device in self.run_sync("ls -1 /dev/xvd*").strip().split('\n'):
-            if device!="":
+            if device != "":
                 # searching for the first unused block device
                 if self.run_sync("grep " + device + " /proc/mounts").strip() == "":
                     self.ephemeral_device = device
@@ -101,7 +101,11 @@ class RHUA(RHUI_Instance):
     '''
     Class to represent RHUA instance
     '''
-    def setup(self, cds_list):
+    def __init__(self, hostname, private_ip, public_ip, iso):
+        RHUI_Instance.__init__(self, hostname, private_ip, public_ip, iso)
+        self.proxy_password = ''.join(random.choice(string.ascii_lowercase) for x in range(8))
+
+    def setup(self, cds_list, proxy_list):
         logger.info("Setting up RHUA instance " + self.hostname)
         answersfile = tempfile.NamedTemporaryFile(delete=False)
         capassword = ''.join(random.choice(string.ascii_lowercase) for x in range(10))
@@ -163,6 +167,20 @@ class RHUA(RHUI_Instance):
         logger.debug("Installing RHUI conf rpm")
         self.run_sync("rpm -e " + self.hostname)
         self.run_sync("rpm -i " + self.confrpm, True)
+        if proxy_list != []:
+            # Doing proxy setup
+            self.run_sync("sed -i 's,^# proxy_url:,proxy_url: http://" + proxy_list[0].hostname + ",' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
+            self.run_sync("sed -i 's,^# proxy_port:,proxy_port: 3128,' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
+            self.run_sync("sed -i 's,^# proxy_user:,proxy_user: rhua,' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
+            self.run_sync("sed -i 's,^# proxy_pass:,proxy_pass: " + self.proxy_password + ",' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
+            # Bug# 862016 workaround
+            self.run_sync("sed -i 's,^\[yum\],#&,' /etc/rhui/rhui-tools.conf", True)
+
+            # Preventing access without proxy
+            self.run_sync("iptables -A OUTPUT ! -d " + self.hostname + " -p tcp --dport 443 -j REJECT", True)
+            self.run_sync("service iptables save", True)
+            # Restarting services
+            self.run_sync("service pulp-server restart", True)
         logger.info("RHUA " + self.hostname + " setup finished")
 
 
@@ -191,8 +209,26 @@ class CLI(Instance):
     '''
     Class to represent CLI instance
     '''
-    def setup(self, rhua):
+    def setup(self):
         pass
+
+
+class PROXY(Instance):
+    '''
+    Class to represent PROXY instance
+    '''
+    def setup(self, rhua):
+        logger.info("Setting up PROXY instance " + self.hostname + " for RHUA " + rhua.hostname)
+        self.run_sync("yum -y install squid httpd-tools", True)
+        self.run_sync("htpasswd -bc /etc/squid/passwd rhua " + rhua.proxy_password, True)
+        self.run_sync("echo 'auth_param basic program /usr/lib64/squid/ncsa_auth /etc/squid/passwd' > /etc/squid/squid.conf.new", True)
+        self.run_sync("echo 'acl auth proxy_auth REQUIRED' >> /etc/squid/squid.conf.new", True)
+        self.run_sync("cat /etc/squid/squid.conf | sed 's,allow localnet,allow auth,' >> /etc/squid/squid.conf.new", True)
+        self.run_sync("mv -f /etc/squid/squid.conf.new /etc/squid/squid.conf", True)
+        self.run_sync("service squid start", True)
+        self.run_sync("chkconfig squid on", True)
+        self.run_sync("iptables -I INPUT -s " + rhua.hostname + " -p tcp --destination-port 3128 -j ACCEPT", True)
+        self.run_sync("service iptables save", True)
 
 
 argparser = argparse.ArgumentParser(description='Create RHUI install')
@@ -229,6 +265,7 @@ logger.addHandler(fh)
 rhua = []
 cds = []
 cli = []
+proxy = []
 try:
     fd = open(args.yamlfile, "r")
     yamlconfig = yaml.load(fd)
@@ -243,16 +280,20 @@ try:
 
         if role == "RHUA":
             logger.info("Adding RHUA instance " + hostname)
-            instance = RHUA(hostname, public_ip, private_ip, args.iso)
+            instance = RHUA(hostname, private_ip, public_ip, args.iso)
             rhua.append(instance)
         elif role == "CDS":
             logger.info("Adding CDS instance " + hostname)
-            instance = CDS(hostname, public_ip, private_ip, args.iso)
+            instance = CDS(hostname, private_ip, public_ip, args.iso)
             cds.append(instance)
         elif role == "CLI":
             logger.info("Adding CLI instance " + hostname)
-            instance = CLI(hostname, public_ip, private_ip)
+            instance = CLI(hostname, private_ip, public_ip)
             cli.append(instance)
+        elif role == "PROXY":
+            logger.info("Adding PROXY instance " + hostname)
+            instance = PROXY(hostname, private_ip, public_ip)
+            proxy.append(instance)
         elif role == "MASTER":
             logger.debug("Skipping master node " + hostname)
         else:
@@ -265,6 +306,7 @@ except Exception, e:
 logger.debug("RHUA: " + repr(rhua))
 logger.debug("CDSs: " + repr(cds))
 logger.debug("CLIs: " + repr(cli))
+logger.debug("PROXY: " + repr(proxy))
 
 if len(rhua) > 1:
     logger.error("Don't know how to install RHUI with two or more RHUAs, exiting")
@@ -279,6 +321,16 @@ if len(cds) == 0:
 if len(cli) == 0:
     logger.info("No CLIs found")
 
-rhua[0].setup(cds)
+if len(cli) == 0:
+    logger.info("No PROXY found, will do standard setup")
+
+for proxy_instance in proxy:
+    proxy_instance.setup(rhua[0])
+
+rhua[0].setup(cds, proxy)
+
 for cds_instance in cds:
     cds_instance.setup(rhua[0])
+
+for cli_instance in cli:
+    cli_instance.setup()
