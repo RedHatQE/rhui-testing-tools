@@ -49,12 +49,7 @@ class NitrateMaintainer(object):
             # initialize notes as well
         self.reset()
         self.dryrun = dryrun
-        if self.dryrun:
-            def noFun():
-                pass
-            self.test_run.__del__ = noFun
     def __del__(self):
-        # synchronize stuff back
         self.sync()
     def sync(self):
         """synchronize stuff"""
@@ -108,29 +103,15 @@ class NitrateMaintainer(object):
         """update current case run status"""
         if not self.in_test:
             # can't set status if not in test case
-            logging.warning("setting status %s skipped; no test case available" %
-                    status)
+            logging.warning("setting status skipped; no test case available (%s)" % status)
             return
         self.case_run.status = status
         logging.debug("case run %s marked with status: %s" % (self.case_run,
             status))
-    def fail(self, log=None):
-        """mark current test case run failed"""
-        self.status = nitrate.Status('FAILED')
-        if log is not None:
-           self.add_note(log)
-    def success(self, log=None):
-        """mark current test case run passed"""
-        self.status = nitrate.Status('PASSED')
-        if log is not None:
-           self.add_note(log)
-    def waive(self, log=None):
-        """mark current test case run waived"""
-        self.status = nitrate.Status('WAIVED')
-        if log is not None:
-           self.add_note(log)
-    def add_note(self, note):
+    def add_note(self, note=""):
         """add a note to current case run"""
+        if note == "":
+            return
         if not self.in_test:
             # can't add note if not in test case
             logging.warning("adding note %s skipped; no test case available" %
@@ -141,25 +122,51 @@ class NitrateMaintainer(object):
         except TypeError:
             # notes is None---first note
             self.case_run.notes = str(note)
-        logging.debug("note %s added to case run %s" % (self.case_run, note))
+
+
+class TestCase(object):
+    _case_id_pattern = re.compile('.*tcms(\d+).*')
+    def __init__(self,
+            name=None,
+            classname=None,
+            status=None,
+            log="",
+            err=""):
+        self.name = name
+        self.classname = classname
+        self.status = status
+        self.log = log
+        self.err = err
+    def __repr__(self):
+        return self.__class__.__name__ + \
+                "(name=%(name)r, classname=%(classname)r, status=%(status)r, log=%(log)r, err=%(err)r)" %\
+               self.__dict__
+    @property
+    def id(self):
+        try:
+            # covers "Context types" as wel
+            return int(TestCase._case_id_pattern.match(self.classname + \
+                    self.name).groups()[0])
+        except AttributeError:
+            # no match results to None -> attribute error
+            return None
+
+
 
 class Translator(object):
     '''The xunit---nitrate transaltor'''
-    _case_id_pattern = re.compile('.*tcms(\d+).*')
     def __init__(self, result_path, nitrate):
         self.start_element_map = {
                 'testsuite': self.testsuite_start,
                 'testcase': self.testcase_start,
-                'error': self.error_start,
-                'skipped': self.error_start,
-                'failure': self.error_start,
               }
         self.end_element_map = {
                 'testsuite': self.testsuite_end,
                 'testcase': self.testcase_end,
                 'error': self.error_end,
                 'skipped': self.skipped_end,
-                'failure': self.error_end
+                'failure': self.error_end,
+                'system-out': self.system_out_end
                 }
         self.data_reset()
         self.nitrate = nitrate
@@ -170,66 +177,72 @@ class Translator(object):
         with open(result_path) as result_file:
             logging.debug("Reading results file: %s" % result_path)
             self.parser.ParseFile(result_file)
+
     def start(self, name, args):
         logging.debug("Start element <%s %s>" % (name, args))
+        if not self.start_element_map.has_key(name):
+            logging.debug("...skipped")
+            return
         self.start_element_map[name](args)
+
     def end(self, name):
         logging.debug("End element <%s/>" % name)
+        if not self.end_element_map.has_key(name):
+            logging.debug("...skipped")
+            return
         self.end_element_map[name]()
+
     def testsuite_start(self, args):
         msg = """
-Testsuite Stats
-  Name:     %(name)s
-  Tests:    %(tests)s
-  Errors:   %(errors)s
-  Failures: %(failures)s
-  Skip:     %(skip)s
-""" % args
+        Testsuite Stats
+        Name:     %(name)s
+        Tests:    %(tests)s
+        Errors:   %(errors)s
+        Failures: %(failures)s
+        Skip:     %(skip)s
+        """ % args
         logging.info(msg)
+
     def testsuite_end(self):
         self.nitrate.sync()
     def testcase_start(self, args):
-        test_id = self._get_case_id(args['classname'], args['name'])
-        if test_id is None:
-            logging.info("...skipping non-tcms test: %(classname)s: %(name)s" % args)
-            return
-        self.nitrate.reset_to_id(test_id)
-        self.nitrate.add_note("## %(name)s: " % args)
+        # have just seen a new testcase
+        self.test = TestCase(
+                name=args['name'],
+                classname=args['classname'],
+                status = nitrate.Status('PASSED'))
     def testcase_end(self):
-        """in case status not failed/error/waived it is idle -> mark passed"""
-        if self.nitrate.status == nitrate.Status('IDLE'):
-            # first time run just mark passed
-            self.nitrate.success()
-        if self.nitrate.status == nitrate.Status('PASSED'):
-            # add log
-            self.nitrate.add_note(" OK\n" + self.text)
+        if self.test.id is None:
+            logging.info("...skipping non-tcms: %s" % self.test)
+            return
+        # sync to nitrate
+        logging.info("...got: %s" % self.test)
+        self.nitrate.reset_to_id(self.test.id)
+        self.nitrate.status = self.test.status
+        self.nitrate.add_note("## %s: %s" % (self.test.name, self.test.status))
+        self.nitrate.add_note(self.test.err)
+        self.nitrate.add_note(self.test.log)
 
-    def error_start(self, args):
-        """just reset text; will read some error details"""
-        self.data_reset()
     def error_end(self):
-        """current case run set to failed here, because current error cdata
-        should be processed now"""
-        self.nitrate.add_note(" ERROR\n")
-        self.nitrate.fail(log=self.text)
+        self.test.status = nitrate.Status('FAILED')
+        self.test.err = self.text
+        self.data_reset()
+
     def skipped_end(self):
-        """current case run set to waived here, because current details cdata
-        should be processed now"""
-        self.nitrate.add_note(" WAIVED\n")
-        self.nitrate.waive(log=self.text)
-    def data_reset(self):
-        self.text = ""
+        self.test.status = nitrate.Status('WAIVED')
+        self.test.err = self.text
+        self.data_reset()
+
+    def system_out_end(self):
+        self.test.log = self.text
+        self.data_reset()
+
+    def data_reset(self, text=""):
+        self.text = text
+
     def data(self, text):
         self.text += text
         logging.debug("stored data: %r" % self.text)
-    def _get_case_id(self, class_name, test_name):
-        try:
-            # covers "Context types" as wel
-            return int(Translator._case_id_pattern.match(class_name + \
-                    test_name).groups()[0])
-        except AttributeError:
-            # no match results to None -> attribute error
-            pass
 
 
 ### MAIN
@@ -255,7 +268,5 @@ Testsuite Stats
 #    other login information has been specified in ~/.nitrate
 
 nitrate.setCacheLevel(nitrate.CACHE_CHANGES)
-
-Translator(args.result_file,
-        NitrateMaintainer(args.plan_id,
-            args.dryrun))
+nm = NitrateMaintainer(args.plan_id, args.dryrun)
+translator = Translator(args.result_file, nm)
