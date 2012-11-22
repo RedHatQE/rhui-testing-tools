@@ -12,8 +12,8 @@ class test_bug_867803(RHUITestcase):
 
     def _test(self):
         '''[Bug#867803 test] Check rhui-debug behaivour '''
-        Expect.ping_pong(self.rs.RHUA, "", "root@")
-        Expect.ping_pong(self.rs.RHUA, "python /usr/share/rh-rhua/rhui-debug.py | grep '/var/log/httpd/' | wc -l", "0\r\n")
+        Expect.ping_pong(self.rs.RHUA[0], "", "root@")
+        Expect.ping_pong(self.rs.RHUA[0], "python /usr/share/rh-rhua/rhui-debug.py | grep '/var/log/httpd/' | wc -l", "0\r\n")
 
     def _cleanup(self):
         pass
