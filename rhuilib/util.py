@@ -12,6 +12,7 @@ class Util:
     @staticmethod
     def uncolorify(instr):
         res = instr.replace("\x1b", "")
+        res = res.replace("[91m", "")
         res = res.replace("[92m", "")
         res = res.replace("[93m", "")
         res = res.replace("[0m", "")
