@@ -15,15 +15,17 @@ argparser = argparse.ArgumentParser(
 )
 
 argparser.add_argument('result_file', help='nosetest xunit result file')
-argparser.add_argument('plan_id', help='nitrate plan id', type=int)
+argparser.add_argument(
+    '-p', '--plan-id',
+    help='nitrate plan id; side effect: a new test run is created',
+    type=int
+)
+argparser.add_argument(
+    '-r', '--run-id', help='nitrate test run id', type=int
+)
 argparser.add_argument(
     '-d', '--debug', help='debug mode', action='store_true'
 )
-argparser.add_argument(
-    '--dryrun', help='no sync will be done to update anything',
-    action='store_true'
-)
-
 args = argparser.parse_args()
 
 # deal with logging
@@ -41,20 +43,28 @@ nitrate.log.getLogger().setLevel(loglevel)
 
 class NitrateMaintainer(object):
     """keeps track of current Nitrate state while parsing"""
-    def __init__(self, test_plan_id):
+    def __init__(self, test_run_id=None, test_plan_id=None):
+        self.reset()
         # load plan and create a run
-        self.test_plan = nitrate.TestPlan(id=test_plan_id)
-        logging.debug("loaded plan: %s" % self.test_plan)
-        self.test_run = nitrate.TestRun(testplan=self.test_plan)
-        logging.debug("created plan run: %s" % self.test_run)
+        if not test_run_id and not test_plan_id:
+            raise ValueError("neither run nor plan ids specified")
+        if test_run_id:
+            self.test_run = nitrate.TestRun(id=test_run_id)
+            logging.debug("loaded test run: %s" % self.test_run)
+        else:
+            test_plan = nitrate.TestPlan(id=test_plan_id)
+            logging.debug("loaded plan: %s" % test_plan)
+            self.test_run = nitrate.TestRun(testplan=test_plan)
+            logging.debug("created test run: %s" % self.test_run)
         # initialize a result-to-testcase map; this is used for updating
         # a test result record as the parsing goes on
-        self.result_map = {}
+        self.result_map = dict(
+            [(result.testcase, result) for result in self.test_run]
+        )
         for result in self.test_run:
             self.result_map[result.testcase] = result
             logging.debug("run %s" % result.__dict__)
             # initialize notes as well
-        self.reset()
 
     def sync(self):
         """synchronize stuff with nitrate server"""
@@ -79,7 +89,7 @@ class NitrateMaintainer(object):
                 logging.debug("already at the same id %d" % test_id)
             else:
                 # new case id
-                if test_case in self.test_plan:
+                if test_case in self.result_map:
                     logging.debug("new test_case loaded for id %d" % test_id)
                     self.reset(test_case)
                 else:
@@ -303,9 +313,11 @@ class Translator(object):
 # escape sequences
 nitrate.setColorMode(nitrate.COLOR_OFF)
 
-if args.dryrun:
-    logging.info("In dry run; no changes will be stored")
-    nm = None
+if args.plan_id or args.run_id:
+    Translator(
+        args.result_file,
+        NitrateMaintainer(args.run_id, args.plan_id)
+    )
 else:
-    nm = NitrateMaintainer(args.plan_id)
-Translator(args.result_file, nm)
+    logging.info("Neither nitrate run nor plan id provided; dry running")
+    Translator(args.result_file)
