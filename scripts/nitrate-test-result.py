@@ -17,12 +17,10 @@ argparser = argparse.ArgumentParser(
 argparser.add_argument('result_file', help='nosetest xunit result file')
 argparser.add_argument('plan_id', help='nitrate plan id', type=int)
 argparser.add_argument(
-    '-d', '--debug', help='debug mode',
-    action='store_true'
+    '-d', '--debug', help='debug mode', action='store_true'
 )
 argparser.add_argument(
-    '--dryrun',
-    help='no sync will be done to update anything',
+    '--dryrun', help='no sync will be done to update anything',
     action='store_true'
 )
 
@@ -54,14 +52,16 @@ class NitrateMaintainer(object):
         self.result_map = {}
         for result in self.test_run:
             self.result_map[result.testcase] = result
+            logging.debug("run %s" % result.__dict__)
             # initialize notes as well
         self.reset()
 
     def sync(self):
         """synchronize stuff with nitrate server"""
-        self.test_run.update()
-        for result in self.result_map.values():
-            result.update()
+        if not self.in_test:
+            return
+        logging.debug("updating %s" % self.result_map[self.test_case].__dict__)
+        self.case_run.update()
 
     def reset(self, test_case=None):
         """reset self state"""
@@ -71,6 +71,8 @@ class NitrateMaintainer(object):
     def reset_to_id(self, test_id):
         """reset current state to a test_case loaded by the id"""
         logging.debug("resetting to id: %s" % test_id)
+        # synchronize previous case run if any
+        self.sync()
         try:
             test_case = nitrate.TestCase(id=test_id)
             if self.test_case == test_case:
@@ -86,6 +88,10 @@ class NitrateMaintainer(object):
         except nitrate.NitrateError as e:
             logging.warning("unmatched test id: %s; error: %s" % (test_id, e))
             self.reset()
+
+    def __del__(self):
+        self.sync()
+        self.test_run.update()
 
     @property
     def in_test(self):
@@ -183,7 +189,6 @@ class Translator(object):
             'testcase': self.testcase_start,
         }
         self.end_element_map = {
-            'testsuite': self.testsuite_end,
             'testcase': self.testcase_end,
             'error': self.error_end,
             'skipped': self.skipped_end,
@@ -224,12 +229,6 @@ class Translator(object):
         Skip:     %(skip)s
         """ % args
         logging.info(msg)
-
-    def testsuite_end(self):
-        if not self.nitrate:
-            logging.debug("skipping nitrate sync")
-            return
-        self.nitrate.sync()
 
     def testcase_start(self, args):
         # have just seen a new testcase
@@ -275,7 +274,6 @@ class Translator(object):
 
     def data(self, text):
         self.text += text
-        logging.debug("stored data: %r" % self.text)
 
 
 ### MAIN
@@ -299,6 +297,11 @@ class Translator(object):
 #      url = https://nitrate.server/xmlrpc/
 #  - current kerberos ticket is used to authenticate the user if no
 #    other login information has been specified in ~/.nitrate
+
+# don't remove this othervise e.g. str(nitrate.Status('PASSED') can't be used
+# inside notes attribute of a case run---the string does contain color terminal
+# escape sequences
+nitrate.setColorMode(nitrate.COLOR_OFF)
 
 if args.dryrun:
     logging.info("In dry run; no changes will be stored")
