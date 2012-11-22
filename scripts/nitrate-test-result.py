@@ -174,9 +174,13 @@ class Translator(object):
             self.parser.ParseFile(result_file)
     def start(self, name, args):
         logging.debug("Start element <%s %s>" % (name, args))
+        if not self.start_element_map.has_key(name):
+            return
         self.start_element_map[name](args)
     def end(self, name):
         logging.debug("End element <%s/>" % name)
+        if not self.start_element_map.has_key(name):
+            return
         self.end_element_map[name]()
     def testsuite_start(self, args):
         msg = """
