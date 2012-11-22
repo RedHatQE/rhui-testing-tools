@@ -9,16 +9,17 @@ class RHUIsetup:
     Stateful object to represent whole RHUI setup (all RHUA, CDS and CLI instances)
     '''
     def __init__(self):
-        self.RHUA = None
+        self.RHUA = []
         self.CDS = []
         self.CLI = []
+        self.PROXY = []
         self.config = {}
 
     def __del__(self):
         '''
         Close all connections
         '''
-        for connection in self.CDS + self.CLI + [self.RHUA]:
+        for connection in self.PROXY + self.CLI + self.CDS + self.RHUA:
             connection.sftp.close()
             connection.cli.close()
 
@@ -26,29 +27,12 @@ class RHUIsetup:
         '''
         Re-establish connection to all instances
         '''
-        for connection in self.CDS + self.CLI + [self.RHUA]:
+        for connection in self.PROXY + self.CLI + self.CDS + self.RHUA:
             connection.reconnect()
 
-    def setRHUA(self, instance, username="root", key_filename=None):
-        '''
-        set RHUA instance
-        '''
-        logging.debug("Adding RHUA with private_hostname " + instance['private_hostname'] + ", public_hostname " + instance['public_hostname'])
-        self.RHUA = Connection(instance, username, key_filename)
-
-    def addCDS(self, instance, username="root", key_filename=None):
-        '''
-        add CDS instance
-        '''
-        logging.debug("Adding CDS with private_hostname " + instance['private_hostname'] + ", public_hostname " + instance['public_hostname'])
-        self.CDS.append(Connection(instance, username, key_filename))
-
-    def addCLI(self, instance, username="root", key_filename=None):
-        '''
-        add CLI instance
-        '''
-        logging.debug("Adding CLI with private_hostname " + instance['private_hostname'] + ", public_hostname " + instance['public_hostname'])
-        self.CLI.append(Connection(instance, username, key_filename))
+    def addInstance(self, instances_list, role, instance, username="root", key_filename=None):
+        logging.debug("Adding " + role + " with private_hostname " + instance['private_hostname'] + ", public_hostname " + instance['public_hostname'])
+        instances_list.append(Connection(instance, username, key_filename))
 
     def setup_from_yamlfile(self, yamlfile="/etc/rhui-testing.yaml"):
         '''
@@ -59,11 +43,13 @@ class RHUIsetup:
         yamlconfig = yaml.load(fd)
         for instance in yamlconfig['Instances']:
             if instance['role'].upper() == "RHUA":
-                self.setRHUA(instance)
+                self.addInstance(self.RHUA, "RHUA", instance)
             elif instance['role'].upper() == "CDS":
-                self.addCDS(instance)
+                self.addInstance(self.CDS, "CDS", instance)
             elif instance['role'].upper() == "CLI":
-                self.addCLI(instance)
+                self.addInstance(self.CLI, "CLI", instance)
+            elif instance['role'].upper() == "PROXY":
+                self.addInstance(self.PROXY, "PROXY", instance)
         if 'Config' in yamlconfig.keys():
             logging.debug("Config found: " + str(yamlconfig['Config']))
             self.config = yamlconfig['Config'].copy()
