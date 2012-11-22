@@ -122,3 +122,10 @@ class RHUI_has_RHEL5_and_RHEL6_CLIs(object):
             raise nose.exc.SkipTest("No RHEL6 clients, skipping test")
         if not typeinstance.rhel5client:
             raise nose.exc.SkipTest("No RHEL5 clients, skipping test")
+
+
+class RHUI_has_PROXY(object):
+    @classmethod
+    def check(self, rs):
+        if rs.PROXY == []:
+            raise nose.exc.SkipTest("can't test without proxy!")
