@@ -37,21 +37,21 @@ class RHUITestcase(object):
             self._cleanup()
 
     def _sync_cds(self, cdslist):
-        RHUIManagerSync.sync_cds(self.rs.RHUA, cdslist)
+        RHUIManagerSync.sync_cds(self.rs.RHUA[0], cdslist)
         for cds in cdslist:
             cdssync = ["UP", "In Progress", "", ""]
             while cdssync[1] == "In Progress":
                 time.sleep(10)
-                cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA, cds)
+                cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA[0], cds)
             nose.tools.assert_equal(cdssync[3], "Success")
 
     def _sync_repo(self, repolist):
-        RHUIManagerSync.sync_repo(self.rs.RHUA, repolist)
+        RHUIManagerSync.sync_repo(self.rs.RHUA[0], repolist)
         for repo in repolist:
             reposync = ["In Progress", "", ""]
             while reposync[0] == "In Progress":
                 time.sleep(10)
-                reposync = RHUIManagerSync.get_repo_status(self.rs.RHUA, repo)
+                reposync = RHUIManagerSync.get_repo_status(self.rs.RHUA[0], repo)
             nose.tools.assert_equal(reposync[2], "Success")
 
 
