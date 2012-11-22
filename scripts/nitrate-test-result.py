@@ -35,7 +35,7 @@ nitrate.log.getLogger().setLevel(loglevel)
 
 class NitrateMaintainer(object):
     """keeps track of current Nitrate state while parsing"""
-    def __init__(self, test_plan_id, dryrun=False):
+    def __init__(self, test_plan_id):
         # load plan and create a run
         self.test_plan = nitrate.TestPlan(id=test_plan_id)
         logging.debug("loaded plan: %s" % self.test_plan)
@@ -48,14 +48,10 @@ class NitrateMaintainer(object):
             self.result_map[result.testcase]=result
             # initialize notes as well
         self.reset()
-        self.dryrun = dryrun
     def __del__(self):
         self.sync()
     def sync(self):
-        """synchronize stuff"""
-        if self.dryrun:
-            logging.info("Won't synchronize updates; dryrun mode")
-            return
+        """synchronize stuff with nitrate server"""
         for result, testcase in self.result_map.items():
             testcase.update()
             result.update()
@@ -155,7 +151,7 @@ class TestCase(object):
 
 class Translator(object):
     '''The xunit---nitrate transaltor'''
-    def __init__(self, result_path, nitrate):
+    def __init__(self, result_path, nitrate=None):
         self.start_element_map = {
                 'testsuite': self.testsuite_start,
                 'testcase': self.testcase_start,
@@ -204,7 +200,11 @@ class Translator(object):
         logging.info(msg)
 
     def testsuite_end(self):
+        if not self.nitrate:
+            logging.debug("skipping nitrate sync")
+            return
         self.nitrate.sync()
+
     def testcase_start(self, args):
         # have just seen a new testcase
         self.test = TestCase(
@@ -217,6 +217,9 @@ class Translator(object):
             return
         # sync to nitrate
         logging.info("...got: %s" % self.test)
+        if not self.nitrate:
+            logging.debug("skipping nitrate sync")
+            return
         self.nitrate.reset_to_id(self.test.id)
         self.nitrate.status = self.test.status
         self.nitrate.add_note("## %s: %s" % (self.test.name, self.test.status))
@@ -268,5 +271,9 @@ class Translator(object):
 #    other login information has been specified in ~/.nitrate
 
 nitrate.setCacheLevel(nitrate.CACHE_CHANGES)
-nm = NitrateMaintainer(args.plan_id, args.dryrun)
-translator = Translator(args.result_file, nm)
+if args.dryrun:
+    logging.info("In dry run; no changes will be stored")
+    nm = None
+else:
+    nm = NitrateMaintainer(args.plan_id)
+Translator(args.result_file, nm)
