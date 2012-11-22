@@ -40,22 +40,22 @@ class test_tcms_178468(RHUITestcase):
         self.cds = Cds(self.rs.CDS[0])
 
         '''[TCMS#178468 setup] Do initial rhui-manager run'''
-        RHUIManager.initial_run(self.rs.RHUA)
+        RHUIManager.initial_run(self.rs.RHUA[0])
 
         '''[TCMS#178468 setup] Add cds creating a cluster'''
-        RHUIManagerCds.add_cds(self.rs.RHUA, self.cluster, self.cds.hostname)
+        RHUIManagerCds.add_cds(self.rs.RHUA[0], self.cluster, self.cds.hostname)
 
         '''[TCMS#178468 setup] Create custom repo'''
-        RHUIManagerRepo.add_custom_repo(self.rs.RHUA, self.repo)
+        RHUIManagerRepo.add_custom_repo(self.rs.RHUA[0], self.repo)
 
         '''[TCMS#178468 setup] Associate custom repo with a cluster'''
-        RHUIManagerCds.associate_repo_cds(self.rs.RHUA, self.cluster, [self.repo])
+        RHUIManagerCds.associate_repo_cds(self.rs.RHUA[0], self.cluster, [self.repo])
 
         '''[TCMS#178468 setup] Upload content to custom repo '''
-        RHUIManagerRepo.upload_content(self.rs.RHUA, [self.repo], "/etc/rhui/confrpm")
+        RHUIManagerRepo.upload_content(self.rs.RHUA[0], [self.repo], "/etc/rhui/confrpm")
 
         '''[TCMS#178468 setup] Sync cdses having uploaded content'''
-        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.cds.hostname])
+        RHUIManagerSync.sync_cds(self.rs.RHUA[0], [self.cds.hostname])
 
     def _test(self):
         self.cds = Cds(self.rs.CDS[0])
@@ -64,20 +64,20 @@ class test_tcms_178468(RHUITestcase):
         nose.tools.ok_(self.repo in self.cds.get_reponames())
 
         '''[TCMS#178468 test] Un-associate a custom repo from a cluster'''
-        RHUIManagerCds.unassociate_repo_cds(self.rs.RHUA, self.cluster, [self.repo])
+        RHUIManagerCds.unassociate_repo_cds(self.rs.RHUA[0], self.cluster, [self.repo])
 
         '''[TCMS#178468 test] Sync cdses having unassociated repo'''
-        RHUIManagerSync.sync_cds(self.rs.RHUA, [self.cds.hostname])
+        RHUIManagerSync.sync_cds(self.rs.RHUA[0], [self.cds.hostname])
 
         '''[TCMS#178468 test] assert repo contents is present on the CDS no more'''
         nose.tools.ok_(self.repo not in self.cds.get_reponames())
 
     def _cleanup(self):
         '''[TCMS#178468 teardown] Remove the custom repo'''
-        RHUIManagerRepo.delete_repo(self.rs.RHUA, [self.repo])
+        RHUIManagerRepo.delete_repo(self.rs.RHUA[0], [self.repo])
 
         """[TCMS#178468 teardown] check removing a cds from single node cluster"""
-        RHUIManagerCds.delete_cds(self.rs.RHUA, "cluster-1", [self.rs.CDS[0].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.RHUA[0], "cluster-1", [self.rs.CDS[0].private_hostname])
 
 
 if __name__ == "__main__":
