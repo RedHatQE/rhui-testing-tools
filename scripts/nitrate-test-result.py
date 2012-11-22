@@ -48,14 +48,11 @@ class NitrateMaintainer(object):
             self.result_map[result.testcase]=result
             # initialize notes as well
         self.reset()
-    def __del__(self):
-        self.sync()
     def sync(self):
         """synchronize stuff with nitrate server"""
-        for result, testcase in self.result_map.items():
-            testcase.update()
-            result.update()
         self.test_run.update()
+        for result in self.result_map.values():
+            result.update()
 
     def reset(self, test_case = None):
         """reset self state"""
@@ -133,10 +130,15 @@ class TestCase(object):
         self.status = status
         self.log = log
         self.err = err
+
     def __repr__(self):
         return self.__class__.__name__ + \
                 "(name=%(name)r, classname=%(classname)r, status=%(status)r, log=%(log)r, err=%(err)r)" %\
                self.__dict__
+
+    def __str__(self):
+        return "%(name)s, %(classname)s, %(status)s" % self.__dict__
+
     @property
     def id(self):
         try:
@@ -213,18 +215,19 @@ class Translator(object):
                 status = nitrate.Status('PASSED'))
     def testcase_end(self):
         if self.test.id is None:
-            logging.info("...skipping non-tcms: %s" % self.test)
+            logging.info("skipping non-tcms: %s" % self.test)
             return
         # sync to nitrate
-        logging.info("...got: %s" % self.test)
+        logging.info("got: %s" % self.test)
         if not self.nitrate:
             logging.debug("skipping nitrate sync")
             return
         self.nitrate.reset_to_id(self.test.id)
         self.nitrate.status = self.test.status
-        self.nitrate.add_note("## %s: %s" % (self.test.name, self.test.status))
-        self.nitrate.add_note(self.test.err)
-        self.nitrate.add_note(self.test.log)
+        self.nitrate.add_note(
+                "## %s: %s" % (self.test.name, self.test.status) + \
+                self.test.err + \
+                self.test.log)
 
     def error_end(self):
         self.test.status = nitrate.Status('FAILED')
@@ -270,7 +273,6 @@ class Translator(object):
 #  - current kerberos ticket is used to authenticate the user if no
 #    other login information has been specified in ~/.nitrate
 
-nitrate.setCacheLevel(nitrate.CACHE_CHANGES)
 if args.dryrun:
     logging.info("In dry run; no changes will be stored")
     nm = None
