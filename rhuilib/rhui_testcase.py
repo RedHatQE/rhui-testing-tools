@@ -10,9 +10,17 @@ class RHUITestcase(object):
     def setupAll(typeinstance):
         typeinstance.rs = RHUIsetup()
         typeinstance.rs.setup_from_yamlfile()
-        for cls in list(typeinstance.__bases__) + [typeinstance]:
-            logging.debug("Calling check for " + str(cls))
+        typelist = [typeinstance]
+        for cls in typelist:
+            logging.debug("Exploring class "+str(cls))
+            logging.debug("Adding base classes: "+str(list(cls.__bases__)) + " to typelist")
+            for new_cls in list(cls.__bases__):
+                if not new_cls in typelist:
+                    logging.debug("Appending " + str(new_cls) + " to classlist")
+                    typelist.append(new_cls)
+            logging.debug("Checking for 'check' method of " + str(cls))
             if hasattr(cls, "check"):
+                logging.debug("Calling 'check' for " + str(cls))
                 cls.check(typeinstance.rs)
 
     @classmethod
