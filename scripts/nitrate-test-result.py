@@ -161,18 +161,20 @@ class TestCase(object):
         classname=None,
         status=None,
         log="",
-        err=""
+        err="",
+        message=""
     ):
         self.name = name
         self.classname = classname
         self.status = status
         self.log = log
         self.err = err
+        self.message = message
 
     def __repr__(self):
         return self.__class__.__name__ + \
             "(name=%(name)r, classname=%(classname)r, status=%(status)r,\
-            log=%(log)r, err=%(err)r)" % self.__dict__
+            log=%(log)r, err=%(err)r, message=%(message)r" % self.__dict__
 
     def __str__(self):
         return "%(name)s, %(classname)s, %(status)s" % self.__dict__
@@ -260,7 +262,8 @@ class Translator(object):
         self.nitrate.reset_to_id(self.test.id)
         self.nitrate.status = self.test.status
         self.nitrate.add_note(
-            "## %s: %s" % (self.test.name, self.test.status) +
+            "## %s: %s\n" % (self.test.name, self.test.status) +
+            self.test.message +
             self.test.err +
             self.test.log
         )
