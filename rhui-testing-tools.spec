@@ -39,6 +39,8 @@ rm -rf $RPM_BUILD_ROOT
 %{python_sitelib}/rhuilib/*.pyo
 %{_datadir}/%name/cfn
 %dir %{_datadir}/%name/rhui-tests
+%{_datadir}/%name/testplans
+%exclude %{_datadir}/%name/testplans/*/*.py?
 %attr(0644, root, root) %{_datadir}/%name/rhui-tests/*.py
 %exclude %{_datadir}/%name/rhui-tests/*.py?
 %{_datadir}/%name/testing-data
