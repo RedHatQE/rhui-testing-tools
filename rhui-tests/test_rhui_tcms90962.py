@@ -8,7 +8,7 @@ from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_repo import *
 
 
-class test_tcms_90962(RHUITestcase, RHUI_has_two_CDSes):
+class test_tcms_90962(RHUITestcase):
     def _setup(self):
         '''[TCMS#90962 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.RHUA[0])
