@@ -145,7 +145,7 @@ config = ConfigParser.ConfigParser()
 # Try all possible configs
 config_read = False
 for possible_config in [args.config, "rhui-testing.cfg", "/etc/validation.cfg"]:
-    if config.read(possible_config)!=[]:
+    if config.read(possible_config) != []:
         logging.debug("reading config values from " + possible_config)
         config_read = True
         break

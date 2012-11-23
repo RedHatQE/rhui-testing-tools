@@ -12,8 +12,8 @@ class RHUITestcase(object):
         typeinstance.rs.setup_from_yamlfile()
         typelist = [typeinstance]
         for cls in typelist:
-            logging.debug("Exploring class "+str(cls))
-            logging.debug("Adding base classes: "+str(list(cls.__bases__)) + " to typelist")
+            logging.debug("Exploring class " + str(cls))
+            logging.debug("Adding base classes: " + str(list(cls.__bases__)) + " to typelist")
             for new_cls in list(cls.__bases__):
                 if not new_cls in typelist:
                     logging.debug("Appending " + str(new_cls) + " to classlist")
@@ -102,7 +102,7 @@ class RHUI_has_two_CLIs_RHEL6(object):
         typeinstance.rhel6client1 = None
         typeinstance.rhel6client2 = None
         for cli in rs.CLI:
-            if cli.parameters.has_key('OS'):
+            if 'OS' in cli.parameters.keys():
                 if not typeinstance.rhel6client1 and cli.parameters['OS'] == "RHEL6":
                     typeinstance.rhel6client1 = cli
                 elif not typeinstance.rhel6client2 and cli.parameters['OS'] == "RHEL6":
@@ -121,7 +121,7 @@ class RHUI_has_RHEL5_and_RHEL6_CLIs(object):
         typeinstance.rhel5client = None
         typeinstance.rhel6client = None
         for cli in rs.CLI:
-            if cli.parameters.has_key('OS'):
+            if 'OS' in cli.parameters.keys():
                 if not typeinstance.rhel6client and cli.parameters['OS'] == "RHEL6":
                     typeinstance.rhel6client = cli
                 elif not typeinstance.rhel5client and cli.parameters['OS'] == "RHEL5":

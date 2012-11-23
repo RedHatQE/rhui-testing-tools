@@ -19,7 +19,7 @@ fd.close()
 if not 'Config' in yamlconfig.keys():
     yamlconfig['Config'] = {}
 yamlconfig['Config'][args.param] = args.value
-os.system("mv " + args.yamlfile + " " + args.yamlfile +".old")
+os.system("mv " + args.yamlfile + " " + args.yamlfile + ".old")
 fd = open(args.yamlfile, 'w')
 fd.write(yaml.safe_dump(yamlconfig))
 fd.close()

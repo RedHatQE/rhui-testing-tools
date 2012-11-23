@@ -75,7 +75,7 @@ class test_tcms_178478(RHUITestcase, RHUI_has_RH_cert, RHUI_has_two_CLIs_RHEL6, 
 
         '''[TCMS#178478 cleanup] Delete repos '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA[0], ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
-        
+
         '''[TCMS#178478 cleanup] Remove RH certificate from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.RHUA[0])
 

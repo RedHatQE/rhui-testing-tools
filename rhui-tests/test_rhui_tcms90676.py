@@ -35,10 +35,10 @@ class test_tcms_90676(RHUITestcase):
         '''[TCMS#90676 test] Backup cds password '''
         Expect.ping_pong(self.rs.CDS[0], "cat /var/lib/pulp-cds/.gofer/secret > /var/lib/pulp-cds/.gofer/secret.old && echo SUCCESS", "[^ ]SUCCESS")
 
-        '''[TCMS#90676 test] Set wrong cds password ''' 
+        '''[TCMS#90676 test] Set wrong cds password '''
         Expect.ping_pong(self.rs.CDS[0], "echo d4648caf-af85-43db-858d-743c840ae928 > /var/lib/pulp-cds/.gofer/secret && echo SUCCESS", "[^ ]SUCCESS")
 
-        '''[TCMS#90676 test] Trying to sync cds with wrong password ''' 
+        '''[TCMS#90676 test] Trying to sync cds with wrong password '''
         RHUIManagerSync.sync_cds(self.rs.RHUA[0], [self.rs.CDS[0].private_hostname])
         cdssync = ["UP", "In Progress", "", ""]
         while cdssync[1] == "In Progress":

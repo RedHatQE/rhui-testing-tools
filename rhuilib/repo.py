@@ -11,6 +11,7 @@ class Repo(object):
         return "Repo(" +\
             "name = %r" % self.name +\
             ", package_count = %r)" % self.package_count
+
     def __eq__(self, other):
         ret = True
         ret &= self.name == other.name

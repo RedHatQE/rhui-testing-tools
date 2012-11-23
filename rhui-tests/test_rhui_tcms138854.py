@@ -40,7 +40,7 @@ class test_tcms_138854(RHUITestcase, RHUI_has_RH_cert, RHUI_has_PROXY):
         Util.remove_conf_rpm(self.rs.CLI[0])
 
         '''[TCMS#138854 setup] Generate entitlement certificate '''
-        RHUIManagerClient.generate_ent_cert(self.rs.RHUA[0], "Cluster1", [ "Red Hat Update Infrastructure 2 \(RPMs\)"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
+        RHUIManagerClient.generate_ent_cert(self.rs.RHUA[0], "Cluster1", ["Red Hat Update Infrastructure 2 \(RPMs\)"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
 
         '''[TCMS#138854 setup] Create configuration rpm '''
         RHUIManagerClient.create_conf_rpm(self.rs.RHUA[0], "Cluster1", self.rs.CDS[0].private_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
@@ -64,7 +64,7 @@ class test_tcms_138854(RHUITestcase, RHUI_has_RH_cert, RHUI_has_PROXY):
 
         '''[TCMS#138854 cleanup] Delete repo '''
         RHUIManagerRepo.delete_repo(self.rs.RHUA[0], ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
-        
+
         '''[TCMS#138854 cleanup] Remove RH certificate from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.RHUA[0])
 

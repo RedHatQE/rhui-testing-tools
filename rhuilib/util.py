@@ -68,7 +68,7 @@ class Util:
         '''
         tf = tempfile.NamedTemporaryFile(delete=False)
         tf.close()
-        rhua_connection.sftp.get(rpmpath, tf.name )
+        rhua_connection.sftp.get(rpmpath, tf.name)
         connection.sftp.put(tf.name, tf.name + ".rpm")
         os.unlink(tf.name)
         Expect.ping_pong(connection, "rpm -i " + tf.name + ".rpm" + " && echo SUCCESS", "[^ ]SUCCESS", 60)

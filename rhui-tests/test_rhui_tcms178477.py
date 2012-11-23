@@ -75,7 +75,7 @@ class test_tcms_178477(RHUITestcase, RHUI_has_RH_cert, RHUI_has_RHEL5_and_RHEL6_
 
         '''[TCMS#178477 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA[0], "Cluster1", [self.rs.CDS[0].private_hostname])
-       
+
         '''[TCMS#178477 cleanup] Remove RH certificate from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.RHUA[0])
 

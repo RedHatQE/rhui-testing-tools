@@ -38,8 +38,8 @@ class PulpAdmin(object):
         returns a tuple (pattern, group_id); group_id points to the group
         command output will be stored in after a match
         """
-        return (re.compile("[^\n]+(\r?\n)+(.*)(\r\n)+\[.*@.*\][\$#]"
-            , re.DOTALL), 2)
+        return (re.compile("[^\n]+(\r?\n)+(.*)(\r\n)+\[.*@.*\][\$#]", re.DOTALL), 2)
+
     @staticmethod
     def cds_list_native(connection, username="admin", password="admin"):
         """returns the output of pulp-admin cds list; header stripped off"""
@@ -49,6 +49,7 @@ class PulpAdmin(object):
         lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
         return PulpAdmin._cds_lines_parser(lines)
+
     @staticmethod
     def cds_list(connection, username="admin", password="admin"):
         """
@@ -165,6 +166,7 @@ class PulpAdmin(object):
             if words[0] == 'Packages':
                 repo.package_count = int(words[1])
         return repos
+
     @staticmethod
     def explode_pulp_repos(connection, cdses, username="admin",
             password="admin"):
