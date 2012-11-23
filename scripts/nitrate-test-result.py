@@ -153,7 +153,7 @@ class NitrateMaintainer(object):
 
 
 class TestCase(object):
-    _case_id_pattern = re.compile('.*tcms(\d+).*')
+    _case_id_pattern = re.compile('.*tcms[-_]?(\d+).*')
 
     def __init__(
         self,
