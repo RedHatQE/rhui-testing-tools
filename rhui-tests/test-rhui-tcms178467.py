@@ -65,6 +65,9 @@ class test_tcms_178467(RHUITestcase, RHUI_has_RH_cert):
         '''[TCMS#178467 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.RHUA[0], "Cluster1", [self.rs.CDS[0].private_hostname])
 
+        '''[TCMS#178467 cleanup] Remove RH certificate from RHUI '''
+        RHUIManager.remove_rh_certs(self.rs.RHUA[0])
+
 
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])
