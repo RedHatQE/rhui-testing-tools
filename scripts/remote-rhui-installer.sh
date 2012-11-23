@@ -46,3 +46,4 @@ rcopy /root "$ISO" "$RPM"
 rexec yum install -q -y /root/`basename $RPM`
 rexec rhui-installer.py --iso /root/`basename $ISO`
 rexec easy_install pinocchio
+rexec easy_install nose
