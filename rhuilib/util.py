@@ -2,7 +2,7 @@ import os
 import tempfile
 import time
 
-from rhuilib.expect import *
+from patchwork.expect import *
 
 
 class Util:

@@ -1,15 +1,15 @@
 import nose
 import logging
 
-from rhuilib.rhuisetup import *
+from patchwork import structure
 from rhuilib.rhuimanager_sync import *
 
 
 class RHUITestcase(object):
     @classmethod
     def setupAll(typeinstance):
-        typeinstance.rs = RHUIsetup()
-        typeinstance.rs.setup_from_yamlfile()
+        typeinstance.rs = structure.Structure()
+        typeinstance.rs.setup_from_yamlfile(yamlfile="/etc/rhui-testing.yaml")
         typelist = [typeinstance]
         for cls in typelist:
             logging.debug("Exploring class " + str(cls))

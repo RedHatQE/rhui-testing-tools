@@ -1,5 +1,5 @@
 import re
-from rhuilib.expect import *
+from patchwork.expect import *
 from rhuilib.util import *
 
 

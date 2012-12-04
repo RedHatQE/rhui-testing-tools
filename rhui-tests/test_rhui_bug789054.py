@@ -2,7 +2,7 @@
 
 import nose
 
-from rhuilib.expect import *
+from patchwork.expect import *
 from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_cds import *

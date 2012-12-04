@@ -1,6 +1,6 @@
 import re
 
-from rhuilib.expect import *
+from patchwork.expect import *
 from rhuilib.rhuimanager import *
 from cds import RhuiCds
 

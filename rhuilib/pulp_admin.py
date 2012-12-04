@@ -1,5 +1,5 @@
 import re
-from rhuilib.expect import Expect, ExpectFailed
+from patchwork.expect import Expect, ExpectFailed
 from cds import PulpCds
 from repo import PulpRepo
 
