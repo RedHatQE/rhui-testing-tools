@@ -45,21 +45,25 @@ class RHUITestcase(object):
             self._cleanup()
 
     def _sync_cds(self, cdslist):
-        RHUIManagerSync.sync_cds(self.rs.RHUA[0], cdslist)
+        if (not "RHUA" in self.rs.Instances.keys()) or len(self.rs.Instances["RHUA"]) < 1:
+            raise nose.exc.SkipTest("can't test without RHUA!")
+        RHUIManagerSync.sync_cds(self.rs.Instances["RHUA"][0], cdslist)
         for cds in cdslist:
             cdssync = ["UP", "In Progress", "", ""]
             while cdssync[1] == "In Progress":
                 time.sleep(10)
-                cdssync = RHUIManagerSync.get_cds_status(self.rs.RHUA[0], cds)
+                cdssync = RHUIManagerSync.get_cds_status(self.rs.Instances["RHUA"][0], cds)
             nose.tools.assert_equal(cdssync[3], "Success")
 
     def _sync_repo(self, repolist):
-        RHUIManagerSync.sync_repo(self.rs.RHUA[0], repolist)
+        if (not "RHUA" in self.rs.Instances.keys()) or len(self.rs.Instances["RHUA"]) < 1:
+            raise nose.exc.SkipTest("can't test without RHUA!")
+        RHUIManagerSync.sync_repo(self.rs.Instances["RHUA"][0], repolist)
         for repo in repolist:
             reposync = ["In Progress", "", ""]
             while reposync[0] == "In Progress":
                 time.sleep(10)
-                reposync = RHUIManagerSync.get_repo_status(self.rs.RHUA[0], repo)
+                reposync = RHUIManagerSync.get_repo_status(self.rs.Instances["RHUA"][0], repo)
             nose.tools.assert_equal(reposync[2], "Success")
 
 
@@ -83,25 +87,25 @@ class RHUI_has_RH_cert(object):
 class RHUI_has_two_CDSes(object):
     @classmethod
     def check(self, rs):
-        if len(rs.CDS) < 2:
+        if (not "CDS" in rs.Instances.keys()) or len(rs.Instances["CDS"]) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 
 
 class RHUI_has_three_CDSes(object):
     @classmethod
     def check(self, rs):
-        if len(rs.CDS) < 3:
+        if (not "CDS" in rs.Instances.keys()) or len(rs.Instances["CDS"]) < 3:
             raise nose.exc.SkipTest("can't test without having at least three CDSes!")
 
 
 class RHUI_has_two_CLIs_RHEL6(object):
     @classmethod
     def check(self, rs):
-        if len(rs.CLI) < 2:
+        if (not "CLI" in rs.Instances.keys()) or len(rs.Instances["CLI"]) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CLIs!")
         typeinstance.rhel6client1 = None
         typeinstance.rhel6client2 = None
-        for cli in rs.CLI:
+        for cli in rs.Instances["CLI"]:
             if 'OS' in cli.parameters.keys():
                 if not typeinstance.rhel6client1 and cli.parameters['OS'] == "RHEL6":
                     typeinstance.rhel6client1 = cli
@@ -116,11 +120,11 @@ class RHUI_has_two_CLIs_RHEL6(object):
 class RHUI_has_RHEL5_and_RHEL6_CLIs(object):
     @classmethod
     def check(typeinstance, rs):
-        if len(rs.CLI) < 2:
+        if (not "CLI" in rs.Instances.keys()) or len(rs.Instances["CLI"]) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CLIs!")
         typeinstance.rhel5client = None
         typeinstance.rhel6client = None
-        for cli in rs.CLI:
+        for cli in rs.Instances["CLI"]:
             if 'OS' in cli.parameters.keys():
                 if not typeinstance.rhel6client and cli.parameters['OS'] == "RHEL6":
                     typeinstance.rhel6client = cli
@@ -135,5 +139,5 @@ class RHUI_has_RHEL5_and_RHEL6_CLIs(object):
 class RHUI_has_PROXY(object):
     @classmethod
     def check(self, rs):
-        if rs.PROXY == []:
+        if (not "PROXY" in rs.Instances.keys()) or len(rs.Instances["PROXY"]) < 1:
             raise nose.exc.SkipTest("can't test without proxy!")

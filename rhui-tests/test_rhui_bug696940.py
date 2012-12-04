@@ -11,15 +11,15 @@ from rhuilib.rhui_testcase import *
 class test_bug_696940(RHUITestcase):
     def _setup(self):
         '''[Bug#696940 setup] Do initial rhui-manager run'''
-        RHUIManager.initial_run(self.rs.RHUA[0])
+        RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
 
     def _test(self):
         '''[Bug#696940 test] Create custom repo '''
-        RHUIManagerRepo.add_custom_repo(self.rs.RHUA[0], "custom_repo1", "protected repo1", "/protected/x86_64/os", "1", "y", "/protected/$basearch/os")
+        RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "custom_repo1", "protected repo1", "/protected/x86_64/os", "1", "y", "/protected/$basearch/os")
 
     def _cleanup(self):
         '''[Bug#696940 cleanup] Delete custom repo '''
-        RHUIManagerRepo.delete_repo(self.rs.RHUA[0], ["protected repo1"])
+        RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["protected repo1"])
 
 
 if __name__ == "__main__":

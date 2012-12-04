@@ -12,7 +12,7 @@ class test_tcms_54561(RHUITestcase):
 
     def _test(self):
         """[TCMS#54561 test] checking selinux on RHUA and CDS instances"""
-        for instance in [self.rs.RHUA[0]] + self.rs.CDS:
+        for instance in [self.rs.Instances["RHUA"][0]] + self.rs.Instances["CDS"]:
             Expect.ping_pong(instance, 'getenforce', 'Enforcing')
             Expect.ping_pong(instance, 'cat /etc/sysconfig/selinux | grep "SELINUX=[^ ]"', 'SELINUX=enforcing')
 
