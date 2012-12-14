@@ -28,7 +28,7 @@ Basic usage:
         scripts/remote-rhui-installer.sh &lt;master ip&gt; &lt;your-region-ssh-key&gt; &lt;RHUI iso&gt; &lt;rhui-testing-tools.rpm&gt;
     with rpm installed:
         remote-rhui-installer.sh &lt;master ip&gt; &lt;your-region-ssh-key&gt; &lt;RHUI iso&gt; &lt;rhui-testing-tools.rpm&gt; &lt;python-patchwork.rpm&gt;
-    You can get python-patchwork RPM here: https://github.com/RedHatQE/python-patchwork/downloads
+    You can get python-patchwork and rhui-testing-tools RPMs here: https://rhuiqerpm.s3.amazonaws.com/index.html
 
 4) Go to master
     ssh -i &lt;your-region-ssh-key&gt; &lt;master ip&gt;
