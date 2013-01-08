@@ -61,14 +61,15 @@ class RHUI_Instance(Instance):
         self.iso = iso
         self.version = "1.0"
         self.ephemeral_device = None
-        for device in self.run_sync("ls -1 /dev/xvd*").strip().split('\n'):
-            if device != "":
-                # searching for the first unused block device
-                if self.run_sync("grep " + device + " /proc/mounts").strip() == "":
-                    self.ephemeral_device = device
-                    logger.debug("Using " + device + " as additional storage")
-                    self.run_sync("mkfs.ext3 " + device, True)
-                    break
+        if not args.nostorage:
+            for device in self.run_sync("ls -1 /dev/xvd*").strip().split('\n'):
+                if device != "":
+                    # searching for the first unused block device
+                    if self.run_sync("grep " + device + " /proc/mounts").strip() == "":
+                        self.ephemeral_device = device
+                        logger.debug("Using " + device + " as additional storage")
+                        self.run_sync("mkfs.ext3 " + device, True)
+                        break
 
     def setup(self):
         logger.info("Common RHUI instance setup for " + self.hostname)
@@ -95,6 +96,22 @@ class RHUI_Instance(Instance):
             self.run_sync("chmod 755 " + mountpoint, True)
             self.run_sync("mount " + self.ephemeral_device + " " + mountpoint, True)
             self.run_sync("echo " + self.ephemeral_device + "\t" + mountpoint + "\text3\tdefaults\t0 0 >> /etc/fstab", True)
+
+    def install_coverage(self):
+        if args.coverage:
+            logger.debug("Will install python-coverage")
+            self.run_sync("yum -y install gcc python-devel", True)
+            self.run_sync("easy_install coverage", True)
+            self.run_sync("mkdir /var/lib/python_coverage", True)
+            self.run_sync("chmod 777 /var/lib/python_coverage", True)
+            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/config.py' -exec sed -i 's,self.parallel = False,self.parallel = True,' {} \;")
+            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/config.pyc' -delete")
+
+            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/control.py' -exec sed -i 's,cps = .*$,cps = True,' {} \;")
+            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/control.py' -exec sed -i 's,env_data_file = .*$,env_data_file = \"/var/lib/python_coverage/coverage\",' {} \;")
+            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/control.pyc' -delete")
+
+            self.run_sync("echo 'import coverage; coverage.process_startup()' > `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib()+'/zzz_coverage.pth')\"`", True)
 
 
 class RHUA(RHUI_Instance):
@@ -163,6 +180,8 @@ class RHUA(RHUI_Instance):
             #Setting conf RPM names
             rpmname = self.run_sync("ls -1 /etc/rhui/confrpm/" + server.hostname + "-" + self.version + "-*.rpm | head -1")
             server.set_confrpm_name(rpmname)
+        # Installing coverage
+        self.install_coverage()
         # Installing RHUA
         logger.debug("Installing RHUI conf rpm")
         self.run_sync("rpm -e " + self.hostname)
@@ -205,6 +224,8 @@ class CDS(RHUI_Instance):
         logger.debug("will transfer " + rpmfile.name + " to CDS " + rpmfile.name)
         self.sftp.put(rpmfile.name, rpmfile.name)
         logger.debug("will install " + rpmfile.name + " on CDS")
+        # Installing coverage
+        self.install_coverage()
         self.run_sync("rpm -i " + rpmfile.name)
         logger.info("CDS " + self.hostname + " setup finished")
 
@@ -236,10 +257,14 @@ class PROXY(Instance):
 
 
 argparser = argparse.ArgumentParser(description='Create RHUI install')
+argparser.add_argument('--coverage', action='store_const', const=True,
+                       default=False, help='install python-coverage to measure code coverage')
 argparser.add_argument('--debug', action='store_const', const=True,
                        default=False, help='debug output to the console (in addition to /var/log/rhui-installer.log)')
 argparser.add_argument('--iso', required=True,
                        help='use supplied ISO file')
+argparser.add_argument('--nostorage', action='store_const', const=True,
+                       default=False, help='do not mount ephemeral device (speed up setup process)')
 argparser.add_argument('--yamlfile',
                        default="/etc/rhui-testing.yaml", help='use specified YAML config file')
 args = argparser.parse_args()
