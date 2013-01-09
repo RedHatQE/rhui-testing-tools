@@ -8,8 +8,6 @@ ISO=$1
 shift
 RPM1=$1
 shift
-RPM2=$1
-shift
 OARGS=$@
 
 # shared ssh options
@@ -17,15 +15,11 @@ SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o Identity
 
 
 usage() {
-    echo "Usage: $0 <master hostname> <keyfile> <RHUI ISO> <rhui-testing-tools.rpm> <python-patchwork.rpm> [--coverage|--nostorage]"
+    echo "Usage: $0 <master hostname> <keyfile> <RHUI ISO> <rhui-testing-tools.rpm> [--coverage|--nostorage]"
     exit 1
 }
 
-if [ -z "$RPM2" ] || [ ! -f "$RPM2" ]; then
-    usage
-fi
-
-if [ ! -f "$RPM1" ]; then
+if [ -z "$RPM1" ] || [ ! -f "$RPM1" ]; then
     usage
 fi
 
@@ -52,9 +46,9 @@ function rcopy() {
 }
 
 # copy the stuff
-rcopy /root "$ISO" "$RPM1" "$RPM2"
+rcopy /root "$ISO" "$RPM1"
 
-rexec yum install -q -y /root/`basename $RPM1` /root/`basename $RPM2`
+rexec yum install -q -y /root/`basename $RPM1`
 rexec rhui-installer.py --iso /root/`basename $ISO` $OARGS
 rexec easy_install pinocchio
 rexec easy_install nose

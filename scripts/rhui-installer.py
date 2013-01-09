@@ -10,6 +10,26 @@ import os
 import random
 import string
 import yaml
+import subprocess
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
+
+def download_from_s3(packageprefix):
+    conn = S3Connection(anon=True)
+    bucket = conn.get_bucket('rhuiqerpm')
+    k = Key(bucket)
+    rpm = ""
+    for key in bucket.list():
+        fname = key.name.encode('utf-8')
+        if fname.startswith(packageprefix) and fname > rpm:
+            rpm = fname
+    if rpm != "":
+        k.key = rpm
+        if not os.path.exists("/root/" + rpm):
+            fd = open("/root/" + rpm, "w")
+            fd.write(k.get_contents_as_string())
+            fd.close()
+    return rpm
 
 
 class Instance(SSHClient):
@@ -97,21 +117,23 @@ class RHUI_Instance(Instance):
             self.run_sync("mount " + self.ephemeral_device + " " + mountpoint, True)
             self.run_sync("echo " + self.ephemeral_device + "\t" + mountpoint + "\text3\tdefaults\t0 0 >> /etc/fstab", True)
 
-    def install_coverage(self):
+    def install_coverage(master_hostname):
         if args.coverage:
             logger.debug("Will install python-coverage")
-            self.run_sync("yum -y install gcc python-devel", True)
-            self.run_sync("easy_install coverage", True)
-            self.run_sync("mkdir /var/lib/python_coverage", True)
-            self.run_sync("chmod 777 /var/lib/python_coverage", True)
-            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/config.py' -exec sed -i 's,self.parallel = False,self.parallel = True,' {} \;")
-            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/config.pyc' -delete")
+            subprocess.check_output(["yum", "-y", "install", "mongodb-server"])
+            subprocess.check_output(["systemctl", "start", "mongod.service"])
+            subprocess.check_output(["iptables", "-I", "INPUT", "-p", "tcp", "--destination-port", "27017", "-j", "ACCEPT"])
+            subprocess.check_output(["/usr/libexec/iptables.init", "save"])
 
-            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/control.py' -exec sed -i 's,cps = .*$,cps = True,' {} \;")
-            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/control.py' -exec sed -i 's,env_data_file = .*$,env_data_file = \"/var/lib/python_coverage/coverage\",' {} \;")
-            self.run_sync("find `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib())\"` -wholename '*/coverage/control.pyc' -delete")
-
-            self.run_sync("echo 'import coverage; coverage.process_startup()' > `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib()+'/zzz_coverage.pth')\"`", True)
+            coverrpm = download_from_s3("python-coverage-")
+            if coverrpm != "":
+                self.sftp.put("/root/" + coverrpm, "/root/" + coverrpm)
+                self.run_sync("yum -y install /root/" + coverrpm, True)
+                self.run_sync("echo 'import coverage; coverage.process_startup(True)' > `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib()+'/zzz_coverage.pth')\"`", True)
+                self.run_sync("sed -i s,localhost,%s, /etc/coveragerc" % master_hostname, True)
+                logger.debug("Coverage installed")
+            else:
+                logger.debug("Could not find python-coverage in S3")
 
 
 class RHUA(RHUI_Instance):
@@ -122,7 +144,7 @@ class RHUA(RHUI_Instance):
         RHUI_Instance.__init__(self, hostname, private_ip, public_ip, iso)
         self.proxy_password = ''.join(random.choice(string.ascii_lowercase) for x in range(8))
 
-    def setup(self, cds_list, proxy_list):
+    def setup(self, cds_list, proxy_list, master_hostname):
         logger.info("Setting up RHUA instance " + self.hostname)
         answersfile = tempfile.NamedTemporaryFile(delete=False)
         capassword = ''.join(random.choice(string.ascii_lowercase) for x in range(10))
@@ -181,7 +203,7 @@ class RHUA(RHUI_Instance):
             rpmname = self.run_sync("ls -1 /etc/rhui/confrpm/" + server.hostname + "-" + self.version + "-*.rpm | head -1")
             server.set_confrpm_name(rpmname)
         # Installing coverage
-        self.install_coverage()
+        self.install_coverage(master_hostname)
         # Installing RHUA
         logger.debug("Installing RHUI conf rpm")
         self.run_sync("rpm -e " + self.hostname)
@@ -211,7 +233,7 @@ class CDS(RHUI_Instance):
     '''
     Class to represent CDS instance
     '''
-    def setup(self, rhua):
+    def setup(self, rhua, master_hostname):
         logger.info("Setting up CDS instance " + self.hostname + " associated with RHUA " + rhua.hostname)
         RHUI_Instance.setup(self)
         self.ephemeral_mount("/var/lib/pulp-cds")
@@ -225,7 +247,7 @@ class CDS(RHUI_Instance):
         self.sftp.put(rpmfile.name, rpmfile.name)
         logger.debug("will install " + rpmfile.name + " on CDS")
         # Installing coverage
-        self.install_coverage()
+        self.install_coverage(master_hostname)
         self.run_sync("rpm -i " + rpmfile.name)
         logger.info("CDS " + self.hostname + " setup finished")
 
@@ -295,6 +317,7 @@ rhua = []
 cds = []
 cli = []
 proxy = []
+master_hostname = "localhost"
 try:
     fd = open(args.yamlfile, "r")
     yamlconfig = yaml.load(fd)
@@ -325,6 +348,7 @@ try:
             proxy.append(instance)
         elif role == "MASTER":
             logger.debug("Skipping master node " + hostname)
+            master_hostname = private_ip
         else:
             logger.info("host with unknown role " + role + " " + hostname + ", skipping")
     fd.close()
@@ -353,13 +377,17 @@ if len(cli) == 0:
 if len(cli) == 0:
     logger.info("No PROXY found, will do standard setup")
 
+patchworkrpm = download_from_s3("python-patchwork-")
+if patchworkrpm != "":
+    subprocess.check_output(["yum", "-y", "install", patchworkrpm])
+
 for proxy_instance in proxy:
     proxy_instance.setup(rhua[0])
 
-rhua[0].setup(cds, proxy)
+rhua[0].setup(cds, proxy, master_hostname)
 
 for cds_instance in cds:
-    cds_instance.setup(rhua[0])
+    cds_instance.setup(rhua[0], master_hostname)
 
 for cli_instance in cli:
     cli_instance.setup()
