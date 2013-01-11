@@ -28,7 +28,7 @@ class RHUIManager:
         Expect.enter(connection, match[0])
 
     @staticmethod
-    def quit(connection, prefix="", timeout=5):
+    def quit(connection, prefix="", timeout=10):
         '''
         Quit from rhui-manager
 
