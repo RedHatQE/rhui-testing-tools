@@ -69,11 +69,19 @@
         }
     },
 
-    "SSHsecuritygroup" : {
+    "CLIsecuritygroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
-        "GroupDescription" : "SSH security group",
+        "GroupDescription" : "CLI security group",
         "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" } ]
+        }
+    },
+
+    "MASTERsecuritygroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "MASTER security group",
+        "SecurityGroupIngress" : [ { "IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : "0.0.0.0/0" }, { "IpProtocol" : "tcp", "FromPort" : "27017", "ToPort" : "27017", "CidrIp" : "0.0.0.0/0" }]
         }
     },
 
@@ -83,7 +91,7 @@
         "ImageId" : { "Fn::FindInMap": [ "F17Map", { "Ref": "AWS::Region" }, "AMI" ]},
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
-        "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
+        "SecurityGroups" : [{ "Ref" : "MASTERsecuritygroup" }],
 	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_Master", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "Master"}, {"Key": "PrivateHostname", "Value": "pri.master.example.com"}, {"Key": "PublicHostname", "Value": "pub.master.example.com"}]
         }
     },
@@ -123,7 +131,7 @@
         "ImageId" : { "Fn::FindInMap": [ "RHEL63Map", { "Ref": "AWS::Region" }, "AMI" ]},
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
-        "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
+        "SecurityGroups" : [{ "Ref" : "CLIsecuritygroup" }],
 	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_CLI1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CLI"}, {"Key": "PrivateHostname", "Value": "pri.cli1.example.com"}, {"Key": "PublicHostname", "Value": "pub.cli1.example.com"}, {"Key": "OS", "Value": "RHEL6"}]
       }
     },
@@ -133,7 +141,7 @@
         "ImageId" : { "Fn::FindInMap": [ "RHEL63Map", { "Ref": "AWS::Region" }, "AMI" ]},
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
-        "SecurityGroups" : [{ "Ref" : "SSHsecuritygroup" }],
+        "SecurityGroups" : [{ "Ref" : "CLIsecuritygroup" }],
 	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_CLI2", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CLI"}, {"Key": "PrivateHostname", "Value": "pri.cli2.example.com"}, {"Key": "PublicHostname", "Value": "pub.cli2.example.com"}, {"Key": "OS", "Value": "RHEL6"}]
       }
     }
