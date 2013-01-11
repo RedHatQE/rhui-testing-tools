@@ -117,23 +117,22 @@ class RHUI_Instance(Instance):
             self.run_sync("mount " + self.ephemeral_device + " " + mountpoint, True)
             self.run_sync("echo " + self.ephemeral_device + "\t" + mountpoint + "\text3\tdefaults\t0 0 >> /etc/fstab", True)
 
-    def install_coverage(master_hostname):
-        if args.coverage:
-            logger.debug("Will install python-coverage")
-            subprocess.check_output(["yum", "-y", "install", "mongodb-server"])
-            subprocess.check_output(["systemctl", "start", "mongod.service"])
-            subprocess.check_output(["iptables", "-I", "INPUT", "-p", "tcp", "--destination-port", "27017", "-j", "ACCEPT"])
-            subprocess.check_output(["/usr/libexec/iptables.init", "save"])
-
-            coverrpm = download_from_s3("python-coverage-")
-            if coverrpm != "":
-                self.sftp.put("/root/" + coverrpm, "/root/" + coverrpm)
-                self.run_sync("yum -y install /root/" + coverrpm, True)
-                self.run_sync("echo 'import coverage; coverage.process_startup(True)' > `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib()+'/zzz_coverage.pth')\"`", True)
-                self.run_sync("sed -i s,localhost,%s, /etc/coveragerc" % master_hostname, True)
-                logger.debug("Coverage installed")
-            else:
-                logger.debug("Could not find python-coverage in S3")
+    def install_coverage(self, master_hostname):
+        logger.debug("Will install python-coverage")
+        subprocess.check_output(["yum", "-y", "install", "mongodb-server"])
+        subprocess.check_output(["sed", "-i", "s,bind_ip = .*$,bind_ip = 0.0.0.0,", "/etc/mongodb.conf"])
+        subprocess.check_output(["systemctl", "start", "mongod.service"])
+        subprocess.check_output(["iptables", "-I", "INPUT", "-p", "tcp", "--destination-port", "27017", "-j", "ACCEPT"])
+        subprocess.check_output(["/usr/libexec/iptables.init", "save"])
+        coverrpm = download_from_s3("python-coverage-")
+        if coverrpm != "":
+            self.sftp.put("/root/" + coverrpm, "/root/" + coverrpm)
+            self.run_sync("yum -y install /root/" + coverrpm, True)
+            self.run_sync("echo 'import coverage; coverage.process_startup(True)' > `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib()+'/zzz_coverage.pth')\"`", True)
+            self.run_sync("sed -i s,localhost,%s, /etc/coveragerc" % master_hostname, True)
+            logger.debug("Coverage installed")
+        else:
+            logger.debug("Could not find python-coverage in S3")
 
 
 class RHUA(RHUI_Instance):
@@ -203,7 +202,8 @@ class RHUA(RHUI_Instance):
             rpmname = self.run_sync("ls -1 /etc/rhui/confrpm/" + server.hostname + "-" + self.version + "-*.rpm | head -1")
             server.set_confrpm_name(rpmname)
         # Installing coverage
-        self.install_coverage(master_hostname)
+        if args.coverage:
+            self.install_coverage(master_hostname)
         # Installing RHUA
         logger.debug("Installing RHUI conf rpm")
         self.run_sync("rpm -e " + self.hostname)
@@ -247,7 +247,9 @@ class CDS(RHUI_Instance):
         self.sftp.put(rpmfile.name, rpmfile.name)
         logger.debug("will install " + rpmfile.name + " on CDS")
         # Installing coverage
-        self.install_coverage(master_hostname)
+        if args.coverage:
+            self.run_sync("yum -y install /mnt/Packages/pymongo-* /mnt/Packages/python-bson-*")
+            self.install_coverage(master_hostname)
         self.run_sync("rpm -i " + rpmfile.name)
         logger.info("CDS " + self.hostname + " setup finished")
 
