@@ -77,10 +77,10 @@ class RHUIManagerRepo:
         '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "a")
-        Expect.expect(connection, "Import Repositories:.*to abort:", 90)
+        Expect.expect(connection, "Import Repositories:.*to abort:", 120)
         Expect.enter(connection, "1")
         RHUIManager.proceed_without_check(connection)
-        RHUIManager.quit(connection, "Content will not be downloaded", 30)
+        RHUIManager.quit(connection, "Content will not be downloaded", 45)
 
     @staticmethod
     def add_rh_repo_by_product(connection, productlist):
@@ -89,11 +89,11 @@ class RHUIManagerRepo:
         '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "a")
-        Expect.expect(connection, "Import Repositories:.*to abort:", 90)
+        Expect.expect(connection, "Import Repositories:.*to abort:", 120)
         Expect.enter(connection, "2")
         RHUIManager.select(connection, productlist)
         RHUIManager.proceed_with_check(connection, "The following products will be deployed:", productlist)
-        RHUIManager.quit(connection, "Content will not be downloaded", 30)
+        RHUIManager.quit(connection, "Content will not be downloaded", 45)
 
     @staticmethod
     def add_rh_repo_by_repo(connection, repolist):
@@ -102,7 +102,7 @@ class RHUIManagerRepo:
         '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "a")
-        Expect.expect(connection, "Import Repositories:.*to abort:", 90)
+        Expect.expect(connection, "Import Repositories:.*to abort:", 120)
         Expect.enter(connection, "3")
         RHUIManager.select(connection, repolist)
         repocheck = list(repolist)
@@ -112,7 +112,7 @@ class RHUIManagerRepo:
             if not repotitle in repocheck:
                 repocheck.append(repotitle)
         RHUIManager.proceed_with_check(connection, "The following product repositories will be deployed:", repocheck)
-        RHUIManager.quit(connection, "Content will not be downloaded", 30)
+        RHUIManager.quit(connection, "Content will not be downloaded", 45)
 
     @staticmethod
     def delete_repo(connection, repolist):
