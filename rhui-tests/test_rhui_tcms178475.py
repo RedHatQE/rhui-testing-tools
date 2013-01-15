@@ -20,7 +20,7 @@ class test_tcms_178475(RHUITestcase, RHUI_has_RH_cert):
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
 
         '''[TCMS#178475 setup] Add cdses '''
-        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[0].public_hostname)
+        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][0].public_hostname)
 
         '''[TCMS#178475 setup] Upload RH content certificate '''
         RHUIManagerEntitlements.upload_content_cert(self.rs.Instances["RHUA"][0], self.cert)

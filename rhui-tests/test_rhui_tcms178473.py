@@ -20,8 +20,8 @@ class test_tcms_178473(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
 
         '''[TCMS#178473 setup] Add cdses '''
-        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[0].public_hostname)
-        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster2", self.rs.Instances["CDS"][1].private_hostname, self.rs.CDS[1].public_hostname)
+        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][0].public_hostname)
+        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster2", self.rs.Instances["CDS"][1].private_hostname, self.rs.Instances["CDS"][1].public_hostname)
 
         '''[TCMS#178473 setup] Create custom repo '''
         RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "repo1")

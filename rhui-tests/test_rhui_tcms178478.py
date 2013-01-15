@@ -37,7 +37,7 @@ class test_tcms_178478(RHUITestcase, RHUI_has_RH_cert, RHUI_has_two_CLIs_RHEL6, 
         self._sync_repo(["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#178478 setup] Sync cds '''
-        self._sync_cds([self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[1].private_hostname])
+        self._sync_cds([self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][1].private_hostname])
 
         '''[TCMS#178478 setup] Remove rhui configuration rpm from clients '''
         Util.remove_conf_rpm(self.rhel6client1)

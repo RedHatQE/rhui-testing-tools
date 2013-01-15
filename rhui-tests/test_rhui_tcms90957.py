@@ -32,7 +32,7 @@ class test_tcms_90957(RHUITestcase, RHUI_has_two_CDSes):
 
     def _cleanup(self):
         '''[TCMS#90957 cleanup] Remove cdses '''
-        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[1].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][1].private_hostname])
 
 
 if __name__ == "__main__":

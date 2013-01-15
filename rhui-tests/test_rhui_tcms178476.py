@@ -17,8 +17,8 @@ class test_tcms_178476(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
 
         '''[TCMS#178476 setup] Add cdses'''
-        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[0].public_hostname)
-        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][1].private_hostname, self.rs.CDS[1].public_hostname)
+        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][0].public_hostname)
+        RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][1].private_hostname, self.rs.Instances["CDS"][1].public_hostname)
 
         '''[TCMS#178476 setup] Remove rhui configuration rpm from client'''
         for cli in self.rs.Instances["CLI"]:
@@ -66,7 +66,7 @@ class test_tcms_178476(RHUITestcase, RHUI_has_two_CDSes):
         Expect.ping_pong(self.rs.Instances["CDS"][1], "service httpd start && echo SUCCESS", "[^ ]SUCCESS")
 
         '''[TCMS#178476 cleanup] Remove cdses '''
-        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[1].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][1].private_hostname])
 
         '''[TCMS#178476 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo1"])
