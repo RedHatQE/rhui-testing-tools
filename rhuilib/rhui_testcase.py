@@ -100,7 +100,7 @@ class RHUI_has_three_CDSes(object):
 
 class RHUI_has_two_CLIs_RHEL6(object):
     @classmethod
-    def check(self, rs):
+    def check(typeinstance, rs):
         if (not "CLI" in rs.Instances.keys()) or len(rs.Instances["CLI"]) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CLIs!")
         typeinstance.rhel6client1 = None
