@@ -41,7 +41,7 @@ class test_tcms_178469(RHUITestcase, RHUI_has_two_CDSes):
 
     def _test(self):
         '''[TCMS#178469 test] Check repo content on cdses '''
-        for cds in self.rs.Instances["CDS"]:
+        for cds in [self.rs.Instances["CDS"][0], self.rs.Instances["CDS"][1]]:
             Expect.ping_pong(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS")
 
         '''[TCMS#178469 test] Delete custom repos '''
@@ -51,7 +51,7 @@ class test_tcms_178469(RHUITestcase, RHUI_has_two_CDSes):
         self._sync_cds([self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][1].private_hostname])
 
         '''[TCMS#178469 test] Check repo content on cdses '''
-        for cds in self.rs.Instances["CDS"]:
+        for cds in [self.rs.Instances["CDS"][0], self.rs.Instances["CDS"][1]]:
             Expect.ping_pong(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm || echo FAILURE", "[^ ]FAILURE")
 
     def _cleanup(self):
