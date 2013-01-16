@@ -5,6 +5,7 @@ from test_rhui_0_update_simple import *
 from test_rhui_tcms90676 import *
 from test_rhui_tcms90678 import *
 from test_rhui_tcms90682 import *
+from test_rhui_tcms90683 import *
 from test_rhui_tcms90957 import *
 from test_rhui_tcms90960 import *
 from test_rhui_tcms90961 import *
