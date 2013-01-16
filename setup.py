@@ -20,6 +20,7 @@ setup(name='rhuilib',
              ('share/rhui-testing-tools/testplans/tcms6606', glob.glob('testplans/tcms6606/*.py')),
              ('share/rhui-testing-tools/testplans/tcms6610', glob.glob('testplans/tcms6610/*.py')),
              ('share/rhui-testing-tools/testplans/tcms6870', glob.glob('testplans/tcms6870/*.py')),
+             ('share/rhui-testing-tools/testplans/bugs', glob.glob('testplans/bugs/*.py')),
              ('/etc', ['etc/rhui-testing.cfg'])
     ],
     classifiers=[
