@@ -142,7 +142,7 @@
         "InstanceType" : "m1.small",
         "KeyName" : { "Ref" : "KeyName" },
         "SecurityGroups" : [{ "Ref" : "CLIsecuritygroup" }],
-	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_CLI1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CLI"}, {"Key": "PrivateHostname", "Value": "cli1.example.com"}, {"Key": "PublicHostname", "Value": "cli1_pub.example.com"}]
+	"Tags" : [{"Key": "Name", "Value": { "Fn::Join" : [ "_", ["RHUI_CLI1", { "Ref" : "KeyName" }]]}}, {"Key": "Role", "Value": "CLI"}, {"Key": "PrivateHostname", "Value": "cli1.example.com"}, {"Key": "PublicHostname", "Value": "cli1_pub.example.com"}, {"Key": "OS", "Value": "RHEL6"}]
       }
     }
   },
