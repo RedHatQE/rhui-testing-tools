@@ -96,6 +96,9 @@ class RHUI_Instance(Instance):
         remote_iso = "/root/" + os.path.basename(self.iso)
         logger.debug("Will mount " + self.iso + " to /mnt")
         self.run_sync("umount /mnt")
+        # hardening according to bug 892394
+        logger.debug("setting umask 027 for init")
+        # self.run_sync("echo 'umask 027' >> /etc/sysconfig/init", True)
         self.sftp.put(self.iso, remote_iso)
         self.run_sync("mount -o loop " + remote_iso + " /mnt", True)
         # Setting up iptables
@@ -237,6 +240,7 @@ class CDS(RHUI_Instance):
         logger.info("Setting up CDS instance " + self.hostname + " associated with RHUA " + rhua.hostname)
         RHUI_Instance.setup(self)
         self.ephemeral_mount("/var/lib/pulp-cds")
+        self.run_sync("echo 'umask 027' >> /etc/sysconfig/init", True)
         self.run_sync("cd /mnt && ./install_CDS.sh", True)
         self.run_sync("chown apache.apache /var/lib/pulp-cds", True)
         rpmfile = tempfile.NamedTemporaryFile(delete=False)
