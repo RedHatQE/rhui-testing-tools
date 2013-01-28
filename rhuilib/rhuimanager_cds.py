@@ -63,7 +63,7 @@ class RHUIManagerCds:
         RHUIManager.quit(connection, "Successfully registered")
 
     @staticmethod
-    def delete_cds(connection, clustername, cdslist):
+    def delete_cds(connection, clustername, cdslist, force=False):
         '''
         unregister (delete) a CDS instance from the RHUI
         '''
@@ -73,7 +73,11 @@ class RHUIManagerCds:
         RHUIManager.select(connection, cdslist)
         RHUIManager.proceed_with_check(connection, "The following CDS instances from the %s cluster will be unregistered:"
                 % clustername, cdslist)
-        RHUIManager.quit(connection)
+        if force:
+            Expect.expect(connection, "Forcibly remove these CDS instances", 60)
+            Expect.enter(connection, "y")
+        RHUIManager.quit(connection, timeout=30)
+
 
     @staticmethod
     def associate_repo_cds(connection, clustername, repolist):
