@@ -41,7 +41,8 @@ def setup_host_ssh(hostname, key):
         try:
             client.connect(hostname=hostname,
                            username="root",
-                           key_filename=key)
+                           key_filename=key,
+                           look_for_keys=False)
             stdin, stdout, stderr = client.run_sync("whoami")
             output = stdout.read()
             logging.debug("OUTPUT for 'whoami': " + output)
