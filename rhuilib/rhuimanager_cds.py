@@ -78,7 +78,6 @@ class RHUIManagerCds:
             Expect.enter(connection, "y")
         RHUIManager.quit(connection, timeout=30)
 
-
     @staticmethod
     def associate_repo_cds(connection, clustername, repolist):
         '''

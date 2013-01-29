@@ -7,6 +7,7 @@ from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
 from rhuilib.util import *
 
+
 class test_bug_865822(RHUITestcase):
     def _setup(self):
         '''[Bug#865822 setup] Remove old certificates '''
