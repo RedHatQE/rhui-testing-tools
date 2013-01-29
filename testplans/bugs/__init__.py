@@ -6,4 +6,3 @@ from test_rhui_bug789054 import *
 from test_rhui_bug840977 import *
 from test_rhui_bug846386 import *
 from test_rhui_bug860117 import *
-from test_rhui_bug867803 import *
