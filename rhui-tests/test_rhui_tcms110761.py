@@ -59,7 +59,7 @@ class test_tcms_110761(RHUITestcase, RHUI_has_two_CDSes):
 
     def _cleanup(self):
         '''[TCMS#110761 cleanup] Remove cdses '''
-        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[1].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][1].private_hostname])
 
         '''[TCMS#110761 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo1"])

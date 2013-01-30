@@ -121,21 +121,21 @@ class RHUI_Instance(Instance):
             self.run_sync("echo " + self.ephemeral_device + "\t" + mountpoint + "\text3\tdefaults\t0 0 >> /etc/fstab", True)
 
     def install_coverage(self, master_hostname):
-        logger.debug("Will install python-coverage")
-        subprocess.check_output(["yum", "-y", "install", "mongodb-server"])
-        subprocess.check_output(["sed", "-i", "s,bind_ip = .*$,bind_ip = 0.0.0.0,", "/etc/mongodb.conf"])
-        subprocess.check_output(["systemctl", "start", "mongod.service"])
-        subprocess.check_output(["iptables", "-I", "INPUT", "-p", "tcp", "--destination-port", "27017", "-j", "ACCEPT"])
-        subprocess.check_output(["/usr/libexec/iptables.init", "save"])
+        logger.debug("Will install python coverage")
         coverrpm = download_from_s3("python-coverage-")
-        if coverrpm != "":
+        moncovrpm = download_from_s3("python-moncov-")
+        if coverrpm != "" and moncovrpm != "":
             self.sftp.put("/root/" + coverrpm, "/root/" + coverrpm)
             self.run_sync("yum -y install /root/" + coverrpm, True)
-            self.run_sync("echo 'import coverage; coverage.process_startup(True)' > `python -c \"from distutils.sysconfig import get_python_lib; import sys; sys.stdout.write(get_python_lib()+'/zzz_coverage.pth')\"`", True)
+
+            self.sftp.put("/root/" + moncovrpm, "/root/" + moncovrpm)
+            self.run_sync("yum -y install /root/" + moncovrpm, True)
+
             self.run_sync("sed -i s,localhost,%s, /etc/coveragerc" % master_hostname, True)
+            self.run_sync("sed -i s,localhost,%s, /etc/moncov.yaml" % master_hostname, True)
             logger.debug("Coverage installed")
         else:
-            logger.debug("Could not find python-coverage in S3")
+            logger.debug("Could not find python-coverage or python-moncov in S3")
 
 
 class RHUA(RHUI_Instance):
@@ -221,6 +221,7 @@ class RHUA(RHUI_Instance):
             self.run_sync("sed -i 's,^\[yum\],#&,' /etc/rhui/rhui-tools.conf", True)
 
             # Preventing access without proxy
+            self.run_sync("iptables -A OUTPUT -p tcp -d 127.0.0.1 --dport 443 -j ACCEPT", True)
             for server in [self] + cds_list:
                 # Allowing to connect to all CDSes and RHUA itself
                 self.run_sync("iptables -A OUTPUT -d " + server.public_ip + " -j ACCEPT", True)
@@ -386,6 +387,13 @@ if len(cli) == 0:
 patchworkrpm = download_from_s3("python-patchwork-")
 if patchworkrpm != "":
     subprocess.check_output(["yum", "-y", "install", patchworkrpm])
+
+if args.coverage:
+    subprocess.check_output(["yum", "-y", "install", "mongodb-server"])
+    subprocess.check_output(["sed", "-i", "s,bind_ip = .*$,bind_ip = 0.0.0.0,", "/etc/mongodb.conf"])
+    subprocess.check_output(["systemctl", "start", "mongod.service"])
+    subprocess.check_output(["iptables", "-I", "INPUT", "-p", "tcp", "--destination-port", "27017", "-j", "ACCEPT"])
+    subprocess.check_output(["/usr/libexec/iptables.init", "save"])
 
 for proxy_instance in proxy:
     proxy_instance.setup(rhua[0])

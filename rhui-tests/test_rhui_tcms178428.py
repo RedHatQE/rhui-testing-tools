@@ -36,8 +36,8 @@ class test_tcms_178428(RHUITestcase):
         nose.tools.eq_(cdses, [rhui_cds])
 
     def _cleanup(self):
-         '''[TCMS#178428 cleanup] remove a cds from single node cluster'''
-         RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname])
+        '''[TCMS#178428 cleanup] remove a cds from single node cluster'''
+        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname])
 
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])

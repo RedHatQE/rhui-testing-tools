@@ -17,8 +17,12 @@ setup(name='rhuilib',
              ('share/rhui-testing-tools/cfn', glob.glob('cfn/*.json')),
              ('share/rhui-testing-tools/testing-data', glob.glob('testing-data/*.key') + glob.glob('testing-data/*.rpm')),
              ('share/rhui-testing-tools/rhui-tests', glob.glob('rhui-tests/*.py')),
+             ('share/rhui-testing-tools/testplans/tcms2623', glob.glob('testplans/tcms2623/*.py')),
              ('share/rhui-testing-tools/testplans/tcms6606', glob.glob('testplans/tcms6606/*.py')),
              ('share/rhui-testing-tools/testplans/tcms6610', glob.glob('testplans/tcms6610/*.py')),
+             ('share/rhui-testing-tools/testplans/tcms6870', glob.glob('testplans/tcms6870/*.py')),
+             ('share/rhui-testing-tools/testplans/tcms8211', glob.glob('testplans/tcms8211/*.py')),
+             ('share/rhui-testing-tools/testplans/bugs', glob.glob('testplans/bugs/*.py')),
              ('/etc', ['etc/rhui-testing.cfg'])
     ],
     classifiers=[

@@ -66,7 +66,7 @@ class test_tcms_178472(RHUITestcase, RHUI_has_two_CDSes):
         Expect.ping_pong(self.rs.Instances["CDS"][1], "service httpd start && echo SUCCESS", "[^ ]SUCCESS")
 
         '''[TCMS#178472 cleanup] Remove cdses '''
-        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[1].private_hostname])
+        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][1].private_hostname])
 
         '''[TCMS#178472 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo1"])

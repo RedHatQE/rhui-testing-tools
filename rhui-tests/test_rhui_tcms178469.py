@@ -37,21 +37,21 @@ class test_tcms_178469(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManagerRepo.upload_content(self.rs.Instances["RHUA"][0], ["repo1"], "/root/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
 
         '''[TCMS#178469 setup] Sync cdses '''
-        self._sync_cds([self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[1].private_hostname])
+        self._sync_cds([self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][1].private_hostname])
 
     def _test(self):
         '''[TCMS#178469 test] Check repo content on cdses '''
-        for cds in self.rs.Instances["CDS"]:
+        for cds in [self.rs.Instances["CDS"][0], self.rs.Instances["CDS"][1]]:
             Expect.ping_pong(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS")
 
         '''[TCMS#178469 test] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo1"])
 
         '''[TCMS#178469 test] Sync cdses '''
-        self._sync_cds([self.rs.Instances["CDS"][0].private_hostname, self.rs.CDS[1].private_hostname])
+        self._sync_cds([self.rs.Instances["CDS"][0].private_hostname, self.rs.Instances["CDS"][1].private_hostname])
 
         '''[TCMS#178469 test] Check repo content on cdses '''
-        for cds in self.rs.Instances["CDS"]:
+        for cds in [self.rs.Instances["CDS"][0], self.rs.Instances["CDS"][1]]:
             Expect.ping_pong(cds, "test -f /var/lib/pulp-cds/repos/repo1/custom-signed-rpm-1-0.1.fc17.noarch.rpm || echo FAILURE", "[^ ]FAILURE")
 
     def _cleanup(self):

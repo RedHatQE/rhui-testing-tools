@@ -24,7 +24,7 @@ class test_tcms_90969(RHUITestcase):
     def _cleanup(self):
         '''[TCMS#90969 cleanup] Remove repos '''
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "rm -f /root/test-tcms-90969.conf && echo SUCCESS", "[^ ]SUCCESS", 10)
- 
+
 
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])
