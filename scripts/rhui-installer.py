@@ -167,7 +167,6 @@ class RHUA(RHUI_Instance):
         answersfile.write("qpid_ca: /etc/rhui/qpid/ca.crt\n")
         answersfile.write("qpid_client: /etc/rhui/qpid/client.crt\n")
         answersfile.write("qpid_nss_db: /etc/rhui/qpid/nss\n")
-
         cds_number = 1
         for server in [self] + cds_list:
             # Creating server certs for RHUA and CDSs
@@ -183,6 +182,12 @@ class RHUA(RHUI_Instance):
             logger.debug("Adding " + server.hostname + " to answers")
             if server.__class__ == RHUA:
                 answersfile.write("[rhua]\n")
+                if proxy_list != []:
+                    # Doing proxy setup
+                    answersfile.write("proxy_server_host: " + proxy_list[0].hostname + "\n")
+                    answersfile.write("proxy_server_port: 3128\n")
+                    answersfile.write("proxy_server_username: rhua\n")
+                    answersfile.write("proxy_server_password: " + self.proxy_password + "\n")
             else:
                 answersfile.write("[cds-" + str(cds_number) + "]\n")
                 cds_number += 1
@@ -209,11 +214,6 @@ class RHUA(RHUI_Instance):
         self.run_sync("rpm -e " + self.hostname)
         self.run_sync("rpm -i " + self.confrpm, True)
         if proxy_list != []:
-            # Doing proxy setup
-            self.run_sync("sed -i 's,^# proxy_url:,proxy_url: http://" + proxy_list[0].hostname + ",' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
-            self.run_sync("sed -i 's,^# proxy_port:,proxy_port: 3128,' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
-            self.run_sync("sed -i 's,^# proxy_user:,proxy_user: rhua,' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
-            self.run_sync("sed -i 's,^# proxy_pass:,proxy_pass: " + self.proxy_password + ",' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
             # Bug# 862016 workaround
             self.run_sync("sed -i 's,^\[yum\],#&,' /etc/rhui/rhui-tools.conf", True)
 
@@ -225,8 +225,6 @@ class RHUA(RHUI_Instance):
                 self.run_sync("iptables -A OUTPUT -d " + server.private_ip + " -j ACCEPT", True)
             self.run_sync("iptables -A OUTPUT -p tcp --dport 443 -j REJECT", True)
             self.run_sync("service iptables save", True)
-            # Restarting services
-            self.run_sync("service pulp-server restart", True)
         logger.info("RHUA " + self.hostname + " setup finished")
 
 
