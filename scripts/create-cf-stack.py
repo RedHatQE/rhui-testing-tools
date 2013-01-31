@@ -112,10 +112,12 @@ def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys):
 
 
 argparser = argparse.ArgumentParser(description='Create CloudFormation stack and run the testing')
-argparser.add_argument('--cloudformation', required=True,
-                       help='use supplied JSON file to setup CloudFormation stack')
+argparser.add_argument('--rhel5', help='number of RHEL5 clients', type=int, default=0)
+argparser.add_argument('--rhel6', help='number of RHEL6 clients', type=int, default=1)
+argparser.add_argument('--cds', help='number of CDSes instances', type=int, default=1)
+argparser.add_argument('--proxy', help='create RHUA<->CDN proxy', action='store_const', const=True, default=False)
 argparser.add_argument('--config',
-                       default="/etc/rhui-testing.cfg", help='use supplied config file')
+                       default="/etc/validation.yaml", help='use supplied yaml config file')
 argparser.add_argument('--debug', action='store_const', const=True,
                        default=False, help='debug mode')
 argparser.add_argument('--dry-run', action='store_const', const=True,
@@ -142,81 +144,200 @@ if args.debug:
 else:
     logging.getLogger("paramiko").setLevel(logging.WARNING)
 
-config = ConfigParser.ConfigParser()
-# Try all possible configs
-config_read = False
-for possible_config in [args.config, "rhui-testing.cfg", "/etc/validation.cfg"]:
-    if config.read(possible_config) != []:
-        logging.debug("reading config values from " + possible_config)
-        config_read = True
-        break
+
+confd = open(args.config, 'r')
+valid_config = yaml.load(confd)
+confd.close()
+
+(ssh_key_name, ssh_key) = valid_config["ssh"][REGION]
+ec2_key = valid_config["ec2"]["ec2-key"]
+ec2_secret_key = valid_config["ec2"]["ec2-secret-key"]
+
+json_dict = {}
+
+json_dict['AWSTemplateFormatVersion'] = '2010-09-09'
+
+json_dict['Description'] = 'RHUI with %s CDSes' % args.cds
+if args.rhel5 > 0:
+    json_dict['Description'] += " %s RHEL5 clients" % args.rhel5
+if args.rhel6 > 0:
+    json_dict['Description'] += " %s RHEL6 clients" % args.rhel6
+if args.proxy:
+    json_dict['Description'] += " PROXY"
+
+json_dict['Mappings'] = \
+   {u'F17Map': {u'ap-northeast-1': {u'AMI': u'ami-26e65527'},
+                u'ap-southeast-1': {u'AMI': u'ami-2e86c07c'},
+                u'eu-west-1': {u'AMI': u'ami-9980baed'},
+                u'sa-east-1': {u'AMI': u'ami-eee23cf3'},
+                u'us-east-1': {u'AMI': u'ami-2ea50247'},
+                u'us-west-1': {u'AMI': u'ami-877e24c2'},
+                u'us-west-2': {u'AMI': u'ami-8e69e5be'}},
+  u'RHEL5Map': {u'ap-northeast-1': {u'AMI': u'ami-60229461'},
+                u'ap-southeast-1': {u'AMI': u'ami-da8dc988'},
+                u'eu-west-1': {u'AMI': u'ami-47615833'},
+                u'sa-east-1': {u'AMI': u'ami-f46cb3e9'},
+                u'us-east-1': {u'AMI': u'ami-fb0ddc92'},
+                u'us-west-1': {u'AMI': u'ami-c5bde480'},
+                u'us-west-2': {u'AMI': u'ami-3e0a870e'}},
+  u'RHEL6Map': {u'ap-northeast-1': {u'AMI': u'ami-5453e055'},
+                u'ap-southeast-1': {u'AMI': u'ami-24e5a376'},
+                u'eu-west-1': {u'AMI': u'ami-8bf2f7ff'},
+                u'sa-east-1': {u'AMI': u'ami-4807d955'},
+                u'us-east-1': {u'AMI': u'ami-cc5af9a5'},
+                u'us-west-1': {u'AMI': u'ami-51f4ae14'},
+                u'us-west-2': {u'AMI': u'ami-8a25a9ba'}}}
+
+json_dict['Outputs'] = \
+{u'IPMaster': {u'Description': u'master.example.com IP',
+               u'Value': {u'Fn::GetAtt': [u'master', u'PublicIp']}}}
+
+json_dict['Parameters'] = \
+{u'KeyName': {u'Description': u'Name of an existing EC2 KeyPair to enable SSH access to the instances',
+              u'Type': u'String'}}
+
+json_dict['Resources'] = \
+{u'CLIsecuritygroup': {u'Properties': {u'GroupDescription': u'CLI security group',
+                                       u'SecurityGroupIngress': [{u'CidrIp': u'0.0.0.0/0',
+                                                                  u'FromPort': u'22',
+                                                                  u'IpProtocol': u'tcp',
+                                                                  u'ToPort': u'22'}]},
+                       u'Type': u'AWS::EC2::SecurityGroup'},
+ u'MASTERsecuritygroup': {u'Properties': {u'GroupDescription': u'MASTER security group',
+                                          u'SecurityGroupIngress': [{u'CidrIp': u'0.0.0.0/0',
+                                                                     u'FromPort': u'22',
+                                                                     u'IpProtocol': u'tcp',
+                                                                     u'ToPort': u'22'},
+                                                                    {u'CidrIp': u'0.0.0.0/0',
+                                                                     u'FromPort': u'27017',
+                                                                     u'IpProtocol': u'tcp',
+                                                                     u'ToPort': u'27017'}]},
+                          u'Type': u'AWS::EC2::SecurityGroup'},
+ u'PROXYsecuritygroup': {u'Properties': {u'GroupDescription': u'PROXY security group',
+                                         u'SecurityGroupIngress': [{u'CidrIp': u'0.0.0.0/0',
+                                                                    u'FromPort': u'22',
+                                                                    u'IpProtocol': u'tcp',
+                                                                    u'ToPort': u'22'},
+                                                                   {u'CidrIp': u'0.0.0.0/0',
+                                                                    u'FromPort': u'3128',
+                                                                    u'IpProtocol': u'tcp',
+                                                                    u'ToPort': u'3128'}]},
+                         u'Type': u'AWS::EC2::SecurityGroup'},
+ u'RHUIsecuritygroup': {u'Properties': {u'GroupDescription': u'RHUI security group',
+                                        u'SecurityGroupIngress': [{u'CidrIp': u'0.0.0.0/0',
+                                                                   u'FromPort': u'22',
+                                                                   u'IpProtocol': u'tcp',
+                                                                   u'ToPort': u'22'},
+                                                                  {u'CidrIp': u'0.0.0.0/0',
+                                                                   u'FromPort': u'443',
+                                                                   u'IpProtocol': u'tcp',
+                                                                   u'ToPort': u'443'},
+                                                                  {u'CidrIp': u'0.0.0.0/0',
+                                                                   u'FromPort': u'5674',
+                                                                   u'IpProtocol': u'tcp',
+                                                                   u'ToPort': u'5674'}]},
+                        u'Type': u'AWS::EC2::SecurityGroup'}}
+
+json_dict['Resources']["master"] = \
+{u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'F17Map',
+                                                             {u'Ref': u'AWS::Region'},
+                                                             u'AMI']},
+                             u'InstanceType': u'm1.small',
+                             u'KeyName': {u'Ref': u'KeyName'},
+                             u'SecurityGroups': [{u'Ref': u'MASTERsecuritygroup'}],
+                             u'Tags': [{u'Key': u'Name',
+                                        u'Value': {u'Fn::Join': [u'_',
+                                                                 [u'RHUI_Master',
+                                                                  {u'Ref': u'KeyName'}]]}},
+                                       {u'Key': u'Role',
+                                        u'Value': u'Master'},
+                                       {u'Key': u'PrivateHostname',
+                                        u'Value': u'master.example.com'},
+                                       {u'Key': u'PublicHostname',
+                                        u'Value': u'master_pub.example.com'}]},
+             u'Type': u'AWS::EC2::Instance'}
+
+json_dict['Resources']["rhua"] = \
+ {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'RHEL6Map',
+                                                           {u'Ref': u'AWS::Region'},
+                                                           u'AMI']},
+                           u'InstanceType': u'm1.large',
+                           u'KeyName': {u'Ref': u'KeyName'},
+                           u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
+                           u'Tags': [{u'Key': u'Name',
+                                      u'Value': {u'Fn::Join': [u'_',
+                                                               [u'RHUA',
+                                                                {u'Ref': u'KeyName'}]]}},
+                                     {u'Key': u'Role', u'Value': u'RHUA'},
+                                     {u'Key': u'PrivateHostname',
+                                      u'Value': u'rhua.example.com'},
+                                     {u'Key': u'PublicHostname',
+                                      u'Value': u'rhua_pub.example.com'}]},
+           u'Type': u'AWS::EC2::Instance'}
+
+if args.proxy:
+    json_dict['Resources']["proxy"] = \
+     {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'RHEL6Map',
+                                                            {u'Ref': u'AWS::Region'},
+                                                            u'AMI']},
+                            u'InstanceType': u'm1.small',
+                            u'KeyName': {u'Ref': u'KeyName'},
+                            u'SecurityGroups': [{u'Ref': u'PROXYsecuritygroup'}],
+                            u'Tags': [{u'Key': u'Name',
+                                       u'Value': {u'Fn::Join': [u'_',
+                                                                [u'PROXY',
+                                                                 {u'Ref': u'KeyName'}]]}},
+                                      {u'Key': u'Role', u'Value': u'PROXY'},
+                                      {u'Key': u'PrivateHostname',
+                                       u'Value': u'proxy.example.com'},
+                                      {u'Key': u'PublicHostname',
+                                       u'Value': u'proxy_pub.example.com'}]},
+            u'Type': u'AWS::EC2::Instance'}
+
+for i in range(1, args.cds + 1):
+    json_dict['Resources']["cds%i" % i] = \
+        {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'RHEL6Map',
+                                                           {u'Ref': u'AWS::Region'},
+                                                           u'AMI']},
+                           u'InstanceType': u'm1.large',
+                           u'KeyName': {u'Ref': u'KeyName'},
+                           u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
+                           u'Tags': [{u'Key': u'Name',
+                                      u'Value': {u'Fn::Join': [u'_',
+                                                               [u'CDS%i' %i,
+                                                                {u'Ref': u'KeyName'}]]}},
+                                     {u'Key': u'Role', u'Value': u'CDS'},
+                                     {u'Key': u'PrivateHostname',
+                                      u'Value': u'cds%i.example.com' % i},
+                                     {u'Key': u'PublicHostname',
+                                      u'Value': u'cds%i_pub.example.com' % i}]},
+           u'Type': u'AWS::EC2::Instance'}
+
+for i in range(1, args.rhel5 + args.rhel6 + 1):
+    if i > args.rhel5:
+        os = "RHEL6"
     else:
-        logging.debug("unable to read config values from " + possible_config)
+        os = "RHEL5"
+    json_dict['Resources']["cli%i" % i] = \
+        {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'%sMap' % os,
+                                                           {u'Ref': u'AWS::Region'},
+                                                           u'AMI']},
+                           u'InstanceType': u'm1.small',
+                           u'KeyName': {u'Ref': u'KeyName'},
+                           u'SecurityGroups': [{u'Ref': u'CLIsecuritygroup'}],
+                           u'Tags': [{u'Key': u'Name',
+                                      u'Value': {u'Fn::Join': [u'_',
+                                                               [u'RHUI_CLI%i' % i,
+                                                                {u'Ref': u'KeyName'}]]}},
+                                     {u'Key': u'Role', u'Value': u'CLI'},
+                                     {u'Key': u'PrivateHostname',
+                                      u'Value': u'cli%i.example.com' % i},
+                                     {u'Key': u'PublicHostname',
+                                      u'Value': u'cli%i_pub.example.com' % i},
+                                     {u'Key': u'OS', u'Value': u'%s' % os}]},
+           u'Type': u'AWS::EC2::Instance'}
 
-if not config_read:
-    logging.error("You should create rhui-testing.cfg in /etc or current directory or use --config option!")
-    sys.exit(1)
-
-AWS_ACCESS_KEY_ID = config.get('EC2-Keys', 'ec2-key')
-AWS_SECRET_ACCESS_KEY = config.get('EC2-Keys', 'ec2-secret-key')
-if None in [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY]:
-    logging.error("You must specify ec2 credentials in configfile!")
-    sys.exit(1)
-SSHKEY_NAME_AP_S = config.get('SSH-Info', 'ssh-key-name_apsouth')
-SSHKEY_AP_S = config.get('SSH-Info', 'ssh-key-path_apsouth')
-SSHKEY_NAME_AP_N = config.get('SSH-Info', 'ssh-key-name_apnorth')
-SSHKEY_AP_N = config.get('SSH-Info', 'ssh-key-path_apnorth')
-SSHKEY_NAME_EU_W = config.get('SSH-Info', 'ssh-key-name_euwest')
-SSHKEY_EU_W = config.get('SSH-Info', 'ssh-key-path_euwest')
-SSHKEY_NAME_US_W = config.get('SSH-Info', 'ssh-key-name_uswest')
-SSHKEY_US_W = config.get('SSH-Info', 'ssh-key-path_uswest')
-SSHKEY_NAME_US_E = config.get('SSH-Info', 'ssh-key-name_useast')
-SSHKEY_US_E = config.get('SSH-Info', 'ssh-key-path_useast')
-SSHKEY_NAME_US_O = config.get('SSH-Info', 'ssh-key-name_uswest-oregon')
-SSHKEY_US_O = config.get('SSH-Info', 'ssh-key-path_uswest-oregon')
-SSHKEY_SA_E = config.get('SSH-Info', 'ssh-key-path_saeast')
-SSHKEY_NAME_SA_E = config.get('SSH-Info', 'ssh-key-name_saeast')
-
-if REGION == "us-east-1":
-    SSHKEY = SSHKEY_US_E
-    SSHKEYNAME = SSHKEY_NAME_US_E
-elif REGION == "us-west-2":
-    SSHKEY = SSHKEY_US_O
-    SSHKEYNAME = SSHKEY_NAME_US_O
-elif REGION == "us-west-1":
-    SSHKEY = SSHKEY_US_W
-    SSHKEYNAME = SSHKEY_NAME_US_W
-elif REGION == "eu-west-1":
-    SSHKEY = SSHKEY_EU_W
-    SSHKEYNAME = SSHKEY_NAME_EU_W
-elif REGION == "ap-southeast-1":
-    SSHKEY = SSHKEY_AP_S
-    SSHKEYNAME = SSHKEY_NAME_AP_S
-elif REGION == "ap-northeast-1":
-    SSHKEY = SSHKEY_AP_N
-    SSHKEYNAME = SSHKEY_NAME_AP_N
-elif REGION == "sa-east-1":
-    SSHKEY = SSHKEY_SA_E
-    SSHKEYNAME = SSHKEY_NAME_SA_E
-else:
-    logging.error("Unknown region " + REGION)
-    sys.exit(1)
-
-try:
-    json_file = open(args.cloudformation, "r")
-    json_body = json_file.read()
-    json_file.close()
-    #do simple json validation
-    json.loads(json_body)
-except IOError as e:
-    logging.error("I/O error({0}): {1}".format(e.errno, e.strerror))
-    sys.exit(1)
-except ValueError as e:
-    logging.error("Invalid JSON file " + args.cloudformation)
-    sys.exit(1)
-except:
-    logging.error("Unexpected error: " + str(sys.exc_info()[0]))
-    sys.exit(1)
+json_body =  json.dumps(json_dict, indent=4)
 
 region = regioninfo.RegionInfo(name=args.region,
                                endpoint="cloudformation." + args.region + ".amazonaws.com")
@@ -225,13 +346,13 @@ if not region:
     logging.error("Unable to connect to region: " + args.region)
     sys.exit(1)
 
-con_cf = cloudformation.connection.CloudFormationConnection(aws_access_key_id=AWS_ACCESS_KEY_ID,
-                                                            aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+con_cf = cloudformation.connection.CloudFormationConnection(aws_access_key_id=ec2_key,
+                                                            aws_secret_access_key=ec2_secret_key,
                                                             region=region)
 
 con_ec2 = ec2.connect_to_region(args.region,
-                                aws_access_key_id=AWS_ACCESS_KEY_ID,
-                                aws_secret_access_key=AWS_SECRET_ACCESS_KEY)
+                                aws_access_key_id=ec2_key,
+                                aws_secret_access_key=ec2_secret_key)
 
 if not con_cf or not con_ec2:
     logging.error("Create CF/EC2 connections: " + args.region)
@@ -249,7 +370,7 @@ except:
     logging.error("Wrong parameters format")
     sys.exit(1)
 
-parameters.append(("KeyName", SSHKEYNAME))
+parameters.append(("KeyName", ssh_key_name))
 
 if args.dry_run:
     sys.exit(0)
@@ -340,7 +461,7 @@ for instance in instances_detail:
     else:
         ip = instance["private_ip"]
         logging.info("Instance with private ip created: " + instance["role"] + ":" + instance["private_hostname"] + ":" + ip)
-    (instance["client"], instance["sftp"]) = setup_host_ssh(ip, SSHKEY)
+    (instance["client"], instance["sftp"]) = setup_host_ssh(ip, ssh_key)
     if instance["role"] == "Master":
         master_keys.append(setup_master(instance["client"]))
 

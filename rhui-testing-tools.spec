@@ -37,7 +37,6 @@ rm -rf $RPM_BUILD_ROOT
 %{python_sitelib}/rhuilib/*.py
 %{python_sitelib}/rhuilib/*.pyc
 %{python_sitelib}/rhuilib/*.pyo
-%{_datadir}/%name/cfn
 %dir %{_datadir}/%name/rhui-tests
 %{_datadir}/%name/testplans
 %exclude %{_datadir}/%name/testplans/*/*.py?

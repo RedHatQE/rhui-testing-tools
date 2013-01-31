@@ -1,6 +1,5 @@
 include AUTHORS
 include README.md
-include cfn/*.json
 include scripts/*
 include rhui-tests/*
 include testing-data/*

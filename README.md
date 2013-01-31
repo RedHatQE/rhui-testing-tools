@@ -16,9 +16,11 @@ Basic usage:
 -----------
 1) Create cloudformation stack for testing:
     without rpm:
-        scripts/create-cf-stack.py --cloudformation cfn/rhui_with_1cds_1cli.json --region eu-west-1
+        scripts/create-cf-stack.py  --region eu-west-1
     with rpm installed:
-        create-cf-stack.py --cloudformation /usr/share/rhui-testing-tools/cfn/rhui_with_1cds_1cli.json --region eu-west-1
+        create-cf-stack.py --region eu-west-1
+
+    use --rhel5, --rhel6, --cds, --proxy parameters to specify required configuration
 
 2) Build actual rhui-testing-tools package (if you have no) using 'tito' tool:
     tito build --rpm --test
