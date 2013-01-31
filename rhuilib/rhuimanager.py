@@ -111,7 +111,8 @@ class RHUIManager:
             Expect.expect(connection, "rhui \(home\) =>")
         else:
             # initial step was already performed by someone
-            Expect.enter(connection, "q")
+            pass
+        Expect.enter(connection, "q")
 
     @staticmethod
     def remove_rh_certs(connection):
