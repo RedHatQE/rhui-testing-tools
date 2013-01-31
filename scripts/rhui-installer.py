@@ -31,6 +31,18 @@ def download_from_s3(packageprefix):
             fd.close()
     return rpm
 
+patchworkrpm = download_from_s3("python-patchwork-")
+if patchworkrpm != "":
+    ret = subprocess.call(["yum", "-y", "install", patchworkrpm])
+    if ret != 0:
+        sys.stderr.write("Failed to install patchwork rpm!")
+        # will fail on import is the package wasn't installed manually
+else:
+    sys.stderr.write("Can't install patchwork from S3!")
+
+from patchwork import structure
+
+from rhuilib.util import *
 
 class Instance(SSHClient):
     '''
@@ -64,13 +76,6 @@ class Instance(SSHClient):
         stdout.close()
         stderr.close()
         return output
-
-    @staticmethod
-    def wildcard(hostname):
-        hostname_particles = hostname.split('.')
-        hostname_particles[0] = "*"
-        return ".".join(hostname_particles)
-
 
 class RHUI_Instance(Instance):
     '''
@@ -148,7 +153,6 @@ class RHUA(RHUI_Instance):
 
     def setup(self, cds_list, proxy_list, master_hostname):
         logger.info("Setting up RHUA instance " + self.hostname)
-        answersfile = tempfile.NamedTemporaryFile(delete=False)
         capassword = ''.join(random.choice(string.ascii_lowercase) for x in range(10))
         RHUI_Instance.setup(self)
         self.ephemeral_mount("/var/lib/pulp")
@@ -162,42 +166,13 @@ class RHUA(RHUI_Instance):
         self.run_sync("echo " + capassword + " > /etc/rhui/pem/ca.pwd", True)
         self.run_sync("echo 10 > /etc/rhui/pem/ca.srl", True)
         self.run_sync("openssl req  -new -x509 -extensions v3_ca -keyout /etc/rhui/pem/ca.key -subj \"/C=US/ST=NC/L=Raleigh/CN=" + self.hostname + " CA\" -out /etc/rhui/pem/ca.crt -days 365 -passout \"pass:" + capassword + "\"", True)
-        # Creating answers file
-        logger.debug("Creating answers file " + answersfile.name)
-        answersfile.write("[general]\n")
-        answersfile.write("version: " + self.version + "\n")
-        answersfile.write("dest_dir: /etc/rhui/confrpm\n")
-        answersfile.write("qpid_ca: /etc/rhui/qpid/ca.crt\n")
-        answersfile.write("qpid_client: /etc/rhui/qpid/client.crt\n")
-        answersfile.write("qpid_nss_db: /etc/rhui/qpid/nss\n")
+        # Creating answers
+        logger.debug("Creating answers file")
+        proxy_host = None
+        if proxy_list != []:
+            proxy_host = proxy_list[0].hostname
+        Util.generate_answers(RS, version="1.0", generate_certs=True, proxy_host=proxy_host, proxy_port="3128", proxy_user="rhua", proxy_password=self.proxy_password, capassword=capassword)
 
-        cds_number = 1
-        for server in [self] + cds_list:
-            # Creating server certs for RHUA and CDSs
-            logger.debug("Creating cert for " + server.hostname)
-            self.run_sync("openssl genrsa -out /etc/rhui/pem/" + server.hostname + ".key 2048", True)
-            if server.__class__ == RHUA:
-                self.run_sync("openssl req -new -key /etc/rhui/pem/" + server.hostname + ".key -subj \"/C=US/ST=NC/L=Raleigh/CN=" + server.hostname + "\" -out /etc/rhui/pem/" + server.hostname + ".csr", True)
-            else:
-                # Create domain wildcard certificates for CDSes
-                # otherwise CDS will not be accessible via public hostname
-                self.run_sync("openssl req -new -key /etc/rhui/pem/" + server.hostname + ".key -subj \"/C=US/ST=NC/L=Raleigh/CN=" + self.wildcard(server.hostname) + "\" -out /etc/rhui/pem/" + server.hostname + ".csr", True)
-            self.run_sync("openssl x509 -req -days 365 -CA /etc/rhui/pem/ca.crt -CAkey /etc/rhui/pem/ca.key -passin \"pass:" + capassword + "\" -in /etc/rhui/pem/" + server.hostname + ".csr -out /etc/rhui/pem/" + server.hostname + ".crt", True)
-            logger.debug("Adding " + server.hostname + " to answers")
-            if server.__class__ == RHUA:
-                answersfile.write("[rhua]\n")
-            else:
-                answersfile.write("[cds-" + str(cds_number) + "]\n")
-                cds_number += 1
-            answersfile.write("hostname: " + server.hostname + "\n")
-            answersfile.write("rpm_name: " + server.hostname + "\n")
-            answersfile.write("ssl_cert: /etc/rhui/pem/" + server.hostname + ".crt\n")
-            answersfile.write("ssl_key: /etc/rhui/pem/" + server.hostname + ".key\n")
-            answersfile.write("ca_cert: /etc/rhui/pem/ca.crt\n")
-        answersfile.close()
-        # Creating configuration RPMs
-        logger.debug("Putting answers to /etc/rhui/answers on " + server.hostname)
-        self.sftp.put(answersfile.name, "/etc/rhui/answers")
         logger.debug("Running rhui-installer")
         self.run_sync("rhui-installer /etc/rhui/answers", True)
         for server in [self] + cds_list:
@@ -212,11 +187,6 @@ class RHUA(RHUI_Instance):
         self.run_sync("rpm -e " + self.hostname)
         self.run_sync("rpm -i " + self.confrpm, True)
         if proxy_list != []:
-            # Doing proxy setup
-            self.run_sync("sed -i 's,^# proxy_url:,proxy_url: http://" + proxy_list[0].hostname + ",' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
-            self.run_sync("sed -i 's,^# proxy_port:,proxy_port: 3128,' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
-            self.run_sync("sed -i 's,^# proxy_user:,proxy_user: rhua,' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
-            self.run_sync("sed -i 's,^# proxy_pass:,proxy_pass: " + self.proxy_password + ",' /etc/rhui/rhui-tools.conf /etc/pulp/pulp.conf", True)
             # Bug# 862016 workaround
             self.run_sync("sed -i 's,^\[yum\],#&,' /etc/rhui/rhui-tools.conf", True)
 
@@ -228,8 +198,6 @@ class RHUA(RHUI_Instance):
                 self.run_sync("iptables -A OUTPUT -d " + server.private_ip + " -j ACCEPT", True)
             self.run_sync("iptables -A OUTPUT -p tcp --dport 443 -j REJECT", True)
             self.run_sync("service iptables save", True)
-            # Restarting services
-            self.run_sync("service pulp-server restart", True)
         logger.info("RHUA " + self.hostname + " setup finished")
 
 
@@ -299,6 +267,7 @@ argparser.add_argument('--yamlfile',
 args = argparser.parse_args()
 
 ISONAME = args.iso
+YAMLFILE = args.yamlfile
 
 if args.debug:
     loglevel = logging.DEBUG
@@ -319,6 +288,9 @@ plogger.setLevel(logging.DEBUG)
 plogger.addHandler(fh)
 logger.addHandler(ch)
 logger.addHandler(fh)
+
+RS = structure.Structure()
+RS.setup_from_yamlfile(yamlfile=YAMLFILE)
 
 rhua = []
 cds = []
@@ -381,12 +353,8 @@ if len(cds) == 0:
 if len(cli) == 0:
     logger.info("No CLIs found")
 
-if len(cli) == 0:
+if len(proxy) == 0:
     logger.info("No PROXY found, will do standard setup")
-
-patchworkrpm = download_from_s3("python-patchwork-")
-if patchworkrpm != "":
-    subprocess.check_output(["yum", "-y", "install", patchworkrpm])
 
 if args.coverage:
     subprocess.check_output(["yum", "-y", "install", "mongodb-server"])

@@ -100,3 +100,60 @@ class Util:
             return (rpmnvr, rpmname)
         else:
             return (None, None)
+
+    @staticmethod
+    def wildcard(hostname):
+        hostname_particles = hostname.split('.')
+        hostname_particles[0] = "*"
+        return ".".join(hostname_particles)
+
+    @staticmethod
+    def generate_answers(rhuisetup, version="1.0", generate_certs=True, proxy_host=None, proxy_port="3128", proxy_user="rhua", proxy_password=None, capassword=None):
+        ''' Generate answers file ant put it to RHUA node'''
+        answersfile = tempfile.NamedTemporaryFile(delete=False)
+        answersfile.write("[general]\n")
+        answersfile.write("version: " + version + "\n")
+        answersfile.write("dest_dir: /etc/rhui/confrpm\n")
+        answersfile.write("qpid_ca: /etc/rhui/qpid/ca.crt\n")
+        answersfile.write("qpid_client: /etc/rhui/qpid/client.crt\n")
+        answersfile.write("qpid_nss_db: /etc/rhui/qpid/nss\n")
+        instances = [rhuisetup.Instances["RHUA"][0]]
+        instances.extend(rhuisetup.Instances["CDS"])
+        cds_number = 1
+        if not capassword:
+            capassword = Util.get_ca_password(rhuisetup.Instances["RHUA"][0])
+        for instance in instances:
+            if instance.private_hostname:
+                hostname = instance.private_hostname
+            else:
+                hostname = instance.public_hostname
+            if generate_certs:
+                Expect.expect_retval(rhuisetup.Instances["RHUA"][0], "openssl genrsa -out /etc/rhui/pem/" + hostname + ".key 2048", timeout=60)
+                if instance == rhuisetup.Instances["RHUA"][0]:
+                    Expect.expect_retval(rhuisetup.Instances["RHUA"][0], "openssl req -new -key /etc/rhui/pem/" + hostname + ".key -subj \"/C=US/ST=NC/L=Raleigh/CN=" + hostname + "\" -out /etc/rhui/pem/" + hostname + ".csr", timeout=60)
+                else:
+                    # Create domain wildcard certificates for CDSes
+                    # otherwise CDS will not be accessible via public hostname
+                    Expect.expect_retval(rhuisetup.Instances["RHUA"][0], "openssl req -new -key /etc/rhui/pem/" + hostname + ".key -subj \"/C=US/ST=NC/L=Raleigh/CN=" + Util.wildcard(hostname) + "\" -out /etc/rhui/pem/" + hostname + ".csr", timeout=60)
+                Expect.expect_retval(rhuisetup.Instances["RHUA"][0], "openssl x509 -req -days 365 -CA /etc/rhui/pem/ca.crt -CAkey /etc/rhui/pem/ca.key -passin \"pass:" + capassword + "\" -in /etc/rhui/pem/" + hostname + ".csr -out /etc/rhui/pem/" + hostname + ".crt", timeout=60)
+            if instance == rhuisetup.Instances["RHUA"][0]:
+                answersfile.write("[rhua]\n")
+                if proxy_host:
+                    # Doing proxy setup
+                    answersfile.write("proxy_server_host: " + proxy_host + "\n")
+                    if proxy_port:
+                        answersfile.write("proxy_server_port: " + proxy_port + "\n")
+                    if proxy_user:
+                        answersfile.write("proxy_server_username: " + proxy_user + "\n")
+                    if proxy_password:
+                        answersfile.write("proxy_server_password: " + proxy_password + "\n")
+            else:
+                answersfile.write("[cds-" + str(cds_number) + "]\n")
+                cds_number += 1
+            answersfile.write("hostname: " + hostname + "\n")
+            answersfile.write("rpm_name: " + hostname + "\n")
+            answersfile.write("ssl_cert: /etc/rhui/pem/" + hostname + ".crt\n")
+            answersfile.write("ssl_key: /etc/rhui/pem/" + hostname + ".key\n")
+            answersfile.write("ca_cert: /etc/rhui/pem/ca.crt\n")
+        answersfile.close()
+        rhuisetup.Instances["RHUA"][0].sftp.put(answersfile.name, "/etc/rhui/answers")
