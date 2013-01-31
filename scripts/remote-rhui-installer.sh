@@ -66,6 +66,5 @@ function rcopy() {
 rcopy /root "$ISO" "$RPM"
 
 rexec yum install -q -y /root/`basename $RPM`
+rexec rhui-testing-dependencies.py
 rexec rhui-installer.py --iso /root/`basename $ISO` $OARGS
-rexec easy_install pinocchio
-rexec easy_install nose
