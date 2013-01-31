@@ -44,8 +44,15 @@ Basic usage:
         remote-rhui-installer.sh &lt;master ip&gt; &lt;your-region-ssh-key&gt; &lt;RHUI iso&gt; &lt;rhui-testing-tools.rpm&gt;
     You can get rhui-testing-tools RPM here: https://rhuiqerpm.s3.amazonaws.com/index.html
 
-4) Go to master
+4) Add rh entitlement certificate and (optionally) rh-sighned RPM with scripts/remote-add-rh-cert.sh, scripts/remote-add-rh-rpm.sh 
+   scripts
+
+5) Go to master
     ssh -i &lt;your-region-ssh-key&gt; &lt;master ip&gt;
 
-5) Run simple workflow
-    /usr/share/rhui-testing-tools/rhui-tests/test-rhui-workflow-simple.py [--cert your-rh-entitlement-certificate]
+6) Run simple workflow
+   python /usr/share/rhui-testing-tools/rhui-tests/test_rhui_workflow_simple.py
+
+7) You can run a whole testplan:
+   cd /usr/share/rhui-testing-tools/testplans/tcms6606/
+   nosetests -vv
