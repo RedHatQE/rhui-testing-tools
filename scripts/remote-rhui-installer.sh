@@ -1,34 +1,51 @@
 #! /bin/bash -e
 
-HOST=$1
-shift
-KEY=$1
-shift
-ISO=$1
-shift
-RPM1=$1
-shift
+usage() {
+    echo "Usage: `basename $0` -h | <master hostname> <keyfile> <RHUI ISO>"
+    echo "        <rhui-testing-tools rpm> [--coverage|--nostorage]"
+}
+
+
+[ $# -eq 0 ] && {
+    usage
+    exit 1
+}
+
+while getopts ":h" option ; do
+    case $option in
+        h) usage; exit 0 ;;
+    esac
+done
+
+shift $(( ${OPTIND} - 1 ))
+
+
+HOST=${1:?hostname not specified}
+KEY=${2:?ssh key not specified}
+ISO=${3:?RHUI ISO not specified}
+RPM=${4:?rhui-testing-tools rpm not specified}
+shift 4
 OARGS=$@
 
 # shared ssh options
 SSH_OPT="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityFile=$KEY"
 
-
-usage() {
-    echo "Usage: $0 <master hostname> <keyfile> <RHUI ISO> <rhui-testing-tools.rpm> [--coverage|--nostorage]"
-    exit 1
-}
-
-if [ -z "$RPM1" ] || [ ! -f "$RPM1" ]; then
-    usage
-fi
-
 if [ ! -f "$ISO" ]; then
+    echo not a file: $ISO
     usage
+    exit 1
 fi
 
 if [ ! -f "$KEY" ]; then
+    echo not a file: $KEY
     usage
+    exit 1
+fi
+
+if [ ! -f "$RPM" ] ; then
+    echo not a file: $RPM
+    usage
+    exit 1
 fi
 
 function rexec() {
@@ -46,9 +63,9 @@ function rcopy() {
 }
 
 # copy the stuff
-rcopy /root "$ISO" "$RPM1"
+rcopy /root "$ISO" "$RPM"
 
-rexec yum install -q -y /root/`basename $RPM1`
+rexec yum install -q -y /root/`basename $RPM`
 rexec rhui-installer.py --iso /root/`basename $ISO` $OARGS
 rexec easy_install pinocchio
 rexec easy_install nose
