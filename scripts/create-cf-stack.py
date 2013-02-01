@@ -84,7 +84,7 @@ def setup_master(client):
         return None
 
 
-def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys):
+def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys, setup_script):
     '''
     Setup slave node.
     - Allow connections from masters
@@ -107,6 +107,10 @@ def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys):
                 client.run_sync("cat /root/.ssh/authorized_keys > /root/.ssh/authorized_keys.new")
                 client.run_sync("echo '" + key + "' >> /root/.ssh/authorized_keys.new")
                 client.run_sync("sort -u /root/.ssh/authorized_keys.new | grep -v '^$' > /root/.ssh/authorized_keys")
+        if setup_script:
+            sftp.put(setup_script, "/root/instance_setup_script")
+            client.run_sync("chmod 755 /root/instance_setup_script")
+            client.run_sync("/root/instance_setup_script")
     except Exception, e:
         logging.error('Caught exception in setup_slave: ' + str(e.__class__) + ': ' + str(e))
 
@@ -132,6 +136,9 @@ argparser.add_argument('--timeout', type=int,
 argparser.add_argument('--vpcid', help='VPCid')
 argparser.add_argument('--subnetid', help='VPCid')
 
+argparser.add_argument('--instancesetup', help='Instance setup script for all instances except master node')
+argparser.add_argument('--mastersetup', help='Instance setup script for master node')
+
 args = argparser.parse_args()
 
 if args.debug:
@@ -151,6 +158,16 @@ else:
 if (args.vpcid and not args.subnetid) or (args.subnetid and not args.vpcid):
     logging.error("vpcid and subnetid parameters should be set together!")
     sys.exit(1)
+
+if args.instancesetup:
+    fd = open(args.instancesetup, 'r')
+    instancesetup = fd.read()
+    fd.close()
+
+if args.mastersetup:
+    fd = open(args.mastersetup, 'r')
+    mastersetup = fd.read()
+    fd.close()
 
 confd = open(args.config, 'r')
 valid_config = yaml.load(confd)
@@ -499,5 +516,11 @@ for instance in instances_detail:
         hostname = instance["private_hostname"]
     else:
         hostname = instance["public_hostname"]
+    setup_script = None
+    if instance["role"] == "Master" and args.mastersetup:
+        setup_script = args.mastersetup
+    if instance["role"] != "Master" and args.instancesetup:
+        setup_script = args.instancesetup
+
     setup_slave(instance["client"], instance["sftp"], hostname,
-                hostsfile.name, yamlfile.name, master_keys)
+                hostsfile.name, yamlfile.name, master_keys, setup_script)
