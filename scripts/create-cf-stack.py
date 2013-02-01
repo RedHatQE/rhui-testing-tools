@@ -65,7 +65,7 @@ def setup_host_ssh(hostname, key):
             ntries -= 1
         time.sleep(10)
     if ntries == 0:
-        logging.error("Failed to setup ssh to " + hostaname + " using " + key + " key")
+        logging.error("Failed to setup ssh to " + hostname + " using " + key + " key")
     return (client, sftp)
 
 
@@ -128,6 +128,10 @@ argparser.add_argument('--region',
                        default="us-east-1", help='use specified region')
 argparser.add_argument('--timeout', type=int,
                        default=10, help='stack creation timeout')
+
+argparser.add_argument('--vpcid', help='VPCid')
+argparser.add_argument('--subnetid', help='VPCid')
+
 args = argparser.parse_args()
 
 if args.debug:
@@ -144,6 +148,9 @@ if args.debug:
 else:
     logging.getLogger("paramiko").setLevel(logging.WARNING)
 
+if (args.vpcid and not args.subnetid) or (args.subnetid and not args.vpcid):
+    logging.error("vpcid and subnetid parameters should be set together!")
+    sys.exit(1)
 
 confd = open(args.config, 'r')
 valid_config = yaml.load(confd)
@@ -187,10 +194,6 @@ json_dict['Mappings'] = \
                 u'us-east-1': {u'AMI': u'ami-cc5af9a5'},
                 u'us-west-1': {u'AMI': u'ami-51f4ae14'},
                 u'us-west-2': {u'AMI': u'ami-8a25a9ba'}}}
-
-json_dict['Outputs'] = \
-{u'IPMaster': {u'Description': u'master.example.com IP',
-               u'Value': {u'Fn::GetAtt': [u'master', u'PublicIp']}}}
 
 json_dict['Parameters'] = \
 {u'KeyName': {u'Description': u'Name of an existing EC2 KeyPair to enable SSH access to the instances',
@@ -337,6 +340,29 @@ for i in range(1, args.rhel5 + args.rhel6 + 1):
                                      {u'Key': u'OS', u'Value': u'%s' % os}]},
            u'Type': u'AWS::EC2::Instance'}
 
+if args.vpcid and args.subnetid:
+    # Setting VpcId and SubnetId
+    json_dict['Outputs'] = {}
+    for key in json_dict['Resources'].keys():
+        # We'll be changing dictionary so .keys() is required here!
+        if json_dict['Resources'][key]['Type'] == 'AWS::EC2::SecurityGroup':
+            json_dict['Resources'][key]['Properties']['VpcId'] = args.vpcid
+        elif json_dict['Resources'][key]['Type'] == 'AWS::EC2::Instance':
+            json_dict['Resources'][key]['Properties']['SubnetId'] = args.subnetid
+            json_dict['Resources'][key]['Properties']['SecurityGroupIds'] = json_dict['Resources'][key]['Properties'].pop('SecurityGroups')
+            json_dict['Resources']["%sEIP" % key] = \
+            {
+                "Type" : "AWS::EC2::EIP",
+                "Properties" : {"Domain" : "vpc",
+                                "InstanceId" : { "Ref" : key }
+                               }
+            }
+    json_dict['Outputs'] = {}
+else:
+    json_dict['Outputs'] = \
+    {u'IPMaster': {u'Description': u'master.example.com IP',
+               u'Value': {u'Fn::GetAtt': [u'master', u'PublicIP']}}}
+
 json_body =  json.dumps(json_dict, indent=4)
 
 region = regioninfo.RegionInfo(name=args.region,
@@ -428,7 +454,10 @@ for i in con_ec2.get_all_instances():
             except KeyError:
                 role = None
 
-            public_ip = ii.ip_address
+            if ii.ip_address:
+                public_ip = ii.ip_address
+            else:
+                public_ip = ii.private_ip_address
             private_ip = ii.private_ip_address
 
             details_dict = {"id": ii.id,
