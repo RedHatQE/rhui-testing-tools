@@ -20,9 +20,8 @@ class test_bug_879546(RHUITestcase, RHUI_has_RH_cert):
         self.rs.Instances["RHUA"][0].sftp.put(self.cert, self.cert)
         Expect.enter(self.rs.Instances["RHUA"][0], "cat " + self.cert + " | sed 's,a,b,' > " + self.cert + ".broken && echo SUCCESS")
         Expect.expect(self.rs.Instances["RHUA"][0], "[^ ]SUCCESS")
-        # Should be fixed when propper 'Error message' arrives
         Expect.enter(self.rs.Instances["RHUA"][0], "rhui-manager cert upload --cert " + self.cert + ".broken")
-        Expect.expect(self.rs.Instances["RHUA"][0], "[^ ]Error message")
+        Expect.expect(self.rs.Instances["RHUA"][0], "[^ ]The given certificate appears malformed.  See the log file for more information.")
 
     def _cleanup(self):
         pass

@@ -23,14 +23,7 @@ class test_bug_865822(RHUITestcase):
         Expect.enter(self.rs.Instances["RHUA"][0], "")
         Expect.expect(self.rs.Instances["RHUA"][0], "Enter pass phrase for.*:")
         Expect.enter(self.rs.Instances["RHUA"][0], "wrong_password")
-        Expect.expect(self.rs.Instances["RHUA"][0], "Enter pass phrase for.*:")
-        Expect.enter(self.rs.Instances["RHUA"][0], Util.get_ca_password(self.rs.Instances["RHUA"][0]))
-        Expect.expect(self.rs.Instances["RHUA"][0], "RHUI Username:")
-        Expect.enter(self.rs.Instances["RHUA"][0], "admin")
-        Expect.expect(self.rs.Instances["RHUA"][0], "RHUI Password:")
-        Expect.enter(self.rs.Instances["RHUA"][0], "admin")
-        Expect.expect(self.rs.Instances["RHUA"][0], "rhui \(home\) =>")
-        Expect.enter(self.rs.Instances["RHUA"][0], "q")
+        Expect.expect(self.rs.Instances["RHUA"][0], "Error creating identity certificate, check the log file for more information")
 
     def _cleanup(self):
         '''[Bug#865822 cleanup] Doing safe initial run'''
