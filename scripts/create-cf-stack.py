@@ -134,7 +134,7 @@ argparser.add_argument('--timeout', type=int,
                        default=10, help='stack creation timeout')
 
 argparser.add_argument('--vpcid', help='VPCid')
-argparser.add_argument('--subnetid', help='VPCid')
+argparser.add_argument('--subnetid', help='Subnet id (for VPC)')
 
 argparser.add_argument('--instancesetup', help='Instance setup script for all instances except master node')
 argparser.add_argument('--mastersetup', help='Instance setup script for master node')
