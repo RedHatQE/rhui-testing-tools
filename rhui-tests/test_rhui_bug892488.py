@@ -8,7 +8,7 @@ from rhuilib.util import *
 from rhuilib.rhui_testcase import *
 
 
-class test_bug_892488(RHUITestcase, RHUI_has_PROXY):
+class test_bug_892488(RHUITestcase):
     def _setup(self):
         pass
     def _test(self):
