@@ -374,11 +374,12 @@ if args.vpcid and args.subnetid:
                                 "InstanceId" : { "Ref" : key }
                                }
             }
-    json_dict['Outputs'] = {}
 else:
-    json_dict['Outputs'] = \
-    {u'IPMaster': {u'Description': u'master.example.com IP',
-               u'Value': {u'Fn::GetAtt': [u'master', u'PublicIP']}}}
+#    json_dict['Outputs'] = \
+#    {u'IPMaster': {u'Description': u'master.example.com IP',
+#               u'Value': {u'Fn::GetAtt': [u'master', u'PublicIP']}}}
+    pass
+json_dict['Outputs'] = {}
 
 json_body =  json.dumps(json_dict, indent=4)
 
