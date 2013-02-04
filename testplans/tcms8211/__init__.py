@@ -10,5 +10,6 @@ from test_rhui_bug862016 import *
 from test_rhui_bug865822 import *
 from test_rhui_bug867803 import *
 from test_rhui_bug871497 import *
+from test_rhui_bug876423 import *
 from test_rhui_bug879546 import *
 from test_rhui_bug892488 import *

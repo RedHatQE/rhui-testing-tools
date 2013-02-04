@@ -14,7 +14,7 @@ setup(name='rhuilib',
         'rhuilib'
         ],
     data_files=[
-             ('share/rhui-testing-tools/testing-data', glob.glob('testing-data/*.key') + glob.glob('testing-data/*.rpm')),
+             ('share/rhui-testing-tools/testing-data', glob.glob('testing-data/*.key') + glob.glob('testing-data/*.rpm') + glob.glob('testing-data/*.pem')),
              ('share/rhui-testing-tools/rhui-tests', glob.glob('rhui-tests/*.py')),
              ('share/rhui-testing-tools/testplans/tcms2623', glob.glob('testplans/tcms2623/*.py')),
              ('share/rhui-testing-tools/testplans/tcms6606', glob.glob('testplans/tcms6606/*.py')),
