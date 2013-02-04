@@ -160,9 +160,6 @@ class RHUA(RHUI_Instance):
         self.run_sync("rpm -e " + self.hostname)
         self.run_sync("rpm -i " + self.confrpm, True)
         if proxy_list != []:
-            # Bug# 862016 workaround
-            self.run_sync("sed -i 's,^\[yum\],#&,' /etc/rhui/rhui-tools.conf", True)
-
             # Preventing access without proxy
             self.run_sync("iptables -A OUTPUT -p tcp -d 127.0.0.1 --dport 443 -j ACCEPT", True)
             for server in [self] + cds_list:
