@@ -1,3 +1,4 @@
+import os
 import nose
 import logging
 
@@ -8,6 +9,11 @@ from rhuilib.rhuimanager_sync import *
 class RHUITestcase(object):
     @classmethod
     def setupAll(typeinstance):
+        if "RHUI_TEST_DEBUG" is os.environ and os.environ["RHUI_TEST_DEBUG"] != "":
+            loglevel = logging.DEBUG
+        else:
+            loglevel = logging.INFO
+        logging.basicConfig(level=loglevel, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
         typeinstance.rs = structure.Structure()
         typeinstance.rs.setup_from_yamlfile(yamlfile="/etc/rhui-testing.yaml")
         typelist = [typeinstance]
