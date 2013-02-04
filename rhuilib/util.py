@@ -108,7 +108,7 @@ class Util:
         return ".".join(hostname_particles)
 
     @staticmethod
-    def generate_answers(rhuisetup, version="1.0", generate_certs=True, proxy_host=None, proxy_port="3128", proxy_user="rhua", proxy_password=None, capassword=None):
+    def generate_answers(rhuisetup, version="1.0", generate_certs=True, proxy_host=None, proxy_port="3128", proxy_user="rhua", proxy_password=None, capassword=None, answersfile_name="/etc/rhui/answers"):
         ''' Generate answers file ant put it to RHUA node'''
         answersfile = tempfile.NamedTemporaryFile(delete=False)
         answersfile.write("[general]\n")
@@ -156,4 +156,4 @@ class Util:
             answersfile.write("ssl_key: /etc/rhui/pem/" + hostname + ".key\n")
             answersfile.write("ca_cert: /etc/rhui/pem/ca.crt\n")
         answersfile.close()
-        rhuisetup.Instances["RHUA"][0].sftp.put(answersfile.name, "/etc/rhui/answers")
+        rhuisetup.Instances["RHUA"][0].sftp.put(answersfile.name, answersfile_name)
