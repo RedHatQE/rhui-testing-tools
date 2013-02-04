@@ -15,7 +15,7 @@ class RHUITestcase(object):
             loglevel = logging.INFO
         logging.basicConfig(level=loglevel, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
         typeinstance.rs = structure.Structure()
-        typeinstance.rs.setup_from_yamlfile(yamlfile="/etc/rhui-testing.yaml")
+        typeinstance.rs.setup_from_yamlfile(yamlfile="/etc/rhui-testing.yaml", output_shell=True)
         typelist = [typeinstance]
         for cls in typelist:
             logging.debug("Exploring class " + str(cls))
