@@ -27,9 +27,10 @@ class RHUIManagerRepo:
         Expect.expect(connection, "Path at which the repository will be served.*:")
         Expect.enter(connection, path)
         if path != "":
-            checklist.append("Path: " + path)
+            path_real = path
         else:
-            checklist.append("Path: " + reponame)
+            path_real = reponame
+        checklist.append("Path: " + path_real)
         Expect.expect(connection, "Enter value.*:")
         Expect.enter(connection, checksum_alg)
         Expect.expect(connection, "Should the repository require an entitlement certificate to access\? \(y/n\)")
@@ -40,10 +41,10 @@ class RHUIManagerRepo:
             if entitlement_path != "":
                 checklist.append("Entitlement: " + entitlement_path)
             else:
-                educated_guess, replace_count = re.subn("(i386|x86_64)","$basearch", path)
+                educated_guess, replace_count = re.subn("(i386|x86_64)","$basearch", path_real)
                 if replace_count > 1:
                     # bug 815975
-                    educated_guess = path
+                    educated_guess = path_real
                 checklist.append("Entitlement: " + educated_guess)
         Expect.expect(connection, "packages are signed by a GPG key\? \(y/n\)")
         if redhat_gpg == "y" or custom_gpg:
