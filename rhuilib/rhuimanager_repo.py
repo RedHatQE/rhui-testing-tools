@@ -40,7 +40,11 @@ class RHUIManagerRepo:
             if entitlement_path != "":
                 checklist.append("Entitlement: " + entitlement_path)
             else:
-                checklist.append("Entitlement: " + reponame)
+                educated_guess, replace_count = re.subn("(i386|x86_64)","$basearch", path)
+                if replace_count > 1:
+                    # bug 815975
+                    educated_guess = path
+                checklist.append("Entitlement: " + educated_guess)
         Expect.expect(connection, "packages are signed by a GPG key\? \(y/n\)")
         if redhat_gpg == "y" or custom_gpg:
             Expect.enter(connection, "y")
