@@ -41,7 +41,7 @@ class test_bug_789054(RHUITestcase):
         Expect.enter(self.rs.Instances["RHUA"][0], "")
         RHUIManager.proceed_with_check(self.rs.Instances["RHUA"][0], "Repositories to be included in the entitlement certificate:", ["repo1", "repo2"], ["Custom Entitlements", "Red Hat Repositories"])
         Expect.expect(self.rs.Instances["RHUA"][0], "Enter pass phrase for.*:")
-        Expect.enter(self.rs.Instances["RHUA"][0], Util.get_ca_password(self.rs.RHUA))
+        Expect.enter(self.rs.Instances["RHUA"][0], Util.get_ca_password(self.rs.Instances["RHUA"][0]))
         RHUIManager.quit(self.rs.Instances["RHUA"][0])
 
     def _cleanup(self):
