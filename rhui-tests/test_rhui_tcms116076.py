@@ -24,7 +24,7 @@ class test_tcms_116076(RHUITestcase):
         RHUIManagerIdentity.generate_new(self.rs.Instances["RHUA"][0])
 
         """[TCMS#116076 test] Generate new identity"""
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], 'echo $(($(openssl x509 -in /etc/pki/rhui/identity.crt -noout -dates | grep notAfter | sed s,.*=,, | cut -f 4 -d " ")-$(date +%Y)))', '10')
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], 'echo $(($(echo $(openssl x509 -in /etc/pki/rhui/identity.crt -noout -dates | grep notAfter | sed s,.*=,,) | cut -f 4 -d " ")-$(date +%Y)))', '10')
 
         """[TCMS#116076 test] Get /etc/pki/rhui/identity.crt new md5sum"""
         Expect.enter(self.rs.Instances["RHUA"][0], 'echo "###START###" && md5sum /etc/pki/rhui/identity.crt | cut -f 1 -d " " && echo "###STOP###"')
