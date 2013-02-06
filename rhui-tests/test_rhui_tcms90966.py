@@ -25,12 +25,15 @@ class test_tcms_90966(RHUITestcase, RHUI_has_RH_cert):
 
     def _test(self):
         '''[TCMS#90966 test] Check rhui-manager repo list output '''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager repo list | fgrep '^repo1' && echo SUCCESS", "[^ ]SUCCESS", 10)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager repo list | grep '^repo1' && echo SUCCESS", "[^ ]SUCCESS", 10)
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager repo list | fgrep 'Red Hat Update Infrastructure 2' && echo SUCCESS", "[^ ]SUCCESS", 10)
 
     def _cleanup(self):
         '''[TCMS#90966 cleanup] Remove repos '''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo1", "Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
+
+        '''[TCMS#90966 cleanup] Remove RH cert '''
+        RHUIManager.remove_rh_certs(self.rs.Instances["RHUA"][0])
 
 
 if __name__ == "__main__":
