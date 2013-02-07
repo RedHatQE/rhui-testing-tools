@@ -52,8 +52,8 @@ class test_tcms_178478(RHUITestcase, RHUI_has_RH_cert, RHUI_has_two_CLIs_RHEL6, 
         RHUIManagerClient.create_conf_rpm(self.rs.Instances["RHUA"][0], "Cluster2", self.rs.Instances["CDS"][1].private_hostname, "/root", "/root/cert2.crt", "/root/cert2.key", "repo2", "3.0")
 
         '''[TCMS#178478 setup] Install configuration rpm to client '''
-        Util.install_rpm_from_rhua(self.rs.Instances["RHUA"][0], rhel6client1, "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
-        Util.install_rpm_from_rhua(self.rs.Instances["RHUA"][0], rhel6client2, "/root/repo2-3.0/build/RPMS/noarch/repo2-3.0-1.noarch.rpm")
+        Util.install_rpm_from_rhua(self.rs.Instances["RHUA"][0], self.rhel6client1, "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
+        Util.install_rpm_from_rhua(self.rs.Instances["RHUA"][0], self.rhel6client2, "/root/repo2-3.0/build/RPMS/noarch/repo2-3.0-1.noarch.rpm")
 
     def _test(self):
         '''[TCMS#178478 test] Installing RH rpm to the clients '''
