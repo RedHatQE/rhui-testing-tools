@@ -46,6 +46,7 @@ class RHUIManagerCds:
             Expect.enter(connection, clustername)
         else:
             Expect.enter(connection, 'b')
+            Expect.expect(connection, "rhui \(cds\) =>")
             RHUIManagerCds._add_cds_part1(connection, clustername, cdsname, hostname, displayname)
             RHUIManagerCds._select_cluster(connection, clustername)
         # We need to compare the output before proceeding
