@@ -20,4 +20,4 @@ class RHUIManagerEntitlements:
         Expect.expect(connection, "Full path to the new content certificate:")
         Expect.enter(connection, certpath)
         RHUIManager.proceed_with_check(connection, "The RHUI will be updated with the following certificate:", [certpath])
-        RHUIManager.quit(connection, "Red Hat Entitlements.*Valid")
+        RHUIManager.quit(connection, "Red Hat Entitlements.*Valid.*------------------")
