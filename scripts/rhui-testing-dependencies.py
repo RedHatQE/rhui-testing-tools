@@ -1,6 +1,7 @@
 #! /usr/bin/python -tt
 
 import os
+import sys
 import subprocess
 
 from rhuilib.s3 import download_from_s3

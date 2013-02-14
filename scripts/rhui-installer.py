@@ -11,6 +11,7 @@ import random
 import string
 import yaml
 import subprocess
+import threading
 
 from patchwork import structure
 
@@ -34,10 +35,19 @@ class Instance(SSHClient):
     def __repr__(self):
         return (self.__class__.__name__ + ":" + self.hostname + ":" + self.public_ip + ":" + self.private_ip)
 
-    def run_sync(self, command, required=False):
+    def run_sync(self, command, required=False, timeout=3600):
         stdin, stdout, stderr = self.exec_command(command)
         output = stdout.read()
         logger.debug("Executing: '" + command + "' on " + self.hostname)
+        t = 0
+        while t < timeout:
+            if stdout.channel.exit_status_ready():
+                break
+            t += 1
+            time.sleep(1)
+        if t == timeout:
+            logger.error("Command " + command + " execution failed due to timeout %i" % timeout)
+            sys.exit(1)
         status = stdout.channel.recv_exit_status()
         logger.debug("STDOUT: " + output)
         logger.debug("STDERR: " + stderr.read())
@@ -50,6 +60,26 @@ class Instance(SSHClient):
         stderr.close()
         return output
 
+
+class StorageThread(threading.Thread):
+    '''
+    Storage creator
+    '''
+    def __init__(self, connection):
+        threading.Thread.__init__(self)
+        self.connection = connection
+
+    def run(self):
+        for device in self.connection.run_sync("ls -1 /dev/xvd*").strip().split('\n'):
+            if device != "":
+                # searching for the first unused block device
+                if self.connection.run_sync("grep " + device + " /proc/mounts").strip() == "":
+                    self.connection.ephemeral_device = device
+                    logger.debug("Using " + device + " as additional storage")
+                    self.connection.run_sync("mkfs.ext3 " + device, True)
+                    break
+
+
 class RHUI_Instance(Instance):
     '''
     Class to represent RHUI instance (RHUA or CDS)
@@ -60,14 +90,9 @@ class RHUI_Instance(Instance):
         self.version = "1.0"
         self.ephemeral_device = None
         if not args.nostorage:
-            for device in self.run_sync("ls -1 /dev/xvd*").strip().split('\n'):
-                if device != "":
-                    # searching for the first unused block device
-                    if self.run_sync("grep " + device + " /proc/mounts").strip() == "":
-                        self.ephemeral_device = device
-                        logger.debug("Using " + device + " as additional storage")
-                        self.run_sync("mkfs.ext3 " + device, True)
-                        break
+            sthread = StorageThread(self)
+            sthread.start()
+            sthread.name = "StorageThread-%s" % hostname
 
     def setup(self):
         logger.info("Common RHUI instance setup for " + self.hostname)
@@ -335,6 +360,25 @@ if args.coverage:
 
 for proxy_instance in proxy:
     proxy_instance.setup(rhua[0])
+
+try:
+    # waiting for storage threads
+    threads_exist = True
+    while threads_exist:
+        threads_exist = False
+        for thread in threading.enumerate():
+            if thread is not threading.currentThread() and thread.name.startswith("StorageThread-"):
+                threads_exist = True
+                thread.join(2)
+except KeyboardInterrupt:
+    print "Got CTRL-C, exiting"
+    for thread in threading.enumerate():
+        if thread is not threading.currentThread() and thread.isAlive():
+            try:
+                thread._Thread__stop()
+            except:
+                print(str(thread.getName()) + ' could not be terminated')
+    sys.exit(1)
 
 rhua[0].setup(cds, proxy, master_hostname)
 
