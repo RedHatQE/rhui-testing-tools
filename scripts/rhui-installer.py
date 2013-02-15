@@ -196,30 +196,46 @@ class RHUA(RHUI_Instance):
         logger.info("RHUA " + self.hostname + " setup finished")
 
 
+class CdsThread(threading.Thread):
+    '''
+    CDS installer thread
+    '''
+    def __init__(self, connection, rhua, master_hostname):
+        threading.Thread.__init__(self)
+        self.connection = connection
+        self.rhua = rhua
+        self.master_hostname = master_hostname
+
+    def run(self):
+        logger.info("Setting up CDS instance " + self.connection.hostname + " associated with RHUA " + self.rhua.hostname)
+        RHUI_Instance.setup(self.connection)
+        self.connection.ephemeral_mount("/var/lib/pulp-cds")
+        self.connection.run_sync("echo 'umask 027' >> /etc/sysconfig/init", True)
+        self.connection.run_sync("cd /mnt && ./install_CDS.sh", True)
+        self.connection.run_sync("chown apache.apache /var/lib/pulp-cds", True)
+        rpmfile = tempfile.NamedTemporaryFile(delete=False)
+        rpmfile.close()
+        logger.debug("will transfer " + self.connection.confrpm + " from RHUA to " + rpmfile.name)
+        self.rhua.sftp.get(self.connection.confrpm, rpmfile.name)
+        logger.debug("will transfer " + rpmfile.name + " to CDS " + rpmfile.name)
+        self.connection.sftp.put(rpmfile.name, rpmfile.name)
+        logger.debug("will install " + rpmfile.name + " on CDS")
+        # Installing coverage
+        if args.coverage:
+            self.connection.run_sync("yum -y install /mnt/Packages/pymongo-* /mnt/Packages/python-bson-*")
+            self.connection.install_coverage(self.master_hostname)
+        self.connection.run_sync("rpm -i " + rpmfile.name)
+        logger.info("CDS " + self.connection.hostname + " setup finished")
+
+
 class CDS(RHUI_Instance):
     '''
     Class to represent CDS instance
     '''
     def setup(self, rhua, master_hostname):
-        logger.info("Setting up CDS instance " + self.hostname + " associated with RHUA " + rhua.hostname)
-        RHUI_Instance.setup(self)
-        self.ephemeral_mount("/var/lib/pulp-cds")
-        self.run_sync("echo 'umask 027' >> /etc/sysconfig/init", True)
-        self.run_sync("cd /mnt && ./install_CDS.sh", True)
-        self.run_sync("chown apache.apache /var/lib/pulp-cds", True)
-        rpmfile = tempfile.NamedTemporaryFile(delete=False)
-        rpmfile.close()
-        logger.debug("will transfer " + self.confrpm + " from RHUA to " + rpmfile.name)
-        rhua.sftp.get(self.confrpm, rpmfile.name)
-        logger.debug("will transfer " + rpmfile.name + " to CDS " + rpmfile.name)
-        self.sftp.put(rpmfile.name, rpmfile.name)
-        logger.debug("will install " + rpmfile.name + " on CDS")
-        # Installing coverage
-        if args.coverage:
-            self.run_sync("yum -y install /mnt/Packages/pymongo-* /mnt/Packages/python-bson-*")
-            self.install_coverage(master_hostname)
-        self.run_sync("rpm -i " + rpmfile.name)
-        logger.info("CDS " + self.hostname + " setup finished")
+        cthread = CdsThread(self, rhua, master_hostname)
+        cthread.start()
+        cthread.name = "CdsThread-%s" % hostname
 
 
 class CLI(Instance):
@@ -246,6 +262,27 @@ class PROXY(Instance):
         self.run_sync("chkconfig squid on", True)
         self.run_sync("iptables -I INPUT -s " + rhua.hostname + " -p tcp --destination-port 3128 -j ACCEPT", True)
         self.run_sync("service iptables save", True)
+
+
+def wait_for_threads(name):
+    try:
+        # waiting for storage threads
+        threads_exist = True
+        while threads_exist:
+            threads_exist = False
+            for thread in threading.enumerate():
+                if thread is not threading.currentThread() and thread.name.startswith(name):
+                    threads_exist = True
+                    thread.join(2)
+    except KeyboardInterrupt:
+        print "Got CTRL-C, exiting"
+        for thread in threading.enumerate():
+            if thread is not threading.currentThread() and thread.isAlive():
+                try:
+                    thread._Thread__stop()
+                except:
+                    print(str(thread.getName()) + ' could not be terminated')
+        sys.exit(1)
 
 
 argparser = argparse.ArgumentParser(description='Create RHUI install')
@@ -361,24 +398,7 @@ if args.coverage:
 for proxy_instance in proxy:
     proxy_instance.setup(rhua[0])
 
-try:
-    # waiting for storage threads
-    threads_exist = True
-    while threads_exist:
-        threads_exist = False
-        for thread in threading.enumerate():
-            if thread is not threading.currentThread() and thread.name.startswith("StorageThread-"):
-                threads_exist = True
-                thread.join(2)
-except KeyboardInterrupt:
-    print "Got CTRL-C, exiting"
-    for thread in threading.enumerate():
-        if thread is not threading.currentThread() and thread.isAlive():
-            try:
-                thread._Thread__stop()
-            except:
-                print(str(thread.getName()) + ' could not be terminated')
-    sys.exit(1)
+wait_for_threads("StorageThread")
 
 rhua[0].setup(cds, proxy, master_hostname)
 
@@ -387,3 +407,5 @@ for cds_instance in cds:
 
 for cli_instance in cli:
     cli_instance.setup()
+
+wait_for_threads("CdsThread")
