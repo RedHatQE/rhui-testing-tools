@@ -3,6 +3,8 @@ import nose
 import logging
 
 from patchwork import structure
+from patchwork.expect import *
+from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_sync import *
 
 
@@ -53,7 +55,13 @@ class RHUITestcase(object):
     def _sync_cds(self, cdslist):
         if (not "RHUA" in self.rs.Instances.keys()) or len(self.rs.Instances["RHUA"]) < 1:
             raise nose.exc.SkipTest("can't test without RHUA!")
-        RHUIManagerSync.sync_cds(self.rs.Instances["RHUA"][0], cdslist)
+        try:
+            RHUIManagerSync.sync_cds(self.rs.Instances["RHUA"][0], cdslist)
+        except ExpectFailed:
+            # The CDS is not available for syncing so most probably it's syncing right now
+            # Trying to check the status
+            Expect.enter(self.rs.Instances["RHUA"][0], "b")
+            RHUIManager.quit(self.rs.Instances["RHUA"][0])
         for cds in cdslist:
             cdssync = ["UP", "In Progress", "", ""]
             while cdssync[1] == "In Progress":
@@ -64,7 +72,13 @@ class RHUITestcase(object):
     def _sync_repo(self, repolist):
         if (not "RHUA" in self.rs.Instances.keys()) or len(self.rs.Instances["RHUA"]) < 1:
             raise nose.exc.SkipTest("can't test without RHUA!")
-        RHUIManagerSync.sync_repo(self.rs.Instances["RHUA"][0], repolist)
+        try:
+            RHUIManagerSync.sync_repo(self.rs.Instances["RHUA"][0], repolist)
+        except ExpectFailed:
+            # The repo is not available for syncing so most probably it's syncing right now
+            # Trying to check the status
+            Expect.enter(self.rs.Instances["RHUA"][0], "b")
+            RHUIManager.quit(self.rs.Instances["RHUA"][0])
         for repo in repolist:
             reposync = ["In Progress", "", ""]
             while reposync[0] == "In Progress":
