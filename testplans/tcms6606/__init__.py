@@ -1,7 +1,6 @@
 import sys
 sys.path.append("/usr/share/rhui-testing-tools/rhui-tests")
 
-from test_rhui_0_update_simple import *
 from test_rhui_tcms90676 import *
 from test_rhui_tcms90678 import *
 from test_rhui_tcms90682 import *
