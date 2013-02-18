@@ -47,9 +47,22 @@ class test_0_update_simple(RHUITestcase, RHUI_has_RH_cert):
         '''[Update Simple setup] Install configuration rpm to RHUA '''
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "yum install -y /root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
+        '''[Update Simple setup] Install configuration rpm to all CDSes '''
+        for cds in self.rs.Instances["CDS"]:
+            Util.remove_conf_rpm(cds)
+            Util.install_rpm_from_rhua(self.rs.Instances["RHUA"][0], cds, "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
+
     def _test(self):
         '''[Update Simple test] Upgrade RHUI '''
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 120)
+
+        '''[Update Simple test] Restast pulp server '''
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "service pulp-server restart && echo SUCCESS", "[^ ]SUCCESS", 20)
+
+        '''[Update Simple test] Update all CDSes '''
+        for cds in self.rs.Instances["CDS"]:
+            Expect.ping_pong(cds, "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 120)
+            Expect.ping_pong(cds, "service pulp-cds restart && echo SUCCESS", "[^ ]SUCCESS", 20)
 
     def _cleanup(self):
         '''[Update Simple cleanup] Remove cds '''
@@ -63,6 +76,10 @@ class test_0_update_simple(RHUITestcase, RHUI_has_RH_cert):
 
         '''[Update Simple cleanup] Remove rhui configuration rpm from RHUA '''
         Util.remove_conf_rpm(self.rs.Instances["RHUA"][0])
+
+        '''[Update Simple cleanup] Remove rhui configuration rpm from CDSes '''
+        for cds in self.rs.Instances["CDS"]:
+            Util.remove_conf_rpm(cds)
 
 
 if __name__ == "__main__":
