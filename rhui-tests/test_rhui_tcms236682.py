@@ -7,13 +7,13 @@ from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
 
 
-class test_bug_879546(RHUITestcase, RHUI_has_RH_cert):
+class test_tcms_236682(RHUITestcase, RHUI_has_RH_cert):
     def _setup(self):
-        '''[Bug#879546 setup] Do initial rhui-manager run'''
+        '''[TCMS#236682 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
 
     def _test(self):
-        '''[Bug#879546 test] Upload broken certificate '''
+        '''[TCMS#236682 test] Upload broken certificate '''
         if self.cert[:1] == '/':
             Expect.enter(self.rs.Instances["RHUA"][0], "mkdir -p `dirname " + self.cert + "` && echo SUCCESS")
             Expect.expect(self.rs.Instances["RHUA"][0], "[^ ]SUCCESS")

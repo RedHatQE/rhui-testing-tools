@@ -6,12 +6,12 @@ from patchwork.expect import *
 from rhuilib.rhui_testcase import *
 
 
-class test_bug_867803(RHUITestcase):
+class test_tcms_236672(RHUITestcase):
     def _setup(self):
         pass
 
     def _test(self):
-        '''[Bug#867803 test] Check rhui-debug behaivour '''
+        '''[TCMS#236672 test] Check rhui-debug behaivour '''
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "", "root@")
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "python /usr/share/rh-rhua/rhui-debug.py | grep '/var/log/httpd/' | wc -l", "0\r\n")
 

@@ -8,18 +8,18 @@ from rhuilib.rhuimanager_repo import *
 from rhuilib.rhui_testcase import *
 
 
-class test_bug_845941(RHUITestcase):
+class test_tcms_240428(RHUITestcase):
     def _setup(self):
-        '''[Bug#845941 setup] Do initial rhui-manager run'''
+        '''[TCMS#240428 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
 
     def _test(self):
-        '''[Bug#845941 test] Create custom repos '''
+        '''[TCMS#240428 test] Create custom repos '''
         RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "prefix", "", "prefix", "1", "y")
         RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "prefix-1", "", "prefix-1/x86_64", "1", "y")
 
     def _cleanup(self):
-        '''[Bug#845941 cleanup] Delete custom repos '''
+        '''[TCMS#240428 cleanup] Delete custom repos '''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["prefix"])
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["prefix-1"])
 
