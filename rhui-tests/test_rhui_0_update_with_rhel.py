@@ -54,14 +54,14 @@ class test_0_update_with_rhel(RHUITestcase, RHUI_has_RH_cert):
 
     def _test(self):
         '''[Update with RHEL test] Upgrade RHUI '''
-        Expect.expect_retval(self.rs.Instances["RHUA"][0], "yum -y update", timeout=3600)
+        Expect.expect_retval(self.rs.Instances["RHUA"][0], "yum -y update", timeout=7200)
 
         '''[Update with RHEL test] Restast pulp server '''
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "service pulp-server restart && echo SUCCESS", "[^ ]SUCCESS", 20)
 
         '''[Update with RHEL test] Update all CDSes '''
         for cds in self.rs.Instances["CDS"]:
-            Expect.expect_retval(cds, "yum -y update", timeout=3600)
+            Expect.expect_retval(cds, "yum -y update", timeout=7200)
             Expect.ping_pong(cds, "service pulp-cds restart && echo SUCCESS", "[^ ]SUCCESS", 20)
 
     def _cleanup(self):
