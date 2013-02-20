@@ -11,7 +11,7 @@ from rhuilib.pulp_admin import *
 from rhuilib.cds import *
 
 
-class test_tcms_183490(RHUITestcase):
+class test_tcms_183490(RHUITestcase, RHUI_has_two_CDSes):
     def _setup(self):
         '''[TCMS#183490 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
