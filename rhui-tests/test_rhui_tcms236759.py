@@ -8,13 +8,13 @@ from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
 
 
-class test_bug_821319(RHUITestcase, RHUI_has_RH_cert):
+class test_tcms_236759(RHUITestcase, RHUI_has_RH_cert):
     def _setup(self):
-        '''[Bug#821319 setup] Do initial rhui-manager run'''
+        '''[TCMS#236759 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
 
     def _test(self):
-        '''[Bug#821319 test] Running rhui-debug.py on RHUA '''
+        '''[TCMS#236759 test] Running rhui-debug.py on RHUA '''
         Expect.enter(self.rs.Instances["RHUA"][0], "python /usr/share/rh-rhua/rhui-debug.py")
         debugdir = Expect.match(self.rs.Instances["RHUA"][0], re.compile(".*Successfully created directory \[([^\]]*)\].*", re.DOTALL))
         for name in ["/root/.rhui/", "/etc/pulp/", "/etc/gofer/plugins/", "/var/log/pulp/", "/etc/rhui/rhui-tools.conf", "/etc/httpd/conf.d/pulp.conf", "/etc/yum/pluginconf.d/pulp-profile-update.conf", "/etc/pki/pulp/content/pulp-protected-repos"]:
@@ -23,7 +23,7 @@ class test_bug_821319(RHUITestcase, RHUI_has_RH_cert):
         Expect.enter(self.rs.Instances["RHUA"][0], "ls -lR /var/lib/pulp | diff -u " + debugdir[0] + "/commands/ls_-lR_var.lib.pulp - && echo SUCCESS")
         Expect.expect(self.rs.Instances["RHUA"][0], "[^ ]SUCCESS")
 
-        '''[Bug#821319 test] Running rhui-debug.py on CDS '''
+        '''[TCMS#236759 test] Running rhui-debug.py on CDS '''
         Expect.enter(self.rs.Instances["CDS"][0], "python /usr/share/rh-rhua/rhui-debug.py --cds")
         debugdir = Expect.match(self.rs.Instances["CDS"][0], re.compile(".*Successfully created directory \[([^\]]*)\].*", re.DOTALL))
         for name in ["/etc/pulp/", "/etc/gofer/plugins/", "/var/log/pulp-cds/", "/etc/httpd/conf.d/pulp-cds.conf", "/var/log/gofer/agent.log"]:

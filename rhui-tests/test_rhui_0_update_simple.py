@@ -54,14 +54,14 @@ class test_0_update_simple(RHUITestcase, RHUI_has_RH_cert):
 
     def _test(self):
         '''[Update Simple test] Upgrade RHUI '''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 120)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 240)
 
         '''[Update Simple test] Restast pulp server '''
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "service pulp-server restart && echo SUCCESS", "[^ ]SUCCESS", 20)
 
         '''[Update Simple test] Update all CDSes '''
         for cds in self.rs.Instances["CDS"]:
-            Expect.ping_pong(cds, "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 120)
+            Expect.ping_pong(cds, "yum -y update && echo SUCCESS", "[^ ]SUCCESS", 240)
             Expect.ping_pong(cds, "service pulp-cds restart && echo SUCCESS", "[^ ]SUCCESS", 20)
 
     def _cleanup(self):
