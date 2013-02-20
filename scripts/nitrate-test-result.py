@@ -207,6 +207,7 @@ class Translator(object):
             'failure': self.error_end,
             'system-out': self.system_out_end
         }
+        self.test = None
         self.data_reset()
         self.nitrate = nitrate
         self.parser = expat.ParserCreate()
@@ -243,12 +244,19 @@ class Translator(object):
         logging.info(msg)
 
     def testcase_start(self, args):
-        # have just seen a new testcase
-        self.test = TestCase(
+        # have just seen a new testcase but let's check for setup/cleanup by
+        # comparing the IDs as those are sub-tasks sharing the same ID
+        test = TestCase(
             name=args['name'],
             classname=args['classname'],
             status=nitrate.Status('PASSED')
         )
+        if self.test is None or self.test.id != test.id:
+            # replace --- different case
+            self.test = test
+        else:
+            # update --- test part
+            self.test.name = test.name
 
     def testcase_end(self):
         if self.test.id is None:
