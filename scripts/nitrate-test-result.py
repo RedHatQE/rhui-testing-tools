@@ -246,20 +246,14 @@ class Translator(object):
     def testcase_start(self, args):
         # have just seen a new testcase but let's check for setup/cleanup by
         # comparing the IDs as those are sub-tasks sharing the same ID
-        test = TestCase(
+        self.test = TestCase(
             name=args['name'],
             classname=args['classname'],
             status=nitrate.Status('PASSED')
         )
-        if self.test is None or self.test.id != test.id:
-            # replace --- different case
-            self.test = test
-        else:
-            # update --- test part
-            self.test.name = test.name
 
     def testcase_end(self):
-        if self.test.id is None:
+        if self.test is not None and self.test.id is None:
             logging.info("skipping non-tcms: %s" % self.test)
             return
         # sync to nitrate
@@ -268,7 +262,10 @@ class Translator(object):
             logging.debug("skipping nitrate sync")
             return
         self.nitrate.reset_to_id(self.test.id)
-        self.nitrate.status = self.test.status
+        if self.nitrate.status in (None, nitrate.Status("IDLE"), nitrate.Status("PASSED")):
+            # a new status should be saved avoid replacing failure/waive status
+            # i.e. first non-IDLE, non-PASSED sets the overal status
+            self.nitrate.status = self.test.status
         self.nitrate.add_note(
             "## %s: %s\n" % (self.test.name, self.test.status) +
             self.test.message +
