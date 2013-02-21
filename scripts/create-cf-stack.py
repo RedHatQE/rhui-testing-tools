@@ -22,9 +22,25 @@ class SyncSSHClient(SSHClient):
     Special class for sync'ed commands execution over ssh
     '''
     def run_sync(self, command):
+        logging.debug("RUN_SYNC '%s'" % command)
         stdin, stdout, stderr = self.exec_command(command)
-        stdout.channel.recv_exit_status()
+        status = stdout.channel.recv_exit_status()
+        if status:
+            logging.debug("RUN_SYNC status: %i" % status)
+        else:
+            logging.debug("RUN_SYNC failed!")
         return stdin, stdout, stderr
+
+    def run_with_pty(self, command):
+        logging.debug("RUN_WITH_PTY '%s'" % command)
+        chan = self.get_transport().open_session()
+        chan.get_pty()
+        chan.exec_command(command)
+        status = chan.recv_exit_status()
+        logging.debug("RUN_WITH_PTY recv: %s" % chan.recv(16384))
+        logging.debug("RUN_WITH_PTY status: %i" % status)
+        chan.close()
+        return status
 
 
 def setup_host_ssh(hostname, key):
@@ -39,6 +55,7 @@ def setup_host_ssh(hostname, key):
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     while ntries > 0:
         try:
+            logging.debug("Trying to connect to %s as root" % hostname)
             client.connect(hostname=hostname,
                            username="root",
                            key_filename=key,
@@ -48,16 +65,19 @@ def setup_host_ssh(hostname, key):
             logging.debug("OUTPUT for 'whoami': " + output)
             if output != "root\n":
                 #It's forbidden to login under 'root', switching this off
+                client = SyncSSHClient()
+                client.load_system_host_keys()
+                client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
                 client.connect(hostname=hostname,
                                username="ec2-user",
-                               key_filename=key)
-                stdin, stdout, stderr = client.run_sync("su -c 'cp -af /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys; chown root.root /root/.ssh/authorized_keys'")
-                output = stdout.read()
-                logging.debug("OUTPUT (ssh keys setup): " + output)
-                stdin, stdout, stderr = client.run_sync("su -c \"sed -i 's,disable_root: 1,disable_root: 0,' /etc/cloud/cloud.cfg\"")
-                output = stdout.read()
-                logging.debug("OUTPUT (cloud.cfg): " + output)
-                client.connect(hostname=hostname, username="root", key_filename=key)
+                               key_filename=key,
+                               look_for_keys=False)
+                client.run_with_pty("su -c 'cp -af /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys; chown root.root /root/.ssh/authorized_keys'")
+                client.run_with_pty("su -c \"sed -i 's,disable_root: 1,disable_root: 0,' /etc/cloud/cloud.cfg\"")
+                client.connect(hostname=hostname,
+                               username="root",
+                               key_filename=key,
+                               look_for_keys=False)
             sftp = client.open_sftp()
             break
         except Exception, e:
