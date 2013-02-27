@@ -18,6 +18,19 @@ from patchwork import structure
 from rhuilib.s3 import download_from_s3
 from rhuilib.util import Util
 
+
+class UpdateThread(threading.Thread):
+    '''
+    Instance updater
+    '''
+    def __init__(self, connection):
+        threading.Thread.__init__(self)
+        self.connection = connection
+
+    def run(self):
+        self.connection.run_sync("yum -y update", True)
+
+
 class Instance(SSHClient):
     '''
     Instance to run commands via ssh
@@ -31,6 +44,10 @@ class Instance(SSHClient):
         self.set_missing_host_key_policy(AutoAddPolicy())
         self.connect(hostname=hostname, username="root")
         self.sftp = self.open_sftp()
+        if args.updateos:
+            uthread = UpdateThread(self)
+            uthread.start()
+            uthread.name = "UpdateThread-%s" % hostname
 
     def __repr__(self):
         return (self.__class__.__name__ + ":" + self.hostname + ":" + self.public_ip + ":" + self.private_ip)
@@ -294,6 +311,8 @@ argparser.add_argument('--iso', required=True,
                        help='use supplied ISO file')
 argparser.add_argument('--nostorage', action='store_const', const=True,
                        default=False, help='do not mount ephemeral device (speed up setup process)')
+argparser.add_argument('--updateos', action='store_const', const=True,
+                       default=False, help='update OS before running RHUI install')
 argparser.add_argument('--yamlfile',
                        default="/etc/rhui-testing.yaml", help='use specified YAML config file')
 args = argparser.parse_args()
@@ -397,6 +416,8 @@ if args.coverage:
 
 for proxy_instance in proxy:
     proxy_instance.setup(rhua[0])
+
+wait_for_threads("UpdateThread")
 
 wait_for_threads("StorageThread")
 
