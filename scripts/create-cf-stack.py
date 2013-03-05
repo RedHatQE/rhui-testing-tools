@@ -191,13 +191,18 @@ if args.mastersetup:
     mastersetup = fd.read()
     fd.close()
 
-confd = open(args.config, 'r')
-valid_config = yaml.load(confd)
-confd.close()
+try:
+    with open(args.config, 'r') as confd:
+        valid_config = yaml.load(confd)
 
-(ssh_key_name, ssh_key) = valid_config["ssh"][REGION]
-ec2_key = valid_config["ec2"]["ec2-key"]
-ec2_secret_key = valid_config["ec2"]["ec2-secret-key"]
+    (ssh_key_name, ssh_key) = valid_config["ssh"][REGION]
+    ec2_key = valid_config["ec2"]["ec2-key"]
+    ec2_secret_key = valid_config["ec2"]["ec2-secret-key"]
+
+except Exception as e:
+    logging.error("got '%s' error processing: %s" % (e, args.config))
+    logging.error("Please, check your config or and try again")
+    sys.exit(1)
 
 json_dict = {}
 
