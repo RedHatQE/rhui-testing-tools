@@ -1,0 +1,13 @@
+# storage-related variables
+pulp_storage:
+    directory: /var/lib/pulp
+    cds_directory: /var/lib/pulp-cds
+    owner: apache
+    group: apache
+    mode: 'g+ws,o+t'
+
+rhui_iso:
+    src: /tmp/rhui.iso
+    dest: /tmp/rhui.iso
+    mount_path: /mnt/rhui
+
