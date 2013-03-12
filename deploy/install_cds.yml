@@ -1,0 +1,25 @@
+# install a cds
+- include: common/storage_setup.yml
+- include: common/rhui_iso.yml
+- include: common/iptables_setup.yml
+- include: common/misc_setup.yml
+
+
+- name: install a CDS RHUI node
+  hosts: cdses
+  vars_files:
+  - common/vars/storage.yml
+
+  tasks:
+  - name: storage symlink for cds
+    action: file
+        src=${pulp_storage.directory}
+        dest=${pulp_storage.cds_directory}
+        state=link
+    tags:
+    - install_cds
+
+  - name: initd hardening
+    action: command "echo 'umask 027' >> /etc/sysconfig/init"
+    tags:
+    - install_cds
