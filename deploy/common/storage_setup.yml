@@ -1,50 +1,44 @@
 # setup additional storage on RHUI nodes
-- name: RHUI storage setup
-  hosts: rhui
-  vars_files:
-  - vars/storage.yml
+- name: install httpd
+  # a hack---user and group apache get installed with this package
+  # which will get installed on all RHUI nodes eventually anyway
+  action: yum name=httpd state=installed
+  tags:
+  - storage
 
-  tasks:
-  - name: install httpd
-    # a hack---user and group apache get installed with this package
-    # which will get installed on all RHUI nodes eventually anyway
-    action: yum name=httpd state=installed
-    tags:
-    - storage
+- name: get storage devices
+  # this shall return the largest non-mounted disk (partition)
+  action: command "find /dev -name 'xvd*' -not -exec grep -q {} /proc/mounts \; -printf "%p:" -exec sfdisk -suM {} \; | sort  -n | tail -1 | cut -d: -f1,1"
+  register: disk
+  tags:
+  - storage
 
-  - name: get storage devices
-    # this shall return the largest non-mounted disk (partition)
-    action: command "find /dev -name 'xvd*' -not -exec grep -q {} /proc/mounts \; -printf "%p:" -exec sfdisk -suM {} \; | sort  -n | tail -1 | cut -d: -f1,1"
-    register: disk
-    tags:
-    - storage
+- name: mkfs.ext4 on $disk
+  action: command /sbin/mkfs.ext4 ${disk}
+  async: 900
+  poll: 10
+  when_set: $disk
+  tags:
+  - storage
 
-  - name: mkfs.ext4 on $disk
-    action: command /sbin/mkfs.ext4 ${disk}
-    async: 900
-    poll: 10
-    when_set: $disk
-    tags:
-    - storage
+- name: storage directory
+  action: file
+      path=${pulp_storage.directory}
+      state=directory
+      owner=${pulp_storage.owner}
+      group=${pulp_storage.group}
+      mode=${pulp_storage.mode}
+  when_set: $pulp_storage
+  tags:
+  - storage
 
-  - name: storage directory
-    action: file
-        path=${pulp_storage.directory}
-        state=directory
-        owner=${pulp_storage.owner}
-        group=${pulp_storage.group}
-        mode=${pulp_storage.mode}
-    when_set: $pulp_storage
-    tags:
-    - storage
-
-  - name: mount $disk
-    action: mount
-        name=$pulp_storage
-        src=$disk
-        fstype=ext4
-        state=mounted
-    when_set: $disk
-    tags:
-    - storage
+- name: mount $disk
+  action: mount
+      name=$pulp_storage
+      src=$disk
+      fstype=ext4
+      state=mounted
+  when_set: $disk
+  tags:
+  - storage
 
