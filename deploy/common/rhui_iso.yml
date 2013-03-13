@@ -1,39 +1,33 @@
 # upload RHUI ISO and mount
-- name: common RHUI ISO steps
-  hosts: rhui
-  vars_files:
-  - vars/storage.yml
+- name: upload rhui iso
+  action: copy
+      src=${rhui_iso.src}
+      dest=${rhui_iso.dest}
+      owner=root
+      group=root
+      mode=0644
+  async: 900
+  poll: 10
+  when_set: $rhui_iso
+  tags:
+  - rhui_iso
 
-  tasks:
-  - name: upload rhui iso
-    action: copy
-        src=${rhui_iso.src}
-        dest=${rhui_iso.dest}
-        owner=root
-        group=root
-        mode=0644
-    async: 900
-    poll: 10
-    when_set: $rhui_iso
-    tags:
-    - rhui_iso
+- name: create mount dir
+  action: file
+      path=${rhui_iso.mount_path}
+      state=directory
+      mode=0755
+  when_set: $rhui_iso
+  tags:
+  - rhui_iso
 
-  - name: create mount dir
-    action: file
-        path=${rhui_iso.mount_path}
-        state=directory
-        mode=0755
-    when_set: $rhui_iso
-    tags:
-    - rhui_iso
-
-  - name: mount rhui iso
-    action: mount
-        name=/mnt/rhui
-        src=$rhui_iso_destination
-        type=iso9660
-        state=mounted
-    when_set: $rhui_iso_destination
-    tags:
-    - rhui_iso
+- name: mount rhui iso
+  action: mount
+      name=/mnt/rhui
+      src=$rhui_iso_destination
+      type=iso9660
+      state=mounted
+  when_set: $rhui_iso_destination
+  tags:
+  - rhui_iso
 
