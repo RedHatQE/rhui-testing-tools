@@ -6,8 +6,6 @@
       owner=root
       group=root
       mode=0644
-  async: 900
-  poll: 10
   when_set: $rhui_iso
   tags:
   - rhui_iso
@@ -23,11 +21,12 @@
 
 - name: mount rhui iso
   action: mount
-      name=/mnt/rhui
-      src=$rhui_iso_destination
-      type=iso9660
+      name=${rhui_iso.mount_path}
+      src=${rhui_iso.dest}
+      fstype=iso9660
       state=mounted
-  when_set: $rhui_iso_destination
+      opts=loop
+  when_set: $rhui_iso
   tags:
   - rhui_iso
 

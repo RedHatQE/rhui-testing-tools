@@ -1,6 +1,7 @@
 # miscelaneous stuff to setup, common for RHUI nodes
 - name: misc setup
   hosts: rhui
+  user: root
   vars:
   - time_server: 66.187.233.4
 

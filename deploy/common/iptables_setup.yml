@@ -1,8 +1,9 @@
 # iptables configuration common for RHUI nodes
 - name: configure RHUI iptables
   hosts: rhui
+  user: root
   vars:
-  - iptables_template: iptablec_config.j2
+  - iptables_template: iptables_config.j2
 
   tasks:
   - name: provide iptables configuration
