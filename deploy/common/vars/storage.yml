@@ -4,7 +4,7 @@ pulp_storage:
     cds_directory: /var/lib/pulp-cds
     owner: apache
     group: apache
-    mode: 'g+ws,o+t'
+    mode: 5775
 
 rhui_iso:
     src: /tmp/rhui.iso

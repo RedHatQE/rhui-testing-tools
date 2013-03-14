@@ -16,49 +16,51 @@
   vars:
   - region: us-east-1
   - ec2:
-    url: "https://ec2.us-east-1.amazonaws.com"
-    security_group: mkovacik-rhui
-    image: ami-cc5af9a5
-    instance_type: m1.medium
-    keypair: mkovacik-us-east-1
-    access_key: ${eec2.access_key}
-    secret_key: ${eec2.secret_key}
+#    url: "https://ec2.us-east-1.amazonaws.com"
+#    security_group: mkovacik-rhui
+#    image: ami-cc5af9a5
+#    instance_type: m1.medium
+#    keypair: mkovacik-us-east-1
+#    access_key: ${eec2.access_key}
+#    secret_key: ${eec2.secret_key}
   - new_groups: [rhui, cdses]
 
   tasks:
   - include: common/instance_deployment.yml
 
+  - name: wait till things settle down
+    local_action: pause minutes=2
 
-#
-#- name: install a CDS RHUI node
-#  hosts: cdses
-#  vars_files:
-#  - common/vars/storage.yml
-#
-#  tasks:
-#  - include: common/storage_setup.yml
-#
-#  - name: storage symlink for cds
-#    action: file
-#        src=${pulp_storage.directory}
-#        dest=${pulp_storage.cds_directory}
-#        state=link
-#    tags:
-#    - install_cds
-#    when_set: $pulp_storage
-#
-#  - name: initd hardening
-#    action: command "echo 'umask 027' >> /etc/sysconfig/init"
-#    tags:
-#    - install_cds
-#
-#  - include common/rhui_iso.yml
-#
-#  - name: run Install_CDS.sh
-#    action: command chdir=${rhui_iso.mount_path} ${rhui_iso.mount_path}/install_CDS.sh
-#    when_set: $rhui_iso
-#
-## include firewall playbook
-#- include: common/iptables_setup.yml
-#
+- name: install a CDS RHUI node
+  hosts: cdses
+  user: root
+  vars_files:
+  - common/vars/storage.yml
+
+  tasks:
+  - include: common/storage_setup.yml
+
+  - name: storage symlink for cds
+    action: file
+        src=${pulp_storage.directory}
+        dest=${pulp_storage.cds_directory}
+        state=link
+    tags:
+    - install_cds
+    when_set: $pulp_storage
+
+  - name: initd hardening
+    action: shell echo 'umask 027' >> /etc/sysconfig/init
+    tags:
+    - install_cds
+
+  - include: common/rhui_iso.yml
+
+  - name: run Install_CDS.sh
+    action: shell ${rhui_iso.mount_path}/install_CDS.sh chdir=${rhui_iso.mount_path}
+    async: 600
+    poll: 5
+    when_set: $rhui_iso
+    tags:
+    -  install_cds
 

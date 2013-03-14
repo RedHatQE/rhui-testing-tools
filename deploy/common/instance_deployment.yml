@@ -1,5 +1,5 @@
 # tasks for deploying insances
-- name: debug
+- name: debug parameters
   local_action: debug
       msg="$ec2"
 
@@ -20,7 +20,16 @@
   local_action: add_host hostname=${item.public_ip} groupname=${new_groups}
   with_items: ${inst_res.instances}
 
-- name: "wait for the host's ssh port to be hot"
-  local_action: wait_for host=${item.public_ip} port=22 delay=5 timeout=300
-  with_items: ${isnt_res.instances}
+- name: debug result
+  local_action: debug
+      msg="${item}"
+  with_items: ${inst_res.instances}
+
+#- name: "wait for the host's ssh port to be hot"
+#  local_action: wait_for
+#        host=${item.public_ip}
+#        port=22
+#        delay=5
+#        timeout=300
+#  with_items: ${inst_res.instances}
 
