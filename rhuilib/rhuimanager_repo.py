@@ -154,3 +154,41 @@ class RHUIManagerRepo:
         Expect.expect(connection, "\(blank line for no filter\):")
         Expect.enter(connection, package)
         RHUIManager.quit(connection, "Packages:")
+        
+    @staticmethod
+    def list(connection):
+        '''
+        list repositories
+        '''
+        RHUIManager.screen(connection, "repo")
+        Expect.enter(connection, "l")
+        # eating prompt!!
+        pattern = re.compile('l(\r\n)+(.*)rhui\s* \(repo\)\s* =>',
+                re.DOTALL)
+        ret = Expect.match(connection, pattern, grouplist=[1])[0]
+        reslist = ret.split("\r\n")
+        i = 0
+        custom_repolist = []
+        rh_repolist = []
+        while i < len(reslist):
+            line = reslist[i]
+            # Readling lines and searching for repos
+            if line.strip() != '':
+                if line == "Custom Repositories":
+                    i += 1
+                    while reslist[i] != '':
+                        custom_repolist.append(reslist[i][:2])
+                        i += 1
+                    i += 1
+                if line == "Red Hat Repositories":
+                    while reslist[i] != '':
+                        re_repolist.append(reslist[i][:2])
+                        i += 1
+                    i += 1
+
+        repos = []
+        repos.extend(custom_repolist)
+        repos.extend(rh_repolist)
+
+        Expect.enter(connection, 'q')
+        return repos
