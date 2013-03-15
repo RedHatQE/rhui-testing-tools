@@ -30,7 +30,6 @@ class Instance(object):
 
 
 
-
 class Inventory(object):
     def __init__(self, data):
         if not isinstance(data, dict):
@@ -54,7 +53,6 @@ class Inventory(object):
     def __repr__(self):
         return 'Inventory(%r)' % self._data
 
-
     def __getitem__(self, query):
         if query in self.instances_by_id:
             return self.instances_by_id[query]
@@ -70,7 +68,7 @@ class Inventory(object):
                 return self.instances[int(query)]
             except ValueError:
                 # wasn't an int after all
-                raise KeyError("Can't locate instance by: %s" % query)
+                pass
         raise KeyError("Can't locate instance by: %s" % query)
 
     def __len__(self):
@@ -92,8 +90,6 @@ class Inventory(object):
                 groups['RHUI'].append(host)
             groups[instance.role].append(host)
         return groups
-
-
 
 
 if __name__ == '__main__':
