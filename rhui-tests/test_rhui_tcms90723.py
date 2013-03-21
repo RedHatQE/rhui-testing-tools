@@ -19,7 +19,7 @@ class test_rhui_tcms90723(RHUITestcase):
 
     def _test(self):
         '''[TCMS#90723 test] Check the repo list screen'''
-         nose.tools.assert_equal(RHUIManagerRepo.list(self.rs.Instances["RHUA"][0]), ["repo1"])
+        nose.tools.assert_equal(RHUIManagerRepo.list(self.rs.Instances["RHUA"][0]), ["repo1"])
 
         '''[TCMS#90723 test] Check pulp-admin and rhui info are the same'''
         res = PulpAdmin.repo_list(self.rs.Instances["RHUA"][0])[0].name
