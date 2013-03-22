@@ -1,0 +1,38 @@
+# tasks relevant for creating rhui Certification authority certs
+- name: prepare certs directory
+  action: file
+      path=${cert_files.path}
+      owner=root
+      group=root
+      mode=0755
+      state=directory   
+  when_set: ${cert}
+  tags:
+  - rhui_certs
+
+- name: generate CA certificate
+  action: command /usr/bin/openssl req -new -x509 -extensions v3_ca -keyout ${cert.files.key} -subj ${cert.details.subject} -out ${cert.files.ca} -days ${cert.details.days} -passout ${cert.details.password}
+      chdir=${cert.files.path}
+      creates=${cert.files.path}/${cert.files.ca}
+  when_set: ${certs}
+  tags:
+  - rhui_certs
+
+- name: create protected password file
+  action: file
+      path=${certs.files.path}/${certs.files.password}
+      owner=root
+      group=root
+      mode=0600
+      state=present
+  when_set: ${certs}
+  tags:
+  - rhui_certs
+
+- name: save rhui CA crt password
+  action: shell echo ${certs.details.password} > ${certs.files.password}
+  when_set: ${certs}
+  tags:
+  - rhui_certs
+      
+

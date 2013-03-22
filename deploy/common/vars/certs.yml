@@ -1,0 +1,13 @@
+# RHUI certificates locations etc
+cert:
+  files:
+    path: /etc/rhui/pem
+    password: ca.pwd
+    serial: ca.srl
+    key: ca.key
+    ca: ca.crt
+  
+  details:
+    subject: "/C=US/ST=NC/L=Raleigh/CN=Site Rhui CA"
+    password: "no-password_at:all"
+    days: 365

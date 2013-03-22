@@ -1,0 +1,111 @@
+- name: setup RHUI node storage
+  hosts:
+  - RHUI
+  user: root
+
+  vars_files:
+  - common/vars/storage.yml
+
+  tasks:
+  - include: common/storage_setup.yml
+
+
+- name: CDSes storage and hardening
+  hosts:
+  - CDS
+  user: root
+
+  vars_files:
+  - common/vars/storage.yml
+
+  tasks:
+  - name: storage symlink for pulp-cds
+    action: file
+        src=${pulp_storage.directory}
+        dest=${pulp_storage.cds_directory}
+        state=link
+    when_set: ${pulp_storage}
+    tags:
+    - install_cds
+
+  - name: initd hardening
+    action: shell echo 'umask 027' >> /etc/sysconfig/init
+    tags:
+    - cds_storage
+
+
+- name: RHUI iso
+  hosts:
+  - RHUA
+  - CDS
+  user: root
+
+  vars_files:
+  - common/vars/storage.yml
+
+  tasks:
+  - include: common/rhui_iso.yml
+
+
+- name: install CDS packages
+  hosts:
+  - CDS
+  user: root
+
+  vars_files:
+  - common/vars/storage.yml
+
+  tasks:
+  - name: run Install_CDS.sh
+    action: shell ${rhui_iso.mount_path}/install_CDS.sh chdir=${rhui_iso.mount_path}
+    async: 600
+    poll: 5
+    when_set: $rhui_iso
+    tags:
+    - install_cds
+
+
+- name: install RHUA packages
+  hosts:
+  - RHUA
+  user: root
+
+  vars_files:
+  - common/vars/storage.yml
+
+  tasks:
+  - name: run Install_RHUA.sh
+    action: shell ${rhui_iso.mount_path}/install_RHUA.sh chdir=${rhui_iso.mount_path}
+    async: 600
+    poll: 5
+    when_set: $rhui_iso
+    tags:
+    - install_rhua
+
+
+- name: generate RHUI certs
+  hosts:
+  - RHUA
+  user: root
+
+  vars_files:
+  - common/vars/certs.yml
+
+  tasks:
+  - include: common/ca_cert.yml
+  - include: common/rhui_cert.yml
+
+
+- name: RHUI config build
+  hosts:
+  - RHUA
+  user: root
+
+  vars_files:
+  - common/vars/answers.yml
+  
+  tasks:
+  - include: common/answers.yml
+
+
+
