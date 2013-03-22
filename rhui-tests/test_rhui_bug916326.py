@@ -9,7 +9,7 @@ from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
 
 
-class test_bug_916326(RHUITestcase, RHUI_has_RH_cert):
+class test_bug_916326(RHUITestcase):
     def _setup(self):
 
         '''[Bug#916326 setup] Do initial rhui-manager run'''
