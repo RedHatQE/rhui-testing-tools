@@ -4,7 +4,7 @@
   # which will get installed on all RHUI nodes eventually anyway
   action: yum name=httpd state=installed
   async: 600
-  pol: 5
+  poll: 5
   tags:
   - storage
 
