@@ -1,7 +1,7 @@
 # vars relevant to answers file generation
 answers:
   file: /etc/rhui/answers
-  rpm_dir: /etc/rhui/confrpm
+  dest_dir: /etc/rhui/confrpm
 
   certs:
     qpid_ca: /etc/rhui/qpid/ca.crt

@@ -12,7 +12,7 @@
 
 - name: rhui-installer
   action: shell /usr/bin/rhui-installer ${answers.file}
-    creates=${answers.rpm_dir}/${groups.RHUA[0]}.rpm
+    creates=${answers.dest_dir}/${groups.RHUA[0]}.rpm
   when_set: ${answers}
   tags:
   - answers
