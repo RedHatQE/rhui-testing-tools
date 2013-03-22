@@ -83,9 +83,9 @@ class Inventory(object):
             if not instance.role in groups:
                 groups[instance.role] = []
             if public:
-                host = instance.public_ip
+                host = instance.public_hostname
             else:
-                host = instance.private_ip
+                host = instance.private_hostname
             if instance.role in ('RHUA, CDS'):
                 groups['RHUI'].append(host)
             groups[instance.role].append(host)
