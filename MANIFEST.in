@@ -1,5 +1,1 @@
-include AUTHORS
-include README.md
-include scripts/*
-include rhui-tests/*
-include testing-data/*
+recursive-include testing-data *
