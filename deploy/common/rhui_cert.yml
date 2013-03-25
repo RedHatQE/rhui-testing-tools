@@ -10,7 +10,7 @@
   - rhui_certs
 
 - name: generate cds csrs
-  action: command /usr/bin/openssl req -new -key ${item}.key -subj "${cert.details.subject} ${item}" -out ${item}.csr
+  action: command /usr/bin/openssl req -new -key ${item}.key -subj "/C=US/ST=NC/L=Raleigh/CN=${item}" -out ${item}.csr
     chdir=${cert.files.path}
     creates=${cert.files.path}/${item}.csr
   with_items: ${groups.RHUI}
@@ -18,7 +18,7 @@
   - rhui_certs
 
 - name: generate cds certs
-  action: command /usr/bin/openssl x509 -days ${cert.details.days} -CA ${cert.files.ca} -CAkey ${cert.files.key} -passin "pass:${cert.details.password}" -in ${item}.csr -out ${item}.crt 
+  action: command /usr/bin/openssl x509 -req -days ${cert.details.days} -CA ${cert.files.ca} -CAkey ${cert.files.key} -passin "pass:${cert.details.password}" -in ${item}.csr -out ${item}.crt 
     chdir=${cert.files.path}
     creates=${cert.files.path}/${item}.crt
   with_items: ${groups.RHUI}
