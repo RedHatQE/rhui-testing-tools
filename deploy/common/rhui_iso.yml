@@ -14,7 +14,6 @@
   action: file
       path=${rhui_iso.mount_path}
       state=directory
-      mode=0755
   when_set: $rhui_iso
   tags:
   - rhui_iso
