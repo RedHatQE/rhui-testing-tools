@@ -1,19 +1,20 @@
 # rhui answers generated
 [general]
+
 version:  {{ answers['details']['version'] }}
 dest_dir: {{ answers['dest_dir'] }}
 qpid_ca:  {{ answers['certs']['qpid_ca'] }}
 qpid_client:  {{ answers['certs']['qpid_client'] }}
 qpid_nss_db:  {{ answers['certs']['qpid_nss_db'] }}
 
-{% set cert_path = certs['files']['path'] + "/" }
+{% set cert_path = cert['files']['path'] + "/" %}
 [rhua]
 {% set rhua = groups['RHUA'][0] %}
 hostname: {{ rhua }}
-rpmname: {{ rhua }}
+rpm_name: {{ rhua }}
 ssl_cert: {{ cert_path + rhua + ".crt" }}
-ssl_key: {{ cert_path + rhua + ".key" } }
-ca_cert: {{ certs['files']['ca'] }}
+ssl_key: {{ cert_path + rhua + ".key" }}
+ca_cert: {{ cert['files']['ca'] }}
  
 {% for proxy in  groups['PROXY'] %}
 proxy_server_host: {{ proxy }}
@@ -22,11 +23,12 @@ proxy_server_username: {{ hostvars[proxy]['username'] }}
 proxy_server_password: {{ hostvars[proxy]['password'] }}
 {% endfor %}
 
-{% for i, cds in enumerate(groups['CDS']) %}
-[cds-{{ i }}]
+{% for cds in groups['CDS'] %}
+[cds-{{ loop.index }}]
 hostname: {{cds}}
-rpmname: {{cds}}
+rpm_name: {{cds}}
 ssl_cert: {{ cert_path + cds + ".crt" }}
 ssl_key: {{ cert_path + cds + ".key" }}
-ca_cert: {{ certs['files']['ca'] }}
+ca_cert: {{ cert['files']['ca'] }}
 {% endfor %}
+
