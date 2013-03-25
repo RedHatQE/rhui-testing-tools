@@ -10,34 +10,9 @@
   - include: common/storage_setup.yml
 
 
-- name: CDSes storage and hardening
-  hosts:
-  - CDS
-  user: root
-
-  vars_files:
-  - common/vars/storage.yml
-
-  tasks:
-  - name: storage symlink for pulp-cds
-    action: file
-        src=${pulp_storage.directory}
-        dest=${pulp_storage.cds_directory}
-        state=link
-    when_set: ${pulp_storage}
-    tags:
-    - install_cds
-
-  - name: initd hardening
-    action: shell echo 'umask 027' >> /etc/sysconfig/init
-    tags:
-    - cds_storage
-
-
 - name: RHUI iso
   hosts:
-  - RHUA
-  - CDS
+  - RHUI
   user: root
 
   vars_files:
@@ -47,7 +22,7 @@
   - include: common/rhui_iso.yml
 
 
-- name: install CDS packages
+- name: install CDS
   hosts:
   - CDS
   user: root
@@ -56,14 +31,8 @@
   - common/vars/storage.yml
 
   tasks:
-  - name: run Install_CDS.sh
-    action: shell ${rhui_iso.mount_path}/install_CDS.sh chdir=${rhui_iso.mount_path}
-    async: 600
-    poll: 5
-    when_set: $rhui_iso
-    tags:
-    - install_cds
-
+  - include: common/cds_install.yml
+  
 
 - name: install RHUA packages
   hosts:
