@@ -15,4 +15,4 @@ Deploying RHUI; assuming one stands in the directory _rhui-testing-tools/deploy_
 Debugging
 * export ANSIBLE_KEEP_REMOTE_FILES=1
 * ansible-playbook -i common/modules/rhui_inventory.py --list-tasks --list-hosts rhui-installer.py
-* ansible-playbook -i common/modules/rhui_inventory.py -vvv rhui-installer.yml 
+* ansible-playbook -i common/modules/rhui_inventory.py -vvv rhui-installer.yml -t rhui_certs
