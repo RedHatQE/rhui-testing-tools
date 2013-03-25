@@ -25,13 +25,10 @@
   tags:
   - storage
 
-- name: storage directory
+- name: create storage directory mountpoint
   action: file
       path=${pulp_storage.directory}
       state=directory
-      owner=${pulp_storage.owner}
-      group=${pulp_storage.group}
-      mode=${pulp_storage.mode}
   when_set: $pulp_storage
   tags:
   - storage
@@ -46,3 +43,13 @@
   tags:
   - storage
 
+- name: correct storage directory permissions
+  action: file
+      path=${pulp_storage.directory}
+      state=directory
+      owner=${pulp_storage.owner}
+      group=${pulp_storage.group}
+      mode=${pulp_storage.mode}
+  when_set: $pulp_storage
+  tags:
+  - storage
