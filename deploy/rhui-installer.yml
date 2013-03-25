@@ -104,62 +104,22 @@
   vars_files:
   - common/vars/answers.yml
   - common/vars/certs.yml
+  - common/vars/storage.yml
   
   tasks:
   - include: common/answers.yml
-
-
-- name: Fetch all config rpms
+ 
+ 
+- name: Configure RHUI
   hosts:
-  - RHUA
+  - RHUI
   user: root
 
   vars_files:
+  - common/vars/storage.yml
   - common/vars/answers.yml
-  - common/vars/storage.yml
 
   tasks:
-  - name: fetch rpms
-    action: fetch
-      src=${answers.dest_dir}/${item}.rpm
-      dest=${storage.config.src}
-    with_items: ${groups.RHUI}
-    tags:
-    - config_rhui
-
-
-- name: Upload Config rpms
-  hosts:
-  - RHUI
-  user: root
-
-  vars_files:
-  - common/vars/storage.yml
-
-  tasks:
-  - name: copy config rpms
-    action: copy
-      src=${storage.config.src}/${inventory_hostname}.rpm
-      dest=${storage.config.dest}  
-    when_set: ${storage}
-    tags:
-    - config_rhui
-
-
-- name: install config 
-  hosts:
-  - RHUI
-
-  user: root
-
-  vars_files:
-  - common/vars/storage.yml
-
-  tasks:
-  - name: install config rpm
-    action: shell /usr/bin/yum install -y ${storage.config.dest}/${inventory_hostname}.rpm
-    when_set: ${storage}
-    tags:
-    - config_rhui
-  
+  - include: common/rhui_config.yml
+ 
 

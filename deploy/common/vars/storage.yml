@@ -11,7 +11,7 @@ rhui_iso:
     dest: /tmp/rhui.iso
     mount_path: /mnt/rhui
 
-config:
+config_storage:
     src: /tmp
     dest: /tmp
 
