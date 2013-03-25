@@ -1,7 +1,7 @@
 # rhui nodes certs generating
 # please note this is supposed to be executed on rhua node
 # after CA cert has been generated
-- name: generate cds keys
+- name: generate keys
   action: command /usr/bin/openssl genrsa -out ${item}.key 2048
     chdir=${cert.files.path}
     creates=${cert.files.path}/${item}.key
@@ -9,7 +9,7 @@
   tags:
   - rhui_certs
 
-- name: generate cds csrs
+- name: generate csrs
   action: command /usr/bin/openssl req -new -key ${item}.key -subj "/C=US/ST=NC/L=Raleigh/CN=${item}" -out ${item}.csr
     chdir=${cert.files.path}
     creates=${cert.files.path}/${item}.csr
@@ -17,7 +17,7 @@
   tags:
   - rhui_certs
 
-- name: generate cds certs
+- name: generate certs
   action: command /usr/bin/openssl x509 -req -days ${cert.details.days} -CA ${cert.files.ca} -CAkey ${cert.files.key} -passin "pass:${cert.details.password}" -in ${item}.csr -out ${item}.crt 
     chdir=${cert.files.path}
     creates=${cert.files.path}/${item}.crt
