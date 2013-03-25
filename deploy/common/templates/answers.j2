@@ -14,7 +14,7 @@ hostname: {{ rhua }}
 rpm_name: {{ rhua }}
 ssl_cert: {{ cert_path + rhua + ".crt" }}
 ssl_key: {{ cert_path + rhua + ".key" }}
-ca_cert: {{ cert['files']['ca'] }}
+ca_cert: {{ cert_path + cert['files']['ca'] }}
  
 {% for proxy in  groups['PROXY'] %}
 proxy_server_host: {{ proxy }}
@@ -29,6 +29,6 @@ hostname: {{cds}}
 rpm_name: {{cds}}
 ssl_cert: {{ cert_path + cds + ".crt" }}
 ssl_key: {{ cert_path + cds + ".key" }}
-ca_cert: {{ cert['files']['ca'] }}
+ca_cert: {{ cert_path + cert['files']['ca'] }}
 {% endfor %}
 
