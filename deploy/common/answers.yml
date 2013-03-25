@@ -16,3 +16,20 @@
   tags:
   - answers
 
+- name: create latest rpm symlink
+  # FIXME it appears rhui-installer always exposes the latest release; there _should_ be at most 1 ...-${version}-* rpm
+  action: shell rm -f ${answers.dest_dir}/${item}.rpm && ln -s ${answers.dest_dir}/${item}-${answers.details.version}-* ${answers.dest_dir}/${item}.rpm
+  with_items: ${groups.RHUI}
+  tags:
+  - answers
+
+- name: fetch all config rpms
+  action: fetch
+    src=${answers.dest_dir}/${item}.rpm
+    dest=${config_storage.src}/${item}
+  with_items: ${groups.RHUI}
+  tags:
+  - answers
+
+
+
