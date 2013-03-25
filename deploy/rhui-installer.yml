@@ -34,7 +34,7 @@
   - include: common/cds_install.yml
   
 
-- name: install RHUA packages
+- name: install RHUA
   hosts:
   - RHUA
   user: root
@@ -43,13 +43,7 @@
   - common/vars/storage.yml
 
   tasks:
-  - name: run Install_RHUA.sh
-    action: shell ${rhui_iso.mount_path}/install_RHUA.sh chdir=${rhui_iso.mount_path}
-    async: 600
-    poll: 5
-    when_set: $rhui_iso
-    tags:
-    - install_rhua
+  - include: common/rhua_install.yml
 
 
 - name: generate RHUI certs

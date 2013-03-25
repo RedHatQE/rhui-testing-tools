@@ -1,0 +1,8 @@
+- name: run Install_RHUA.sh
+  action: shell ${rhui_iso.mount_path}/install_RHUA.sh chdir=${rhui_iso.mount_path}
+  async: 600
+  poll: 5
+  when_set: $rhui_iso
+  tags:
+  - rhua_install
+
