@@ -103,6 +103,7 @@
 
   vars_files:
   - common/vars/answers.yml
+  - common/vars/certs.yml
   
   tasks:
   - include: common/answers.yml

@@ -1,7 +1,7 @@
 # rhui config build steps
 - name: answers file
   action: template
-    src=templates/answers.j2
+    src=common/templates/answers.j2
     dest=${answers.file}
     owner=root
     group=root
@@ -12,7 +12,6 @@
 
 - name: rhui-installer
   action: shell /usr/bin/rhui-installer ${answers.file}
-    creates=${answers.dest_dir}/${groups.RHUA[0]}.rpm
   when_set: ${answers}
   tags:
   - answers
