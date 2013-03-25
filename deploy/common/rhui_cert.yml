@@ -5,10 +5,7 @@
   action: command /usr/bin/openssl genrsa -out ${item}.key 2048
     chdir=${cert.files.path}
     creates=${cert.files.path}/${item}.key
-  async: 60
-  poll: 2
   with_items: ${groups.RHUI}
-  when_set: ${certs}
   tags:
   - rhui_certs
 
@@ -17,16 +14,14 @@
     chdir=${cert.files.path}
     creates=${cert.files.path}/${item}.csr
   with_items: ${groups.RHUI}
-  when_set: ${certs}
   tags:
   - rhui_certs
 
 - name: generate cds certs
-  action: command /usr/bin/openssl x509 -days ${cert.details.days} -CA ${certs.files.ca} -CAkey ${certs.files.key} -passin "pass:${cert.details.password}" -in ${item}.csr -out ${item}.crt 
+  action: command /usr/bin/openssl x509 -days ${cert.details.days} -CA ${cert.files.ca} -CAkey ${cert.files.key} -passin "pass:${cert.details.password}" -in ${item}.csr -out ${item}.crt 
     chdir=${cert.files.path}
     creates=${cert.files.path}/${item}.crt
   with_items: ${groups.RHUI}
-  when_set: ${certs}
   tags:
   - rhui_certs
 
