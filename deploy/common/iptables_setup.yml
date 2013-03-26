@@ -1,27 +1,20 @@
 # iptables configuration common for RHUI nodes
-- name: configure RHUI iptables
-  hosts: rhui
-  user: root
-  vars:
-  - iptables_template: iptables_config.j2
+- name: provide iptables configuration
+  action: template
+      src=common/templates/iptables.j2
+      dest=/etc/sysconfig/iptables
+      owner=root
+      group=root
+      mode=0644
+  when_set: $iptables_template
+  tags:
+  - iptables_setup
 
-  tasks:
-  - name: provide iptables configuration
-    action: template
-        src=$iptables_template
-        dest=/etc/sysconfig/iptables
-        owner=root
-        group=root
-        mode=0644
-    when_set: $iptables_template
-    tags:
-    - firewall
-
-  - name: restart iptables
-    action: service
-            name=iptables
-            state=restarted
-            enabled=on
-    tags:
-    - firewall
+- name: restart iptables
+  action: service
+          name=iptables
+          state=restarted
+          enabled=on
+  tags:
+  - iptables_setup
 
