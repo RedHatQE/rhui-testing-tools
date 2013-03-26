@@ -16,11 +16,12 @@ ssl_cert: {{ cert_path + rhua + ".crt" }}
 ssl_key: {{ cert_path + rhua + ".key" }}
 ca_cert: {{ cert_path + cert['files']['ca'] }}
  
-{% for proxy in  groups['PROXY'] %}
-proxy_server_host: {{ proxy }}
-proxy_server_port: {{ hostvars[proxy]['port'] }}
-proxy_server_username: {{ hostvars[proxy]['username'] }}
-proxy_server_password: {{ hostvars[proxy]['password'] }}
+{% for proxy_host in  groups['PROXY'] %}
+# FIXME: hostvars might be more appropriate
+proxy_server_host: {{ proxy_host }}
+proxy_server_port: {{ proxy['port'] }}
+proxy_server_username: {{ proxy['username'] }}
+proxy_server_password: {{ proxy['password'] }}
 {% endfor %}
 
 {% for cds in groups['CDS'] %}

@@ -1,0 +1,16 @@
+- name: squid isntall
+  action: yum state=installed name=squid
+  async: 600
+  poll: 5
+  tags:
+  - proxy_install
+
+- name: httpd-tools install
+  action: yum state=installed name=httpd
+  async: 600
+  poll: 5
+  tags:
+  - proxy_install
+
+
+
