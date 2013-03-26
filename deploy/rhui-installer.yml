@@ -48,6 +48,20 @@
   - include: common/iptables_setup.yml
 
 
+- name: install PROXY
+  hosts:
+  - PROXY
+  user: root
+
+  vars_files:
+  - common/vars/proxy.yml
+
+  tasks:
+  - include: common/proxy_install.yml
+  - include: common/proxy_configure.yml
+
+
+
 - name: generate RHUI certs
   hosts:
   - RHUA
@@ -70,6 +84,7 @@
   - common/vars/answers.yml
   - common/vars/certs.yml
   - common/vars/storage.yml
+  - common/vars/proxy.yml
 
   tasks:
   - include: common/answers.yml
