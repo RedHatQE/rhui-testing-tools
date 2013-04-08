@@ -34,9 +34,8 @@
   tasks:
   - name: install packages
     action: yum
-      name=${item}
+      name=${packages}
       state=installed
-    with_items: ${packages}
     tags:
     - packages
 
