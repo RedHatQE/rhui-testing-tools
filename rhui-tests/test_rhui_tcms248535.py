@@ -48,13 +48,31 @@ class test_tcms_248535(RHUITestcase, RHUI_has_RH_cert):
         self._sync_cds([self.rs.Instances["CDS"][0].private_hostname])
 
     def _test(self):
+        '''[TCMS#248535 test] Stop httpd on RHUA'''
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS", 30)
+
+        '''[TCMS#248535 test] Check for pulp-purge-packages output '''
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "echo Y | pulp-purge-packages 2>&1 | grep \"rh-rhui-tools.*deleted\" && echo SUCCESS", "[^ ]SUCCESS", 30)
+
         '''[TCMS#248535 test] Check packages on RHUA '''
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "find /var/lib/pulp/ -name \"rh-rhui-tools*.src.rpm\" | grep rh-rhui-tools || echo SUCCESS", "[^ ]SUCCESS", 10)
+
+        '''[TCMS#248535 test] Stop httpd on CDS'''
+        Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS", 30)
+
+        '''[TCMS#248535 test] Check for pulp-purge-packages output '''
+        Expect.ping_pong(self.rs.Instances["CDS"][0], "echo Y | pulp-purge-packages 2>&1 | grep \"rh-rhui-tools.*deleted\" && echo SUCCESS", "[^ ]SUCCESS", 30)
 
         '''[TCMS#248535 test] Check packages on CDS '''
         Expect.ping_pong(self.rs.Instances["CDS"][0], "find /var/lib/pulp-cds/ -name \"rh-rhui-tools*.src.rpm\" | grep rh-rhui-tools || echo SUCCESS", "[^ ]SUCCESS", 10)
 
     def _cleanup(self):
+        '''[TCMS#248535 cleanup] Start httpd on RHUA'''
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "service httpd start ||: && echo SUCCESS", "[^ ]SUCCESS", 30)
+
+        '''[TCMS#248535 cleanup] Start httpd on CDS'''
+        Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd start ||: && echo SUCCESS", "[^ ]SUCCESS", 30)
+
         '''[TCMS#248535 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname])
 
