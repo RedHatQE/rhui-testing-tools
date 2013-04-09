@@ -15,8 +15,11 @@ class test_tcms_248534(RHUITestcase):
         '''[TCMS#248534 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
 
-        '''[TCMS#248534 setup] Copy testing data '''
+        '''[TCMS#248534 setup] Copy testing data'''
         subprocess.check_output(["scp", "-r", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "/usr/share/rhui-testing-tools/testing-data/bug916326", "root@rhua.example.com:/tmp/"])
+
+        '''[TCMS#248534 setup] Change SELinux context'''
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "chcon -R unconfined_u:object_r:httpd_sys_rw_content_t:s0 /tmp/bug916326/ && echo SUCCESS", "[^ ]SUCCESS")
 
     def _test(self):
         '''[TCMS#248534 test] Creating two pulp repos with nearly the same package '''
