@@ -16,7 +16,7 @@ class test_tcms_248534(RHUITestcase):
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
 
         '''[TCMS#248534 setup] Copy testing data '''
-        subprocess.check_output(["scp", "-r", "/usr/share/rhui-testing-tools/testing-data/bug916326", "root@rhua.example.com:/tmp/"])
+        subprocess.check_output(["scp", "-r", "-o", "StrictHostKeyChecking=no", "-o", "UserKnownHostsFile=/dev/null", "/usr/share/rhui-testing-tools/testing-data/bug916326", "root@rhua.example.com:/tmp/"])
 
     def _test(self):
         '''[TCMS#248534 test] Creating two pulp repos with nearly the same package '''
