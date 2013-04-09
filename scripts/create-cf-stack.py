@@ -217,27 +217,55 @@ if args.proxy:
     json_dict['Description'] += " PROXY"
 
 json_dict['Mappings'] = \
-   {u'F17Map': {u'ap-northeast-1': {u'AMI': u'ami-26e65527'},
+  {u'F17Map': {u'ap-northeast-1': {u'AMI': u'ami-26e65527'},
                 u'ap-southeast-1': {u'AMI': u'ami-2e86c07c'},
+                u'ap-southeast-2': {u'AMI': u'ami-e3a433d9'},
                 u'eu-west-1': {u'AMI': u'ami-9980baed'},
                 u'sa-east-1': {u'AMI': u'ami-eee23cf3'},
                 u'us-east-1': {u'AMI': u'ami-2ea50247'},
                 u'us-west-1': {u'AMI': u'ami-877e24c2'},
                 u'us-west-2': {u'AMI': u'ami-8e69e5be'}},
-  u'RHEL5Map': {u'ap-northeast-1': {u'AMI': u'ami-60229461'},
+   u'F18Map': {u'ap-northeast-1': {u'AMI': u'ami-5f01bb5e'},
+                u'ap-southeast-1': {u'AMI': u'ami-30aeec62'},
+                u'ap-southeast-2': {u'AMI': u'ami-9ae472a0'},
+                u'eu-west-1': {u'AMI': u'ami-bafcf3ce'},
+                u'sa-east-1': {u'AMI': u'ami-81558d9c'},
+                u'us-east-1': {u'AMI': u'ami-6145cc08'},
+                u'us-west-1': {u'AMI': u'ami-0899b94d'},
+                u'us-west-2': {u'AMI': u'ami-0266ed32'}},
+   u'RHEL58Map': {u'ap-northeast-1': {u'AMI': u'ami-60229461'},
                 u'ap-southeast-1': {u'AMI': u'ami-da8dc988'},
+                u'ap-southeast-2': {u'AMI': u'ami-65b7205f'},
                 u'eu-west-1': {u'AMI': u'ami-47615833'},
                 u'sa-east-1': {u'AMI': u'ami-f46cb3e9'},
                 u'us-east-1': {u'AMI': u'ami-fb0ddc92'},
                 u'us-west-1': {u'AMI': u'ami-c5bde480'},
                 u'us-west-2': {u'AMI': u'ami-3e0a870e'}},
-  u'RHEL6Map': {u'ap-northeast-1': {u'AMI': u'ami-5453e055'},
+   u'RHEL59Map': {u'ap-northeast-1': {u'AMI': u'ami-397cc638'},
+                u'ap-southeast-1': {u'AMI': u'ami-7486c426'},
+                u'ap-southeast-2': {u'AMI': u'ami-33d14709'},
+                u'eu-west-1': {u'AMI': u'ami-c00906b4'},
+                u'sa-east-1': {u'AMI': u'ami-412bf35c'},
+                u'us-east-1': {u'AMI': u'ami-4f53dd26'},
+                u'us-west-1': {u'AMI': u'ami-74d7f731'},
+                u'us-west-2': {u'AMI': u'ami-72b93242'}},
+   u'RHEL63Map': {u'ap-northeast-1': {u'AMI': u'ami-5453e055'},
                 u'ap-southeast-1': {u'AMI': u'ami-24e5a376'},
+                u'ap-southeast-2': {u'AMI': u'ami-8f8413b5'},
                 u'eu-west-1': {u'AMI': u'ami-8bf2f7ff'},
                 u'sa-east-1': {u'AMI': u'ami-4807d955'},
                 u'us-east-1': {u'AMI': u'ami-cc5af9a5'},
                 u'us-west-1': {u'AMI': u'ami-51f4ae14'},
-                u'us-west-2': {u'AMI': u'ami-8a25a9ba'}}}
+                u'us-west-2': {u'AMI': u'ami-8a25a9ba'}},
+   u'RHEL64Map': {u'ap-northeast-1': {u'AMI': u'ami-8f11958e'},
+                u'ap-southeast-1': {u'AMI': u'ami-3a367b68'},
+                u'ap-southeast-2': {u'AMI': u'ami-8c1f89b6'},
+                u'eu-west-1': {u'AMI': u'ami-22c8c156'},
+                u'sa-east-1': {u'AMI': u'ami-8bb76c96'},
+                u'us-east-1': {u'AMI': u'ami-d94bdcb0'},
+                u'us-west-1': {u'AMI': u'ami-fc9cbfb9'},
+                u'us-west-2': {u'AMI': u'ami-5e57dd6e'}}
+   }
 
 json_dict['Parameters'] = \
 {u'KeyName': {u'Description': u'Name of an existing EC2 KeyPair to enable SSH access to the instances',
@@ -286,7 +314,7 @@ json_dict['Resources'] = \
                         u'Type': u'AWS::EC2::SecurityGroup'}}
 
 json_dict['Resources']["master"] = \
-{u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'F17Map',
+{u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'F18Map',
                                                              {u'Ref': u'AWS::Region'},
                                                              u'AMI']},
                              u'InstanceType': u'm1.small',
@@ -305,7 +333,7 @@ json_dict['Resources']["master"] = \
              u'Type': u'AWS::EC2::Instance'}
 
 json_dict['Resources']["rhua"] = \
- {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'RHEL6Map',
+ {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'RHEL64Map',
                                                            {u'Ref': u'AWS::Region'},
                                                            u'AMI']},
                            u'InstanceType': u'm1.large',
@@ -324,7 +352,7 @@ json_dict['Resources']["rhua"] = \
 
 if args.proxy:
     json_dict['Resources']["proxy"] = \
-     {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'RHEL6Map',
+     {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'RHEL64Map',
                                                             {u'Ref': u'AWS::Region'},
                                                             u'AMI']},
                             u'InstanceType': u'm1.small',
@@ -343,7 +371,7 @@ if args.proxy:
 
 for i in range(1, args.cds + 1):
     json_dict['Resources']["cds%i" % i] = \
-        {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'RHEL6Map',
+        {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'RHEL64Map',
                                                            {u'Ref': u'AWS::Region'},
                                                            u'AMI']},
                            u'InstanceType': u'm1.large',
@@ -362,9 +390,9 @@ for i in range(1, args.cds + 1):
 
 for i in range(1, args.rhel5 + args.rhel6 + 1):
     if i > args.rhel5:
-        os = "RHEL6"
+        os = "RHEL64"
     else:
-        os = "RHEL5"
+        os = "RHEL59"
     json_dict['Resources']["cli%i" % i] = \
         {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'%sMap' % os,
                                                            {u'Ref': u'AWS::Region'},
