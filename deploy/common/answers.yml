@@ -1,0 +1,35 @@
+# rhui config build steps
+- name: answers file
+  action: template
+    src=common/templates/answers.j2
+    dest=${answers.file}
+    owner=root
+    group=root
+    mode=0644
+  when_set: ${answers}
+  tags:
+  - answers
+
+- name: rhui-installer
+  action: shell /usr/bin/rhui-installer ${answers.file}
+  when_set: ${answers}
+  tags:
+  - answers
+
+- name: create latest rpm symlink
+  # FIXME it appears rhui-installer always exposes the latest release; there _should_ be at most 1 ...-${version}-* rpm
+  action: shell rm -f ${answers.dest_dir}/${item}.rpm && ln -s ${answers.dest_dir}/${item}-${answers.details.version}-* ${answers.dest_dir}/${item}.rpm
+  with_items: ${groups.RHUI}
+  tags:
+  - answers
+
+- name: fetch all config rpms
+  action: fetch
+    src=${answers.dest_dir}/${item}.rpm
+    dest=${config_storage.src}/${item}
+  with_items: ${groups.RHUI}
+  tags:
+  - answers
+
+
+

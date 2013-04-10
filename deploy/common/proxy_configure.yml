@@ -1,0 +1,30 @@
+- name: configure proxy user
+  # set a md5-encoded, new-file, batch mode
+  command: /usr/bin/htpasswd -bcm /etc/squid/passwd ${proxy.user} ${proxy.password}
+    creates=/etc/squid/passwd
+  when_set: ${proxy.user}
+  when_set: ${proxy.password}
+  tags:
+  - proxy_config
+
+- name: provide squid config file
+  action: template
+    src=common/templates/squid.conf.j2
+    dest=/etc/squid/squid.conf
+    owner=squid
+    group=squid
+    mode=0640
+  when_set: ${proxy}
+  tags:
+  - proxy_config
+
+- name: stop fuehrewall
+  action: service name=iptables enabled=no state=stopped
+  tags:
+  - proxy_config
+
+- name: start squid
+  action: service name=squid enabled=yes state=restarted
+  tags:
+  - proxy_config
+

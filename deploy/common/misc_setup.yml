@@ -1,0 +1,26 @@
+# miscelaneous stuff to setup, common for RHUI nodes
+- name: misc setup
+  hosts: rhui
+  user: root
+  vars:
+  - time_server: 66.187.233.4
+
+  tasks:
+  - name: ntpddate install
+    action: yum state=installed name=ntpdate
+    tags:
+    - ntpd
+
+  - name: ntpd sycnc
+    action: command /usr/sbin/ntpdate -s -b $time_server
+    when_set: $time_server
+    tags:
+    - ntpd
+
+  - name: enable ntpd service
+    action: service
+        name=ntpd
+        state=started
+        enabled=on
+    tags:
+    - ntpd

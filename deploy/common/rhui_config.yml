@@ -1,0 +1,18 @@
+- name: upload config rpms
+  # src according to ansible fetch module specs
+  action: copy
+    src=${config_storage.src}/${inventory_hostname}/${groups.RHUA[0]}/${answers.dest_dir}/${inventory_hostname}.rpm
+    dest=${config_storage.dest}  
+  when_set: ${config_storage}
+  tags:
+  - rhui_config
+
+- name: install config rpms
+  action: yum 
+    name=${config_storage.dest}/${inventory_hostname}.rpm
+  when_set: ${config_storage}
+  async: 600
+  poll: 5
+  tags:
+  - rhui_config
+ 

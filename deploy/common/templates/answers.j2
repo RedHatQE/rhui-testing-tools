@@ -1,0 +1,35 @@
+# rhui answers generated
+[general]
+
+version:  {{ answers['details']['version'] }}
+dest_dir: {{ answers['dest_dir'] }}
+qpid_ca:  {{ answers['certs']['qpid_ca'] }}
+qpid_client:  {{ answers['certs']['qpid_client'] }}
+qpid_nss_db:  {{ answers['certs']['qpid_nss_db'] }}
+
+{% set cert_path = cert['files']['path'] + "/" %}
+[rhua]
+{% set rhua = groups['RHUA'][0] %}
+hostname: {{ rhua }}
+rpm_name: {{ rhua }}
+ssl_cert: {{ cert_path + rhua + ".crt" }}
+ssl_key: {{ cert_path + rhua + ".key" }}
+ca_cert: {{ cert_path + cert['files']['ca'] }}
+ 
+{% for proxy_host in  groups['PROXY'] %}
+# FIXME: hostvars might be more appropriate
+proxy_server_host: {{ proxy_host }}
+proxy_server_port: {{ proxy['port'] }}
+proxy_server_username: {{ proxy['username'] }}
+proxy_server_password: {{ proxy['password'] }}
+{% endfor %}
+
+{% for cds in groups['CDS'] %}
+[cds-{{ loop.index }}]
+hostname: {{cds}}
+rpm_name: {{cds}}
+ssl_cert: {{ cert_path + cds + ".crt" }}
+ssl_key: {{ cert_path + cds + ".key" }}
+ca_cert: {{ cert_path + cert['files']['ca'] }}
+{% endfor %}
+

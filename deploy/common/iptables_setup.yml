@@ -1,0 +1,19 @@
+# iptables configuration common for RHUI nodes
+- name: provide iptables configuration
+  action: template
+      src=common/templates/iptables.j2
+      dest=/etc/sysconfig/iptables
+      owner=root
+      group=root
+      mode=0644
+  tags:
+  - iptables_setup
+
+- name: restart iptables
+  action: service
+          name=iptables
+          state=restarted
+          enabled=on
+  tags:
+  - iptables_setup
+

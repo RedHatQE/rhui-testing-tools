@@ -1,0 +1,31 @@
+# upload RHUI ISO and mount
+- name: upload rhui iso
+  action: copy
+      src=${rhui_iso.src}
+      dest=${rhui_iso.dest}
+      owner=root
+      group=root
+      mode=0644
+  when_set: $rhui_iso
+  tags:
+  - rhui_iso
+
+- name: create mount dir
+  action: file
+      path=${rhui_iso.mount_path}
+      state=directory
+  when_set: $rhui_iso
+  tags:
+  - rhui_iso
+
+- name: mount rhui iso
+  action: mount
+      name=${rhui_iso.mount_path}
+      src=${rhui_iso.dest}
+      fstype=iso9660
+      state=mounted
+      opts=loop
+  when_set: $rhui_iso
+  tags:
+  - rhui_iso
+

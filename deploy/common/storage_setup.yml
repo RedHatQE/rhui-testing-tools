@@ -1,0 +1,55 @@
+# setup additional storage on RHUI nodes
+- name: install httpd
+  # a hack---user and group apache get installed with this package
+  # which will get installed on all RHUI nodes eventually anyway
+  action: yum name=httpd state=installed
+  async: 600
+  poll: 5
+  tags:
+  - storage
+
+- name: get storage devices
+  # this shall return the largest non-mounted disk (partition)
+  action: shell find /dev -name "xvd*" -not -exec grep -q {} /proc/mounts \; -printf "%p~" -exec sfdisk -suM {} \; | sort  -n | tail -1 | cut -d~ -f1\,1 | xargs -I {} basename {} | tee /tmp/pulp_disk.flag
+    creates=/tmp/pulp_disk.flag
+  register: disk
+  tags:
+  - storage
+
+- name: mkfs.ext4 on disk
+  action: shell /sbin/mkfs.ext4 /dev/${disk.stdout_lines[0]} && touch /tmp/${disk.stdout_lines[0]}.mkfs.flag
+    creates=/tmp/${disk.stdout_lines[0]}.mkfs.flag
+  async: 900
+  poll: 10
+  when_set: $disk
+  tags:
+  - storage
+
+- name: create storage directory mountpoint
+  action: file
+      path=${pulp_storage.directory}
+      state=directory
+  when_set: $pulp_storage
+  tags:
+  - storage
+
+- name: mount disk
+  action: mount
+      name=${pulp_storage.directory}
+      src=/dev/${disk.stdout_lines[0]}
+      fstype=ext4
+      state=mounted
+  when_set: $disk
+  tags:
+  - storage
+
+- name: correct storage directory permissions
+  action: file
+      path=${pulp_storage.directory}
+      state=directory
+      owner=${pulp_storage.owner}
+      group=${pulp_storage.group}
+      mode=${pulp_storage.mode}
+  when_set: $pulp_storage
+  tags:
+  - storage

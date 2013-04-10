@@ -1,0 +1,20 @@
+- name: symlink pulp storage to pulp-cds
+  action: file
+    state=link
+    src=${pulp_storage.directory}
+    dest=${pulp_storage.directory}-cds
+
+- name: run Install_CDS.sh
+  action: shell ${rhui_iso.mount_path}/install_CDS.sh chdir=${rhui_iso.mount_path}
+  async: 600
+  poll: 5
+  when_set: $rhui_iso
+  tags:
+  - cds_install
+
+- name: initd hardening
+  action: shell echo 'umask 027' >> /etc/sysconfig/init && touch /tmp/cds_install.hardening.flag
+     creates=/tmp/cds_install.hardening.flag
+  tags:
+  - cds_install
+

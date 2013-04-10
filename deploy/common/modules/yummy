@@ -1,0 +1,201 @@
+#!/usr/bin/python -tt
+# -*- coding: utf-8 -*-
+
+# (c) 2012, Red Hat, Inc
+# Written by Seth Vidal <skvidal at fedoraproject.org>
+#
+# This file is part of Ansible
+#
+# Ansible is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Ansible is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Ansible.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+import traceback
+
+DOCUMENTATION = '''
+---
+module: yummy
+short_description: Manages packages with the I(yummy) package manager
+description:
+     - Will install, upgrade, remove, and list packages with the I(yummy) package manager.
+options:
+  name:
+    description:
+      - package name, or package specifier with version, like C(name-1.0).
+    required: true
+    default: null
+    aliases: []
+  list:
+    description:
+      - various non-idempotent commands for usage with C(/usr/bin/ansible) and I(not) playbooks. See examples.
+    required: false
+    default: null
+  state:
+    description:
+      - whether to install (C(present), C(latest)), or remove (C(absent)) a package.
+    required: false
+    choices: [ "present", "latest", "absent" ]
+    default: "present"
+  enablerepo:
+    description:
+      - Repoid of repositories to enable for the install/update operation.
+        These repos will not persist beyond the transaction
+        multiple repos separated with a ','
+    required: false
+    version_added: "0.9"
+    default: null
+    aliases: []
+    
+  disablerepo:
+    description:
+      - I(repoid) of repositories to disable for the install/update operation
+        These repos will not persist beyond the transaction
+        Multiple repos separated with a ','
+    required: false
+    version_added: "0.9"
+    default: null
+    aliases: []
+    
+examples:
+   - code: yummy name=httpd state=latest
+   - code: yummy name=httpd state=removed
+   - code: yummy name=httpd enablerepo=testing state=installed
+notes: []
+# informational: requirements for nodes
+requirements: []
+author: dparalen
+'''
+
+yumbin='/usr/bin/yum'
+noop_msgs=[
+    'Nothing to do',
+    'No Packages marked for Update',
+    'No Packages marked for removal',
+]
+
+state_to_yum_commands = {
+    'installed': 'install',
+    'present': 'install',
+    'latest': 'update',
+    'absent': 'remove',
+    'removed': 'remove'
+}
+
+
+
+def ensure(
+    module,
+    state=None,
+    pkgspecs=[],
+    conf_file=None,
+    enablerepo=[],
+    disablerepo=[]
+    ):
+
+    # params sanity
+    if state is None or pkgspecs == []:
+        module.exit_json({'changed': False, 'failed': False, 'msg': noop_msg})
+
+    if state not in state_to_yum_commands:
+        module.exit_json(
+            changed=False,
+            failed=True,
+            msg='unknown state: %s' % state
+        )
+
+    # the debuglevel 2 is mandatory here as the stderr is checked for
+    # noop_msgs
+    yum_cmd = [yumbin, '-d 2', '-y']
+
+    if conf_file is not None:
+        yum_cmd += ['-c', str(conf_file)]
+
+    if any(disablerepo):
+        yum_cmd += ['--disablerepo', ','.join(map(lambda x: str(x), disablerepo))]
+
+    if any(enablerepo):
+        yum_cmd += ['--enablerepo', ','.join(map(lambda x: str(x), disablerepo))]
+
+    # results of particular specs are accumulated
+    result = {
+        'changed': False,
+        'failed': False,
+        'msg': [],
+        'out': []
+    }
+
+    for spec in pkgspecs:
+        changed = True
+        rc, out, err = module.run_command(
+            yum_cmd + [state_to_yum_commands[state], str(spec)]
+        )
+
+        # check out and err for any noop messages
+        noops_found = [x for x in noop_msgs if x in err + out]
+
+        if any(noops_found):
+            # idempotence check, twisted
+            # if a noop message found, no changes done
+            rc = 0
+            err = str(spec) + ': skipped'
+            # no change made
+            changed = False
+
+        if rc != 0:
+            result['failed'] = True
+
+        result['msg'].append(err)
+        result['out'].append(out)
+        # return changed == True if any spec resulted in change
+        result['changed'] |= changed
+
+    result['msg'] = "; ".join(result['msg'])
+    result['out'] = "; ".join(result['out'])
+
+    module.exit_json(**result)
+
+
+def main():
+
+    # state=installed name=pkgspec
+    # state=removed name=pkgspec
+    # state=latest name=pkgspec
+    #
+
+    module = AnsibleModule(
+        argument_spec = dict(
+            name=dict(aliases=['pkg']),
+            # removed==absent, installed==present, these are accepted as aliases
+            state=dict(default='installed', choices=['absent','present','installed','removed','latest']),
+            enablerepo=dict(),
+            disablerepo=dict(),
+            list=dict(),
+            conf_file=dict(default=None),
+        ),
+        supports_check_mode = False
+    )
+
+    params = module.params
+
+    pkg = params['name'].split(',') or []
+    state = params['state']
+    enablerepo = params['enablerepo'] or []
+    disablerepo = params['disablerepo'] or []
+    res = ensure(module, state, pkg, params['conf_file'], enablerepo, disablerepo)
+    module.fail_json(msg="we should never get here unless this all failed", **res)
+
+# this is magic, see lib/ansible/module_common.py
+#<<INCLUDE_ANSIBLE_MODULE_COMMON>>
+main()
+

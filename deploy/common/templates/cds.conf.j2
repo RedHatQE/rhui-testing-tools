@@ -1,0 +1,31 @@
+#
+# Pulp Server Properties
+#
+#   host - hostname of the Pulp server, used when determining where
+#          the message broker is
+[server]
+host = rhua.example.com
+ca_cert_file = /etc/pki/pulp/content/pulp-server-ca.crt
+
+# messaging
+# scheme: (tcp|ssl)
+# port: broker port
+# cacert: the CA certificate (PEM) to verify the server.
+# clientcert: The client (PEM) key & certificate.
+[messaging]
+scheme = ssl
+port = 5674
+cacert =/etc/pki/cds/qpid-ca.crt
+clientcert =/etc/pki/cds/qpid-client.crt
+
+[heartbeat]
+seconds = 10
+
+[cds]
+# change: /var/lib/pulp instead of /var/lib/pulp-cds
+# this CDS shouldn't be co-located with RHUA node
+packages_dir = /var/lib/pulp
+sync_threads = 10
+# Verify existing package options
+verify_checksum = false
+verify_size = false

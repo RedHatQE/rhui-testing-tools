@@ -1,0 +1,65 @@
+# the inventory should provide MASTER group containing the master node public
+# address
+- name: setup master node
+  hosts:
+  - MASTER
+  user: root
+
+  vars:
+  - git_dest: /usr/src
+
+  - packages:
+    - git
+    - make
+    - vim
+    - PyYAML
+    - python-paramiko
+    - python-jinja2
+    - python-setuptools
+    - python-devel
+    - asciidoc
+    - "https://rhuiqerpm.s3.amazonaws.com/python-coverage-3.6-0.2.b3.el6.x86_64.rpm"
+    - "https://rhuiqerpm.s3.amazonaws.com/python-patchwork-0.3-1.git.0.3b5b80c.fc17.noarch.rpm"
+    - "https://rhuiqerpm.s3.amazonaws.com/python-pinocchio-0.3.1-1.fc17.noarch.rpm"
+    - "https://rhuiqerpm.s3.amazonaws.com/rhui-testing-tools-0.1-7.git.3.16afeca.fc17.noarch.rpm"
+
+  - repositories:
+    - {name: rhui-testing-tools, url: "https://github.com/RedHatQE/rhui-testing-tools.git"}
+    - {name: ansible, url: "https://github.com/ansible/ansible.git"}
+    - {name: tito, url: "https://github.com/dgoodwin/tito.git"}
+
+  vars_files:
+  - common/vars/storage.yml
+
+  tasks:
+  - name: install packages
+    action: yum
+      name=${packages}
+      state=installed
+    tags:
+    - packages
+
+  - name: clone required repositories
+    action: git
+      repo=${item.url}
+      dest=${git_dest}/${item.name}
+    with_items: ${repositories}
+    tags:
+    - repositories
+
+  - name: install ansible
+    action: shell cd ${git_dest}/ansible && make install
+    tags:
+    - install
+
+  - name: install tito
+    action: shell cd ${git_dest}/tito && ./setup.py install
+    tags:
+    - install
+
+  # copy and mount rhui iso image;
+  # use "extra vars" on commandline to specify custom iso location instead of
+  # the default /tmp/rhui.iso: -e rhui_iso.src=./custom/rhui/iso
+  - include: common/rhui_iso.yml
+
+
