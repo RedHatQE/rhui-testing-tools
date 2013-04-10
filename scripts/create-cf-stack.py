@@ -217,15 +217,7 @@ if args.proxy:
     json_dict['Description'] += " PROXY"
 
 json_dict['Mappings'] = \
-  {u'F17Map': {u'ap-northeast-1': {u'AMI': u'ami-26e65527'},
-                u'ap-southeast-1': {u'AMI': u'ami-2e86c07c'},
-                u'ap-southeast-2': {u'AMI': u'ami-e3a433d9'},
-                u'eu-west-1': {u'AMI': u'ami-9980baed'},
-                u'sa-east-1': {u'AMI': u'ami-eee23cf3'},
-                u'us-east-1': {u'AMI': u'ami-2ea50247'},
-                u'us-west-1': {u'AMI': u'ami-877e24c2'},
-                u'us-west-2': {u'AMI': u'ami-8e69e5be'}},
-   u'F18Map': {u'ap-northeast-1': {u'AMI': u'ami-5f01bb5e'},
+  {u'F18Map': {u'ap-northeast-1': {u'AMI': u'ami-5f01bb5e'},
                 u'ap-southeast-1': {u'AMI': u'ami-30aeec62'},
                 u'ap-southeast-2': {u'AMI': u'ami-9ae472a0'},
                 u'eu-west-1': {u'AMI': u'ami-bafcf3ce'},
