@@ -410,6 +410,13 @@ if len(proxy) == 0:
 if args.coverage:
     subprocess.check_output(["yum", "-y", "install", "mongodb-server"])
     subprocess.check_output(["sed", "-i", "s,bind_ip = .*$,bind_ip = 0.0.0.0,", "/etc/mongodb.conf"])
+    subprocess.check_output(["mkdir", "/var/lib/mongodb/journal"])
+    subprocess.check_output(["chown", "mongodb.mongodb", "/var/lib/mongodb/journal"])
+    for i in range(3):
+        # Nasty hack to precreate mongo journals
+        subprocess.check_output(["dd", "if=/dev/zero", "of=/var/lib/mongodb/journal/prealloc.%s" % i, "bs=1M", "count=1K"])
+        subprocess.check_output(["chmod", "600", "/var/lib/mongodb/journal/prealloc.%s" % i])
+        subprocess.check_output(["chown", "mongodb.mongodb", "/var/lib/mongodb/journal/prealloc.%s" % i])
     subprocess.check_output(["systemctl", "start", "mongod.service"])
     subprocess.check_output(["iptables", "-I", "INPUT", "-p", "tcp", "--destination-port", "27017", "-j", "ACCEPT"])
     subprocess.check_output(["/usr/libexec/iptables.init", "save"])
