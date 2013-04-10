@@ -419,7 +419,7 @@ if args.coverage:
         subprocess.check_output(["chown", "mongodb.mongodb", "/var/lib/mongodb/journal/prealloc.%s" % i])
     subprocess.check_output(["systemctl", "start", "mongod.service"])
     subprocess.check_output(["iptables", "-I", "INPUT", "-p", "tcp", "--destination-port", "27017", "-j", "ACCEPT"])
-    subprocess.check_output(["/usr/libexec/iptables.init", "save"])
+    subprocess.check_output(["/usr/libexec/iptables/iptables.init", "save"])
 
 for proxy_instance in proxy:
     proxy_instance.setup(rhua[0])
