@@ -1,0 +1,14 @@
+# patch /etc/sudoers
+- name: provide patch sudoers vi input from template
+  action: template
+    src=common/templates/sudoers_patch_vi.j2
+    dest=/tmp/sudoers_patch_vi
+  tags:
+  - patch_sudoers
+
+- name: patch sudoers
+  action: shell vi -s /tmp/sudoers_patch_vi /etc/sudoers
+  tags:
+  - patch_sudoers
+
+

@@ -18,26 +18,39 @@
     - python-setuptools
     - python-devel
     - asciidoc
-    - "https://rhuiqerpm.s3.amazonaws.com/python-coverage-3.6-0.2.b3.el6.x86_64.rpm"
-    - "https://rhuiqerpm.s3.amazonaws.com/python-patchwork-0.3-1.git.0.3b5b80c.fc17.noarch.rpm"
-    - "https://rhuiqerpm.s3.amazonaws.com/python-pinocchio-0.3.1-1.fc17.noarch.rpm"
-    - "https://rhuiqerpm.s3.amazonaws.com/rhui-testing-tools-0.1-7.git.3.16afeca.fc17.noarch.rpm"
+    - rpm-build
 
   - repositories:
-    - {name: rhui-testing-tools, url: "https://github.com/RedHatQE/rhui-testing-tools.git"}
     - {name: ansible, url: "https://github.com/ansible/ansible.git"}
     - {name: tito, url: "https://github.com/dgoodwin/tito.git"}
+
+  - rhui_repositories:
+    - {name: python-patchwork, url: "https://github.com/RedHatQE/python-patchwork.git"}
+    - {name: python-moncov, url: "https://github.com/RedHatQE/python-moncov.git"}
+    - {name: rhui-testing-tools, url: "https://github.com/RedHatQE/rhui-testing-tools.git"}
+
+  - easy_install_packages:
+    - "http://darcs.idyll.org/~t/projects/pinocchio-latest.tar.gz"
 
   vars_files:
   - common/vars/storage.yml
 
   tasks:
+  - include: common/patch_sudoers.yml
+
   - name: install packages
     action: yum
-      name=${packages}
+      name=${item}
       state=installed
+    with_items: ${packages}
     tags:
     - packages
+
+  - name: easy install packages
+    action: easy_install name=${item}
+    with_items: ${easy_install_packages}
+    tags:
+    - easy_install
 
   - name: clone required repositories
     action: git
@@ -47,13 +60,31 @@
     tags:
     - repositories
 
+  - name: clone required rhui repos
+    action: git
+        repo=${item.url}
+        dest=${git_dest}/${item.name}
+    with_items: ${rhui_repositories}
+    tags:
+    - repositories
+
+
   - name: install ansible
-    action: shell cd ${git_dest}/ansible && make install
+    action: shell make install
+        chdir=${git_dest}/ansible
     tags:
     - install
 
   - name: install tito
-    action: shell cd ${git_dest}/tito && ./setup.py install
+    action: shell ./setup.py install
+        chdir=${git_dest}/tito
+    tags:
+    - install
+
+  - name: install required rhui tools from their repos
+    action: shell tito build --test --rpm --install
+        chdir=${git_dest}/${item.name}
+    with_items: ${rhui_repositories}
     tags:
     - install
 
