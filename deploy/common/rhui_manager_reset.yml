@@ -1,0 +1,13 @@
+# reset the rhui-manager
+- name: remove rhui-manager certs and working dir
+  action: file
+      state=absent
+      path=$item
+  with_items:
+      - /etc/pki/rhui/entitlement-ca.crt
+      - /etc/pki/rhui/entitlement-ca-key.pem
+      - /etc/pki/rhui/identity.crt
+      - /etc/pki/rhui/identity.key
+      - /root/.rhui
+  tags:
+  - rhui_manager_reset
