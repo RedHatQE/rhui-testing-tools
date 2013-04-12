@@ -19,6 +19,10 @@
     - python-devel
     - asciidoc
     - rpm-build
+    - python-nose
+
+  - easy_install_packages:
+    - "http://darcs.idyll.org/~t/projects/pinocchio-latest.tar.gz"
 
   - repositories:
     - {name: ansible, url: "https://github.com/ansible/ansible.git"}
@@ -28,9 +32,6 @@
     - {name: python-patchwork, url: "https://github.com/RedHatQE/python-patchwork.git"}
     - {name: python-moncov, url: "https://github.com/RedHatQE/python-moncov.git"}
     - {name: rhui-testing-tools, url: "https://github.com/RedHatQE/rhui-testing-tools.git"}
-
-  - easy_install_packages:
-    - "http://darcs.idyll.org/~t/projects/pinocchio-latest.tar.gz"
 
   vars_files:
   - common/vars/storage.yml
