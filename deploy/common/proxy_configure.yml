@@ -1,9 +1,8 @@
 - name: configure proxy user
   # set a md5-encoded, new-file, batch mode
-  command: /usr/bin/htpasswd -bcm /etc/squid/passwd ${proxy.user} ${proxy.password}
+  command: /usr/bin/htpasswd -bcm /etc/squid/passwd ${proxy.username} ${proxy.password}
     creates=/etc/squid/passwd
-  when_set: ${proxy.user}
-  when_set: ${proxy.password}
+  when_set: ${proxy}
   tags:
   - proxy_config
 
