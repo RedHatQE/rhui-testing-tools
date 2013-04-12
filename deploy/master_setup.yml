@@ -20,6 +20,7 @@
     - asciidoc
     - rpm-build
     - python-nose
+    - pymongo
 
   - easy_install_packages:
     - "http://darcs.idyll.org/~t/projects/pinocchio-latest.tar.gz"
