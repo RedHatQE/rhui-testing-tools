@@ -178,6 +178,8 @@ class RHUIManagerRepo:
                 continue
             if "Red Hat Repositories" in line:
                 continue
+            if "No repositories are currently managed by the RHUI" in line:
+                continue
             repolist.append(line)
 
         Expect.enter(connection, 'q')
