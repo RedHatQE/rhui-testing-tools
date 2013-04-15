@@ -88,6 +88,7 @@
 
   tasks:
   - include: common/answers.yml
+  - include: common/rhui_manager_reset.yml
 
 
 - name: Configure RHUI
