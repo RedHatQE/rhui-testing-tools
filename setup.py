@@ -26,7 +26,6 @@ setup(name='rhuilib',
     url='https://github.com/RedHatQE/rhui-testing-tools',
     license="GPLv3+",
     packages=[
-        'splicelib',
         'rhuilib'
         ],
     data_files=\
