@@ -30,6 +30,7 @@ The Xvfb and selenium services to use when testing splice
 %install
 %{__python} setup.py install -O1 --root $RPM_BUILD_ROOT
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}
+%{__urlhelpercmd} http://selenium.googlecode.com/files/selenium-server-standalone-2.31.0.jar -o %{_jvmjardir}/selenium-server.jar
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -58,6 +59,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(0640, root, root) %{_unitdir}/selenium-splice.service
 %config(noreplace) %attr(0640, root, root) %{_sysconfdir}/sysconfig/selenium-splice.conf
 %endif
+%attr(0644, root, root) %{_jvmjardir}/selenium-server.jar
 
 %post selenium-splice-server
 %if 0%{?fedora} >= 15
