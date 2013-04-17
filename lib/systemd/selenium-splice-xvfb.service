@@ -1,0 +1,10 @@
+[Unit]
+Description=Splice Selenium Service, batteries included, Xvfb part
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/sysconfig/selenium-splice.conf
+ExecStart=/bin/Xvfb $DISPLAY
+
+[Install]
+WantedBy=multi-user.target

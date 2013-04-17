@@ -4,10 +4,19 @@ from setuptools import setup
 import glob
 import os
 
-datafiles = []
-for topdir in ['testing-data', 'rhui-tests', 'splice-tests', 'testplans']:
-    for dirname, dirnames, filenames in os.walk(topdir):
-        datafiles.append(('share/rhui-testing-tools/' + dirname, map(lambda x: dirname + "/" + x, filenames)))
+def walk_topdirs(dest, topdirs):
+    # dest: where to store the walked files e.g. 'share/rhui-testing-tools'
+    # topdirs: what to walk e.g. ['testing-data', 'rhui-tests', ...]
+    datafiles = []
+    for topdir in topdirs:
+        for dirname, dirnames, filenames in os.walk(topdir):
+            datafiles.append(
+                (
+                    os.path.join(dest, dirname),
+                    map(lambda x: os.path.join(dirname, x), filenames)
+                )
+            )
+    return datafiles
 
 setup(name='rhuilib',
     version='0.1.1',
@@ -17,10 +26,13 @@ setup(name='rhuilib',
     url='https://github.com/RedHatQE/rhui-testing-tools',
     license="GPLv3+",
     packages=[
-        'rhuilib',
-        'splicelib'
+        'splicelib',
+        'rhuilib'
         ],
-    data_files=[('/etc', ['etc/rhui-testing.cfg'])] + datafiles,
+    data_files=\
+        walk_topdirs('share/rhui-testing-tools', ['testing-data', 'rhui-tests', 'splice-tests', 'testplans']) + \
+        walk_topdirs('/', ['lib/systemd']) + \
+        walk_topdirs('/', ['etc']),
     classifiers=[
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
             'Programming Language :: Python',

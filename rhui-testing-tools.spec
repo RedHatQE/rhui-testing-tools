@@ -15,6 +15,13 @@ Requires:	python-paramiko python-nose PyYAML
 
 %description
 
+%package selenium-splice-server
+Summary: selenium and Xvfb services
+Group: Development/Python
+Requires: xorg-x11-server-Xvfb java
+%description selenium-splice-server
+The Xvfb and selenium services to use when testing splice
+
 %prep
 %setup -q
 
@@ -44,6 +51,29 @@ rm -rf $RPM_BUILD_ROOT
 %exclude %{_datadir}/%name/rhui-tests/*.py?
 %{_datadir}/%name/testing-data
 %{_sharedstatedir}/%{name}
+
+%files selenium-splice-server
+# served by setup.py
+
+%post selenium-splice-server
+%if 0%{?fedora} >= 15
+/bin/systemctl daemon-reload &> /dev/null ||:
+%endif
+
+%preun selenium-splice-server
+%if 0%{?fedora} >= 15
+/bin/systemctl --no-reload disable selenium-splice.service
+/bin/systemcl stop selenium-splice.service
+%endif
+
+%postun selenium-splice-server
+%if 0%{?fedora} >= 15
+/bin/systemctl daemon-reload &> /dev/null
+if [ "$1" -ge "1" ] ; then
+   /bin/systemctl try-restart selenium-splice.service &> /dev/null
+fi
+%endif
+
 
 %changelog
 * Tue Feb 19 2013 Vitaly Kuznetsov <vitty@redhat.com> 0.1-7
