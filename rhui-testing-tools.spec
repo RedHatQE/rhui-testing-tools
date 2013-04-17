@@ -53,7 +53,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_sharedstatedir}/%{name}
 
 %files selenium-splice-server
-# served by setup.py
+%if 0%{?fedora} >= 15
+%config(noreplace) %attr(0640, root, root) %{_unitdir}/selenium-splice-xvfb.service
+%config(noreplace) %attr(0640, root, root) %{_unitdir}/selenium-splice.service
+%config(noreplace) %attr(0640, root, root) %{_sysconfdir}/sysconfig/selenium-splice.conf
+%endif
 
 %post selenium-splice-server
 %if 0%{?fedora} >= 15
