@@ -5,19 +5,20 @@ import glob
 import os
 
 datafiles = []
-for topdir in ['testing-data', 'rhui-tests', 'testplans']:
+for topdir in ['testing-data', 'rhui-tests', 'splice-tests', 'testplans']:
     for dirname, dirnames, filenames in os.walk(topdir):
         datafiles.append(('share/rhui-testing-tools/' + dirname, map(lambda x: dirname + "/" + x, filenames)))
 
 setup(name='rhuilib',
-    version='0.1',
+    version='0.1.1',
     description='RHUI Testing library',
     author='Vitaly Kuznetsov',
     author_email='vitty@redhat.com',
     url='https://github.com/RedHatQE/rhui-testing-tools',
     license="GPLv3+",
     packages=[
-        'rhuilib'
+        'rhuilib',
+        'splicelib'
         ],
     data_files=[('/etc', ['etc/rhui-testing.cfg'])] + datafiles,
     classifiers=[
