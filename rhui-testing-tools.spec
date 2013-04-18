@@ -70,7 +70,7 @@ rm -rf $RPM_BUILD_ROOT
 %preun selenium-splice-server
 %if 0%{?fedora} >= 15
 /bin/systemctl --no-reload disable selenium-splice.service
-/bin/systemcl stop selenium-splice.service
+/bin/systemctl stop selenium-splice.service
 %endif
 
 %postun selenium-splice-server
