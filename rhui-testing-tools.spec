@@ -60,7 +60,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(0640, root, root) %{_unitdir}/selenium-splice.service
 %config(noreplace) %attr(0640, root, root) %{_sysconfdir}/sysconfig/selenium-splice.conf
 %endif
-%attr(0644, root, root) $RPM_BUILD_ROOT%{_javadir}/%{name}/selenium-server.jar
+%attr(0644, root, root) %{buildroot}/%{_javadir}/%{name}/selenium-server.jar
 
 %post selenium-splice-server
 %if 0%{?fedora} >= 15
