@@ -30,7 +30,7 @@ The Xvfb and selenium services to use when testing splice
 %install
 %{__python} setup.py install -O1 --root $RPM_BUILD_ROOT
 %{__mkdir_p} $RPM_BUILD_ROOT%{_sharedstatedir}/%{name}
-%{__urlhelpercmd} http://selenium.googlecode.com/files/selenium-server-standalone-2.31.0.jar -o %{_builddir}%{_javadir}/%{name}/selenium-server.jar
+%{__urlhelpercmd} http://selenium.googlecode.com/files/selenium-server-standalone-2.31.0.jar -o $RPM_BUILD_ROOT/%{_javadir}/%{name}/selenium-server.jar
 
 %clean
 rm -rf $RPM_BUILD_ROOT
