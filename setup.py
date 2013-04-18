@@ -30,7 +30,7 @@ setup(name='rhuilib',
         ],
     data_files=\
         walk_topdirs('share/rhui-testing-tools', ['testing-data', 'rhui-tests', 'splice-tests', 'testplans']) + \
-        walk_topdirs('/usr', ['lib/systemd']) + \
+        walk_topdirs('/', ['lib/systemd']) + \
         walk_topdirs('/', ['etc']),
     classifiers=[
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
