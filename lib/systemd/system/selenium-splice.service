@@ -1,6 +1,5 @@
 [Unit]
 Description=Splice Selenium Service
-ConditionFileNotEmpty=/var/lib/%p/selenium-server.jar
 Requires=selenium-splice-xvfb.service
 
 [Service]
