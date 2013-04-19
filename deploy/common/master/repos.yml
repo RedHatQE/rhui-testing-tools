@@ -1,0 +1,25 @@
+- name: fork common master repos
+  action: git
+    repo=${item.url}
+    dest=/usr/src/${item.name}
+  tags:
+  - common_master_repos
+  with_items:
+  - {name: ansible, url: "https://github.com/ansible/ansible.git"}
+  - {name: tito, url: "https://github.com/dgoodwin/tito.git"}
+
+- name: install ansible
+  action: shell make install
+    chdir=/usr/src/ansible
+  tags:
+  - common_master_repos
+  - install_asnisble
+
+- name: install tito
+  action: shell ./setup.py install
+    chdir=/usr/src/tito
+  tags:
+  - common_master_repos
+  - install_tito
+
+

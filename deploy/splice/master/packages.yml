@@ -1,0 +1,21 @@
+# splice specific master packages
+- name: install packages for splice
+  action: yum
+    name=$item
+    state=installed
+  tags:
+  - splice_master_packages
+  - install_packages
+  with_items:
+  - xorg-x11-server-Xvfb
+  - firefox
+  - java
+
+- name: easy install packages for splice
+  action: easy_install name=${item}
+  tags:
+  - splice_master_packages
+  - easy_install_packages
+  with_items:
+  - selenium
+

@@ -1,0 +1,31 @@
+# stuff common to masters setup
+# mostly tools
+- name: install packages
+  action: yum name=${item} state=installed
+  tags:
+  - common_master_packages
+  - install_packages
+  with_items:
+  - git
+  - make
+  - vim
+  - ipython
+  - PyYAML
+  - python-paramiko
+  - python-jinja2
+  - python-setuptools
+  - python-devel
+  - asciidoc
+  - rpm-build
+  - python-nose
+  - pymongo
+
+- name: easy install packages
+  action: easy_install name=${item}
+  tags:
+  - common_master_packages
+  - easy_install_packages
+  with_items:
+  - "http://darcs.idyll.org/~t/projects/pinocchio-latest.tar.gz"
+
+
