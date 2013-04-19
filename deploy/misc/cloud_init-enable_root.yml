@@ -1,0 +1,19 @@
+# allow root user on all nodes with cloud-init
+- name: allow root access to all the nodes
+  hosts: all
+  user: ec2-user
+  sudo: yes
+
+  tasks:
+  - name: copy authorized files from user to root
+    action: shell cp -af /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys && touch /tmp/root_authorized_keys.flag
+      creates=/tmp/root_authorized_keys.flag
+    tags:
+    - root_authorized_keys
+
+  - name: enable root login in cloud init
+    shell: |-
+      sed -i -e 's,disable_root.*,disable_root: 0,' /etc/cloud/cloud.cfg && touch /tmp/cloud_init_root_enabled.flag
+      creates=/tmp/cloud_init_root_enabled.flag
+    tags:
+    - cloud_init_enable_root
