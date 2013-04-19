@@ -5,11 +5,17 @@
   sudo: yes
 
   tasks:
-  - name: copy authorized files from user to root
+  - name: copy authorized_keys files from user ec2 to /root/.ssh/authorized_keys
     action: shell cp -af /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys && touch /tmp/root_authorized_keys.flag
       creates=/tmp/root_authorized_keys.flag
     tags:
-    - root_authorized_keys
+    - copy_root_authorized_keys
+
+  - name: fix permissions for /root/.ssh/authorized_keys
+    action: file
+      path=/root/.ssh/authorized_keys
+      owner=root
+      group=root
 
   - name: enable root login in cloud init
     shell: |-
