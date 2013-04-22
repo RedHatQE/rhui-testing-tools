@@ -1,0 +1,8 @@
+# handle selenium splice service
+- name: selenium-splice.service up and enabled
+  action: service
+    name=selenium-splice
+    state=started
+    enabled=yes
+  tags:
+  - splice_master_selenium

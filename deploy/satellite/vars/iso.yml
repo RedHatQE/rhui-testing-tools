@@ -1,0 +1,5 @@
+# iso.[src,dest,mount_path] defs to be used with common/iso.yml
+iso:
+  src: /tmp/satellite.iso
+  dest: /tmp/satellite.iso
+  mount_path: /mnt/satellite

@@ -1,0 +1,21 @@
+# satellite specific master packages
+- name: install packages for satellite
+  action: yum
+    name=$item
+    state=installed
+  tags:
+  - satellite_master_packages
+  - install_packages
+  with_items:
+  - xorg-x11-server-Xvfb
+  - firefox
+  - java
+
+- name: easy install packages for satellite
+  action: easy_install name=${item}
+  tags:
+  - satellite_master_packages
+  - easy_install_packages
+  with_items:
+  - selenium
+

@@ -1,0 +1,14 @@
+# setup master node for splice testing
+- name: setup master node
+  hosts:
+  - MASTER
+  user: root
+
+  tasks:
+  - include: common/patch_sudoers.yml
+  - include: common/master/packages.yml
+  - include: common/master/repos.yml
+  - include: splice/master/packages.yml
+  - include: splice/master/repos.yml
+  - include: splice/master/selenium.yml
+

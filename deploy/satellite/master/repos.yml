@@ -1,0 +1,24 @@
+# handle satellite spcecific master repos
+- name: fork satellite master repos
+  action: git
+    repo=${item.url}
+    dest=/usr/src/${item.name}
+    version=${item.version}
+  tags:
+  - satellite_master_repos
+  with_items:
+  - {name: python-patchwork, url: "https://github.com/RedHatQE/python-patchwork.git", version: HEAD}
+  - {name: python-moncov, url: "https://github.com/RedHatQE/python-moncov.git", version: HEAD}
+  - {name: rhui-testing-tools, url: "https://github.com/RedHatQE/rhui-testing-tools.git", version: with_splice}
+
+- name: install satellite tools from repos
+  action: shell tito build --test --rpm --install
+    chdir=/usr/src/${item}
+  with_items:
+  - python-patchwork
+  - python-moncov
+  - rhui-testing-tools
+  tags:
+  - satellite_master_repos
+  - install_satellite_tools
+

@@ -1,0 +1,35 @@
+# upload and mount an iso
+# vars:
+# - iso.src: local source for upload 
+# - iso.dest: remote destination path
+# - iso.mount_path: remote mount path
+- name: upload an ISO
+  action: copy
+    src=${iso.src}
+    dest=${iso.dest}
+    owner=root
+    group=root
+    mode=0644
+  when_set: ${iso.src}
+  when_set: ${iso.dest}
+  tags:
+  - iso_upload
+
+- name: create mount dir
+  action: file
+    path=${iso.mount_path}
+    state=directory
+  when_set: ${iso.mount_path}
+  tags:
+  - iso_create_mount_dir
+
+- name: mount iso
+  action: mount
+    name=${iso.mount_path}
+    src=${iso.dest}
+    fstype=iso9660
+    state=mounted
+    opts=loop
+  when_set: ${iso.mount_path}
+  tags:
+  - iso_mount

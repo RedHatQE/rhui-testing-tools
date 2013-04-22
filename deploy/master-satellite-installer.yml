@@ -1,0 +1,11 @@
+# the satellite master deploy playbook
+- name: setup master node
+  hosts:
+  - MASTER
+  users: root
+  
+  vars_files: satellite/vars/iso.yml
+
+  tasks:
+  # copy (& mount) the satellite iso
+  - include: common/iso.yml
