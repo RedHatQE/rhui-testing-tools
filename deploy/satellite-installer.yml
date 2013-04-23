@@ -54,7 +54,7 @@
         mount_path: ${storage.db.mount_path}
         owner: postgres
         group: postgres
-        mode: 0755
+        mode: 755
   
   # copy and mount the satellite iso
   - include: common/iso.yml
