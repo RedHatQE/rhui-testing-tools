@@ -35,7 +35,7 @@
       group=postgres
       shell=/bin/bash
       home=/var/lib/pgsql
-      comment=PostgreSQL Server
+      comment='PostgreSQL Server'
       uid=26
       createhome=no
       system=yes
