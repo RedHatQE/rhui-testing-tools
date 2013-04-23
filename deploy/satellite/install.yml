@@ -2,7 +2,7 @@
 - name: remove rh-amazon-rhui-client
   action: yum
     name=rh-amazon-rhui-client
-    status=absent
+    state=absent
   tags:
   - satellite_install
   - remove_rhui_client
