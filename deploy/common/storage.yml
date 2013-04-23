@@ -1,7 +1,7 @@
 # common storage tasks
 - name: get storage devices
   # this shall return the largest non-mounted disk (partition)
-  action: shell find /dev -name "xvd*" -not -exec grep -q {} /proc/mounts \; -printf "%p~" -exec sfdisk -suM {} \; | sort  -n | tail -1 | cut -d~ -f1\,1 | xargs -I {} basename {} | tee /tmp/pulp_disk.flag
+  action: shell find /dev -name "xvd*" -not -exec grep -q {} /proc/mounts \; -printf "%p~" -exec sfdisk -suM {} \; | sort  -n | tail -1 | cut -d~ -f1\,1 | xargs -I {} basename {} | tee /tmp/storage_${storage.name}.flag
     creates=/tmp/storage_${storage.name}.flag
   register: disk
   when_set: ${storage.name}
