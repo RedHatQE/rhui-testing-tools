@@ -1,0 +1,16 @@
+# handle a rhn_channel
+# based on variables
+- name: rhn_channel
+  action: rhn_channel
+    name=${rhn.channel}
+    sysname=${rhn.sysname}
+    url=${rhn.url}
+    user=${rhn.user}
+    password=${rhn.password}
+    state=${rhn.state}
+  when_set: ${rhn.channel}
+  when_set: ${rhn.sysname}
+  when_set: ${rhn.url}
+  when_set: ${rhn.user}
+  when_set: ${rhn.password}
+  when_set: ${rhn.state}

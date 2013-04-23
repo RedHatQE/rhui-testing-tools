@@ -1,0 +1,5 @@
+# vars for rhn channel manipulation
+rhn:
+  channel: rhel-x86_64-server-6 
+  url: https://rhn.redhat.com/rpc/api
+  state: present

@@ -1,0 +1,15 @@
+# provide answers file for splice:install.pl
+# requires rhn.user, rhn.password, rhn.sysname vars
+- name: satellite install answers file
+  action:template
+    src=satellite/templates/answers.j2
+    dest=${answers.file}
+    owner=root
+    group=root
+  when_set: ${answers.file}
+  when_set: ${rhn.user}
+  when_set: ${rhn.password}
+  when_set: ${rhn.sysname}
+  tags:
+  - satellite_answers
+

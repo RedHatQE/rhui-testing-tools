@@ -1,0 +1,8 @@
+# satellite specific storage vars
+storage_satellite:
+  mount_path: /var/satellite
+  name: satellite_repos
+
+storage_db:
+  mount_path: /var/lib/pgsql
+  name: satellite_db

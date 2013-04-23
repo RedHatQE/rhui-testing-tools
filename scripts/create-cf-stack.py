@@ -139,9 +139,11 @@ argparser = argparse.ArgumentParser(description='Create CloudFormation stack and
 argparser.add_argument('--rhuirhelversion', help='RHEL version for RHUI setup (RHEL63, RHEL64)', default="RHEL64")
 
 argparser.add_argument('--rhel5', help='number of RHEL5 clients', type=int, default=0)
-argparser.add_argument('--rhel6', help='number of RHEL6 clients', type=int, default=1)
-argparser.add_argument('--cds', help='number of CDSes instances', type=int, default=1)
-argparser.add_argument('--proxy', help='create RHUA<->CDN proxy', action='store_const', const=True, default=False)
+argparser.add_argument('--rhel6', help='number of RHEL6 clients', type=int, default=0)
+argparser.add_argument('--cds', help='number of CDSes instances', type=int, default=0)
+argparser.add_argument('--proxy', help='create RHUA<->CDN proxy', action='store_true')
+argparser.add_argument('--rhua', help='create RHUA node', action='store_true')
+argparser.add_argument('--satellite', help='create Satellite node', action='store_true')
 argparser.add_argument('--config',
                        default="/etc/validation.yaml", help='use supplied yaml config file')
 argparser.add_argument('--debug', action='store_const', const=True,
@@ -210,13 +212,18 @@ json_dict = {}
 
 json_dict['AWSTemplateFormatVersion'] = '2010-09-09'
 
-json_dict['Description'] = 'RHUI with %s CDSes' % args.cds
+json_dict['Description'] = 'DOMAIN with %s CDSes' % args.cds
 if args.rhel5 > 0:
     json_dict['Description'] += " %s RHEL5 clients" % args.rhel5
 if args.rhel6 > 0:
     json_dict['Description'] += " %s RHEL6 clients" % args.rhel6
 if args.proxy:
     json_dict['Description'] += " PROXY"
+if args.satellite:
+    json_dict['Description'] += " SATELLITE"
+if not args.rhua:
+    json_dict['Description'] += " WITHOUT RHUA"
+
 
 json_dict['Mappings'] = \
   {u'F18': {u'ap-northeast-1': {u'AMI': u'ami-5f01bb5e'},
@@ -305,7 +312,22 @@ json_dict['Resources'] = \
                                                                    u'FromPort': u'5674',
                                                                    u'IpProtocol': u'tcp',
                                                                    u'ToPort': u'5674'}]},
+                        u'Type': u'AWS::EC2::SecurityGroup'},
+ u'SATELLITEsecuritygroup': {u'Properties': {u'GroupDescription': u'Satellite security group',
+                                        u'SecurityGroupIngress': [{u'CidrIp': u'0.0.0.0/0',
+                                                                   u'FromPort': u'22',
+                                                                   u'IpProtocol': u'tcp',
+                                                                   u'ToPort': u'22'},
+                                                                  {u'CidrIp': u'0.0.0.0/0',
+                                                                   u'FromPort': u'443',
+                                                                   u'IpProtocol': u'tcp',
+                                                                   u'ToPort': u'443'},
+                                                                  {u'CidrIp': u'0.0.0.0/0',
+                                                                   u'FromPort': u'80',
+                                                                   u'IpProtocol': u'tcp',
+                                                                   u'ToPort': u'80'}]},
                         u'Type': u'AWS::EC2::SecurityGroup'}}
+
 
 json_dict['Resources']["master"] = \
 {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'F18',
@@ -325,24 +347,43 @@ json_dict['Resources']["master"] = \
                                        {u'Key': u'PublicHostname',
                                         u'Value': u'master_pub.example.com'}]},
              u'Type': u'AWS::EC2::Instance'}
+if args.rhua:
+    json_dict['Resources']["rhua"] = \
+    {u'Properties': {u'ImageId': {u'Fn::FindInMap': [args.rhuirhelversion,
+                                                               {u'Ref': u'AWS::Region'},
+                                                               u'AMI']},
+                               u'InstanceType': u'm1.large',
+                               u'KeyName': {u'Ref': u'KeyName'},
+                               u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
+                               u'Tags': [{u'Key': u'Name',
+                                          u'Value': {u'Fn::Join': [u'_',
+                                                                   [u'RHUA',
+                                                                    {u'Ref': u'KeyName'}]]}},
+                                         {u'Key': u'Role', u'Value': u'RHUA'},
+                                         {u'Key': u'PrivateHostname',
+                                          u'Value': u'rhua.example.com'},
+                                         {u'Key': u'PublicHostname',
+                                          u'Value': u'rhua_pub.example.com'}]},
+               u'Type': u'AWS::EC2::Instance'}
+if args.satellite:
+     json_dict['Resources']["satellite"] = \
+     {u'Properties': {u'ImageId': {u'Fn::FindInMap': [args.rhuirhelversion,
+                                                               {u'Ref': u'AWS::Region'},
+                                                               u'AMI']},
+                               u'InstanceType': u'm1.large',
+                               u'KeyName': {u'Ref': u'KeyName'},
+                               u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
+                               u'Tags': [{u'Key': u'Name',
+                                          u'Value': {u'Fn::Join': [u'_',
+                                                                   [u'SATELLITE',
+                                                                    {u'Ref': u'KeyName'}]]}},
+                                         {u'Key': u'Role', u'Value': u'SATELLITE'},
+                                         {u'Key': u'PrivateHostname',
+                                          u'Value': u'satellite.example.com'},
+                                         {u'Key': u'PublicHostname',
+                                          u'Value': u'satellite_pub.example.com'}]},
+               u'Type': u'AWS::EC2::Instance'}
 
-json_dict['Resources']["rhua"] = \
- {u'Properties': {u'ImageId': {u'Fn::FindInMap': [args.rhuirhelversion,
-                                                           {u'Ref': u'AWS::Region'},
-                                                           u'AMI']},
-                           u'InstanceType': u'm1.large',
-                           u'KeyName': {u'Ref': u'KeyName'},
-                           u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
-                           u'Tags': [{u'Key': u'Name',
-                                      u'Value': {u'Fn::Join': [u'_',
-                                                               [u'RHUA',
-                                                                {u'Ref': u'KeyName'}]]}},
-                                     {u'Key': u'Role', u'Value': u'RHUA'},
-                                     {u'Key': u'PrivateHostname',
-                                      u'Value': u'rhua.example.com'},
-                                     {u'Key': u'PublicHostname',
-                                      u'Value': u'rhua_pub.example.com'}]},
-           u'Type': u'AWS::EC2::Instance'}
 
 if args.proxy:
     json_dict['Resources']["proxy"] = \

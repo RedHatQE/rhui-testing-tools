@@ -1,0 +1,56 @@
+# common storage tasks
+- name: get storage devices
+  # this shall return the largest non-mounted disk (partition)
+  action: shell find /dev -name "xvd*" -not -exec grep -q {} /proc/mounts \; -printf "%p~" -exec sfdisk -suM {} \; | sort  -n | tail -1 | cut -d~ -f1\,1 | xargs -I {} basename {} | tee /tmp/pulp_disk.flag
+    creates=/tmp/storage_${storage.name}.flag
+  register: disk
+  when_set: ${storage.name}
+  tags:
+  - storage
+  - storage_disk
+
+- name: mkfs.ext4 on disk
+  action: shell /sbin/mkfs.ext4 /dev/${disk.stdout_lines[0]} && touch /tmp/${disk.stdout_lines[0]}.mkfs.flag
+    creates=/tmp/${disk.stdout_lines[0]}.mkfs.flag
+  async: 900
+  poll: 10
+  when_set: $disk
+  tags:
+  - storage
+  - storage_mkfs
+
+- name: create storage directory mount path
+  action: file
+      path=${storage.mount_path}
+      state=directory
+  when_set: ${storage.mount_path}
+  tags:
+  - storage
+  - storage_mount_path
+
+- name: mount disk
+  action: mount
+      name=${storage.mount_path}
+      src=/dev/${disk.stdout_lines[0]}
+      fstype=ext4
+      state=mounted
+  when_set: $disk
+  when_set: ${storage.mount_path}
+  tags:
+  - storage
+  - storage_mount
+
+- name: correct storage directory permissions
+  action: file
+      path=${storage.mount_path}
+      state=directory
+      owner=${storage.owner}
+      group=${storage.group}
+      mode=${storage.mode}
+  when_set: ${storage.mount_path}
+  when_set: ${storage.owner}
+  when_set: ${storage.group}
+  when_set: ${storage.mode}
+  tags:
+  - storage
+  - storage_permissions
