@@ -22,18 +22,38 @@
     private: no
   
   tasks:
+  # user and group for the embedded postgresql
+  - name: create db group
+    action: group
+      name=postgres
+      gid=26
+      system=yes
+
+  - name: create db user
+    action: user
+      name=postgres
+      group=postgres
+      shell=/bin/bash
+      home=/var/lib/pgsql
+      comment=PostgreSQL Server
+      uid=26
+      createhome=no
+      system=yes
+
   # create storage
   - include: common/storage.yml
     vars:
       storage:
-        name: ${storage_satellite.name}
-        mount_path: ${storage_satellite.mount_path}
+        name: ${storage.satellite.name}
+        mount_path: ${storage.satellite.mount_path}
 
   - include: common/storage.yml
     vars:
       storage:
-        name: ${storage_db.name}
-        mount_path: ${storage_db.mount_path}
+        name: ${storage.db.name}
+        mount_path: ${storage.db.mount_path}
+        owner: postgres
+        group: postgres
   
   # copy and mount the satellite iso
   - include: common/iso.yml
