@@ -1,0 +1,50 @@
+# setup a SATELLITE node
+- name: setup satellite node
+  hosts:
+  - SATELLITE
+  user: root
+
+  vars_files:
+  - satellite/vars/storage.yml
+  - satellite/vars/iso.yml
+  - satellite/vars/rhn.yml
+  - satellite/vars/answers.yml
+
+  vars_prompt:
+  - name: "rhn_user"
+    prompt: "Enter RHN username"
+    private: no
+  - name: "rhn_password"
+    prompt: "Enter RHN password"
+    private: yes
+  - name: "rhn_sysname"
+    prompt: "Enter RHN system id"
+    private: no
+  
+  tasks:
+  # create storage
+  - include: common/storage.yml
+    vars:
+      storage:
+        name: ${storage_satellite.name}
+        mount_path: ${storage_satellite.mount_path}
+
+  - include: common/storage.yml
+    vars:
+      storage:
+        name: ${storage_db.name}
+        mount_path: ${storage_db.mount_path}
+  
+  # copy and mount the satellite iso
+  - include: common/iso.yml
+
+  # provide satellite install answers 
+  - include: satellite/answers.yml
+    vars:
+      rhn:
+        user: $rhn_user
+        password: $rhn_password
+        sysname: $rhn_sysname
+
+  # install satellite
+  - include: satellite/install.yml

@@ -1,0 +1,18 @@
+# install steps for satellite
+- name: remove rh-amazon-rhui-client
+  action: yum
+    name=rh-amazon-rhui-client
+    status=absent
+  tags:
+  - satellite_install
+  - remove_rhui_client
+
+- name: execute the install script
+  action: shell ./install.pl --answer-file=${answers.file} --non-interactive
+    chdir=${iso.mount_path}
+  when_set: ${iso.mount_path}
+  tags:
+  - satellite_install
+  - execute_install_script
+    
+  
