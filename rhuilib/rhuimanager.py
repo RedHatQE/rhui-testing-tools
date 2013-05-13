@@ -91,20 +91,21 @@ class RHUIManager:
         Do rhui-manager initial run
         '''
         Expect.enter(connection, "rhui-manager")
-        state = Expect.expect_list(connection, [(re.compile(".*Full path to the new signing CA certificate:.*", re.DOTALL), 1), (re.compile(".*rhui \(home\) =>.*", re.DOTALL), 2)])
-        if state == 1:
-            # Need to answer sone first-run questions
-            Expect.enter(connection, crt)
-            Expect.expect(connection, "Full path to the new signing CA certificate private key:")
-            Expect.enter(connection, key)
-            Expect.expect(connection, "regenerated using rhui-manager.*:")
-            Expect.enter(connection, days)
-            Expect.expect(connection, "Enter pass phrase for.*:")
-            if cert_pw:
-                Expect.enter(connection, cert_pw)
-            else:
-                Expect.enter(connection, Util.get_ca_password(connection))
-            Expect.expect(connection, "RHUI Username:")
+        state = Expect.expect_list(connection, [(re.compile(".*Full path to the new signing CA certificate:.*", re.DOTALL), 1), (re.compile(".*RHUI Username:.*",re.DOTALL),2),(re.compile(".*rhui \(home\) =>.*", re.DOTALL), 3)])
+        if state in [1, 2]:
+            if state == 1:
+                # Need to answer sone first-run questions
+                Expect.enter(connection, crt)
+                Expect.expect(connection, "Full path to the new signing CA certificate private key:")
+                Expect.enter(connection, key)
+                Expect.expect(connection, "regenerated using rhui-manager.*:")
+                Expect.enter(connection, days)
+                Expect.expect(connection, "Enter pass phrase for.*:")
+                if cert_pw:
+                    Expect.enter(connection, cert_pw)
+                else:
+                    Expect.enter(connection, Util.get_ca_password(connection))
+                Expect.expect(connection, "RHUI Username:")
             Expect.enter(connection, username)
             Expect.expect(connection, "RHUI Password:")
             Expect.enter(connection, password)
