@@ -9,28 +9,22 @@
   - satellite/vars/rhn.yml
   - satellite/vars/answers.yml
 
-  vars_prompt:
-  - name: "rhn_user"
-    prompt: "Enter RHN username"
-    private: no
-  - name: "rhn_password"
-    prompt: "Enter RHN password"
-    private: yes
-  - name: "rhn_sysname"
-    prompt: "Enter RHN system id"
-    private: no
-  
+  # black magic
+  - satellite/vars/credentials.yml
+  - [ {{ credentials['path']  }} ]
+
   tasks:
   # copy and mount the satellite iso
   - include: common/iso.yml
 
   # provide satellite install answers 
+  # reuses credentials vars_file
   - include: satellite/answers.yml
     vars:
       rhn:
         user: $rhn_user
         password: $rhn_password
-        sysname: $rhn_sysname
+        sysname: $rhn_system_name
 
   # install satellite
   - include: satellite/install.yml
