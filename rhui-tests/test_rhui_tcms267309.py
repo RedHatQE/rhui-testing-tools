@@ -34,7 +34,7 @@ class test_rhui_tcms267309(RHUITestcase):
         '''[TCMS#267309 test] Check repo content on cds '''
         time.sleep(10)
         Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /var/lib/pulp-cds/repos/repo267309/cds1.example.com-1.0-2.el6.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS")
-        Expect.ping_pong(self.rs.Instances["CDS"][0], "find /var/lib/pulp-cds/ -name 'cds1.example.com-1.0-2.el6.noarch.rpm' | grep cds1.example.com-1.0-2.el6.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.Instances["CDS"][0], "find /var/lib/pulp-cds/packages/ -name 'cds1.example.com-1.0-2.el6.noarch.rpm' | grep cds1.example.com-1.0-2.el6.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS", 30)
 
     def _cleanup(self):
         '''[TCMS#267309 cleanup] Delete custom repo '''
