@@ -231,7 +231,7 @@ json_dict['Mappings'] = \
                 u'ap-southeast-2': {u'AMI': u'ami-9ae472a0'},
                 u'eu-west-1': {u'AMI': u'ami-bafcf3ce'},
                 u'sa-east-1': {u'AMI': u'ami-81558d9c'},
-                u'us-east-1': {u'AMI': u'ami-6145cc08'},
+                u'us-east-1': {u'AMI': u'ami-d13758b8'},
                 u'us-west-1': {u'AMI': u'ami-0899b94d'},
                 u'us-west-2': {u'AMI': u'ami-0266ed32'}},
    u'RHEL58': {u'ap-northeast-1': {u'AMI': u'ami-60229461'},
@@ -372,7 +372,13 @@ if args.satellite:
                                                                u'AMI']},
                                u'InstanceType': u'm1.large',
                                u'KeyName': {u'Ref': u'KeyName'},
-                               u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
+                               u'SecurityGroups': [{u'Ref': u'SATELLITEsecuritygroup'}],
+                               u'BlockDeviceMappings': [
+                                    {
+                                        u"DeviceName" : u"/dev/sda1",
+                                        u"Ebs" : { u"VolumeSize" : u"30" }
+                                    }
+                               ],
                                u'Tags': [{u'Key': u'Name',
                                           u'Value': {u'Fn::Join': [u'_',
                                                                    [u'SATELLITE',
