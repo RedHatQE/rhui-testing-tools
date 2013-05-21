@@ -1,0 +1,12 @@
+[Unit]
+Description=Splice Selenium Service
+ConditionFileNotEmpty=/var/lib/%p/selenium-server.jar
+Requires=selenium-splice-xvfb.service
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/sysconfig/selenium-splice.conf
+ExecStart=/bin/sh -c "set ; /usr/bin/java -jar /usr/lib/jvm-exports/selenium-server.jar"
+
+[Install]
+WantedBy=multi-user.target
