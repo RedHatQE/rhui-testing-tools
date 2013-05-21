@@ -4,7 +4,8 @@
   - MASTER
   user: root
   
-  vars_files: satellite/vars/iso.yml
+  vars_files:
+    - satellite/vars/iso.yml
 
   tasks:
   - include: common/patch_sudoers.yml
