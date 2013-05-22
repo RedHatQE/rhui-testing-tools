@@ -153,7 +153,26 @@ class RHUIManagerRepo:
         RHUIManager.select_one(connection, reponame)
         Expect.expect(connection, "\(blank line for no filter\):")
         Expect.enter(connection, package)
-        RHUIManager.quit(connection, "Packages:")
+        
+        pattern = re.compile('.*only\.\r\n(.*)\r\n-+\r\nrhui\s* \(repo\)\s* =>',
+                re.DOTALL)
+        ret = Expect.match(connection, pattern, grouplist=[1])[0]
+        reslist = map(lambda x: x.strip(), ret.split("\r\n"))
+        print reslist
+        packagelist = []
+        for line in reslist:
+            if line == '':
+                continue
+            if line == 'Packages:':
+                continue
+            if line == 'No packages found that match the given filter.':
+                continue
+            if line == 'No packages in the repository.':
+                continue
+            packagelist.append(line)
+
+        Expect.enter(connection, 'q')
+        return packagelist
 
     @staticmethod
     def list(connection):
