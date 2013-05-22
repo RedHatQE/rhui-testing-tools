@@ -8,7 +8,7 @@
   - remove_rhui_client
 
 - name: execute the install script
-  action: shell ./install.pl --skip-db-diskspace-check --answer-file=${answers.file} --non-interactive  && touch /tmp/satellite_installed.mark
+  action: shell ./install.pl --clear-db --skip-db-diskspace-check --answer-file=${answers.file} --non-interactive  && touch /tmp/satellite_installed.mark
     chdir=${iso.mount_path}
     creates=/tmp/satellite_installed.mark
   when_set: ${iso.mount_path}

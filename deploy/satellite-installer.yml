@@ -25,6 +25,7 @@
         user: $rhn_user
         password: $rhn_password
         sysname: $rhn_system_name
+        cert: $rhn_cert
 
   # install satellite
   - include: satellite/install.yml
