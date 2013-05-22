@@ -29,3 +29,16 @@
 
   # install satellite
   - include: satellite/install.yml
+
+  # fetch cert rpm
+  - include: satellite/cert_rpm_fetch.yml
+
+- name: install certs on master
+  hosts:
+  - Master
+  connection: local
+  user: root
+
+  tasks:
+  - include: satellite/cert_rpm_install.yml
+  

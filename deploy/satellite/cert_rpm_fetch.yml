@@ -1,0 +1,16 @@
+# retrieve CA cert
+- name: get openssl cert name
+  action: shell ls -1 /root/ssl-build/*.noarch.rpm | tail -1
+  register: rpm_name
+  tags:
+  - satellite_ssl_rpm_name
+
+- name: fetch openssl cert rpm
+  action: fetch
+    src=${rpm_name.stdout_lines[0]}
+    dest=/tmp/
+    fail_on_missing=yes
+  when_set: $rpm_name
+  tags:
+  - satellite_ssl_rpm_fetch
+

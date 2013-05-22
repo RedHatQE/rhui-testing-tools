@@ -1,0 +1,15 @@
+# install and activate the cert rpm
+# to be executed against the master node
+- name: figure out cert rpm name
+  action: shell ls -1 /tmp/${groups.SATELLITE[0]}/root/ssl-build/*.rpm 
+  register: rpm_name
+
+- name: install ca cert rpm
+  action: yum
+    state=present
+    name=${rpm_name.stdout_lines[0]}
+  # FIXME: could be done in a more polite way
+  with_items: ${groups.SATELLITE}
+  when_set: $rpm_name
+  tags:
+  - satellite_install_ca_cert_rpm
