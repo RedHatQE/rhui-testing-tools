@@ -11,7 +11,7 @@
 
   # black magic
   - satellite/vars/credentials.yml
-  - [ {{ credentials['path']  }} ]
+  - [ "{{ credentials['path']  }}" ]
 
   tasks:
   # copy and mount the satellite iso
