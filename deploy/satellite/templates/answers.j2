@@ -11,7 +11,7 @@ ssl-password = reset
 
 ssl-config-sslvhost = y
 
-satellite-cert-file = SATELLITE_CERT
+satellite-cert-file = {{ rhn['cert'] }}
 
 rhn-parent = SATELLITE_PARENT_SERVER
 rhn-username = {{ rhn['user'] }}
