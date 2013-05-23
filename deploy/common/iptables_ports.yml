@@ -1,0 +1,21 @@
+# tasks to open ports in iptables firewall
+- name: iptables open ports
+  action: lineinfile
+    dest=/etc/sysconfig/iptables
+    backup=yes
+    state=present
+    insertbefore="^-A INPUT -j REJECT.*"
+    regexp="^-A INPUT -m state --state NEW -m tcp -p tcp --dport ${item} -j ACCEPT$"
+    line="-A INPUT -m state --state NEW -m tcp -p tcp --dport ${item} -j ACCEPT"
+  with_items: ${open_ports}
+  tags:
+  - iptables_open_ports
+
+- name: iptables service restart
+  action: service
+    name=iptables
+    state=restarted
+  when_set: $open_ports
+  tags:
+  - iptables_service_restart
+    
