@@ -144,6 +144,7 @@ argparser.add_argument('--cds', help='number of CDSes instances', type=int, defa
 argparser.add_argument('--proxy', help='create RHUA<->CDN proxy', action='store_true')
 argparser.add_argument('--rhua', help='create RHUA node', action='store_true')
 argparser.add_argument('--satellite', help='create Satellite node', action='store_true')
+argparser.add_argument('--sam', help='create Sam node', action='store_true')
 argparser.add_argument('--config',
                        default="/etc/validation.yaml", help='use supplied yaml config file')
 argparser.add_argument('--debug', action='store_const', const=True,
@@ -214,15 +215,20 @@ json_dict['AWSTemplateFormatVersion'] = '2010-09-09'
 
 json_dict['Description'] = 'DOMAIN with %s CDSes' % args.cds
 if args.rhel5 > 0:
-    json_dict['Description'] += " %s RHEL5 clients" % args.rhel5
+    json_dict['Description'] += ", %s RHEL5 clients" % args.rhel5
 if args.rhel6 > 0:
-    json_dict['Description'] += " %s RHEL6 clients" % args.rhel6
+    json_dict['Description'] += ", %s RHEL6 clients" % args.rhel6
 if args.proxy:
-    json_dict['Description'] += " PROXY"
+    json_dict['Description'] += ", A PROXY"
 if args.satellite:
-    json_dict['Description'] += " SATELLITE"
+    json_dict['Description'] += ", A SATELLITE"
+if args.sam:
+    json_dict['Description'] += ", A SAM"
+
+json_dict['Description'] += " AND WITH"
 if not args.rhua:
-    json_dict['Description'] += " WITHOUT RHUA"
+    json_dict['Description'] += "OUT"
+json_dict['Description'] += " RHUA."
 
 
 json_dict['Mappings'] = \
@@ -313,6 +319,20 @@ json_dict['Resources'] = \
                                                                    u'IpProtocol': u'tcp',
                                                                    u'ToPort': u'5674'}]},
                         u'Type': u'AWS::EC2::SecurityGroup'},
+ u'SAMsecuritygroup': {u'Properties': {u'GroupDescription': u'Sam security group',
+                                        u'SecurityGroupIngress': [{u'CidrIp': u'0.0.0.0/0',
+                                                                   u'FromPort': u'22',
+                                                                   u'IpProtocol': u'tcp',
+                                                                   u'ToPort': u'22'},
+                                                                  {u'CidrIp': u'0.0.0.0/0',
+                                                                   u'FromPort': u'443',
+                                                                   u'IpProtocol': u'tcp',
+                                                                   u'ToPort': u'443'},
+                                                                  {u'CidrIp': u'0.0.0.0/0',
+                                                                   u'FromPort': u'8088',
+                                                                   u'IpProtocol': u'tcp',
+                                                                   u'ToPort': u'8088'}]},
+                        u'Type': u'AWS::EC2::SecurityGroup'},
  u'SATELLITEsecuritygroup': {u'Properties': {u'GroupDescription': u'Satellite security group',
                                         u'SecurityGroupIngress': [{u'CidrIp': u'0.0.0.0/0',
                                                                    u'FromPort': u'22',
@@ -388,6 +408,31 @@ if args.satellite:
                                           u'Value': u'satellite.example.com'},
                                          {u'Key': u'PublicHostname',
                                           u'Value': u'satellite_pub.example.com'}]},
+               u'Type': u'AWS::EC2::Instance'}
+
+if args.sam:
+     json_dict['Resources']["sam"] = \
+     {u'Properties': {u'ImageId': {u'Fn::FindInMap': [args.rhuirhelversion,
+                                                               {u'Ref': u'AWS::Region'},
+                                                               u'AMI']},
+                               u'InstanceType': u'm1.large',
+                               u'KeyName': {u'Ref': u'KeyName'},
+                               u'SecurityGroups': [{u'Ref': u'SAMsecuritygroup'}],
+                               u'BlockDeviceMappings': [
+                                    {
+                                        u"DeviceName" : u"/dev/sda1",
+                                        u"Ebs" : { u"VolumeSize" : u"30" }
+                                    }
+                               ],
+                               u'Tags': [{u'Key': u'Name',
+                                          u'Value': {u'Fn::Join': [u'_',
+                                                                   [u'SAM',
+                                                                    {u'Ref': u'KeyName'}]]}},
+                                         {u'Key': u'Role', u'Value': u'SAM'},
+                                         {u'Key': u'PrivateHostname',
+                                          u'Value': u'sam.example.com'},
+                                         {u'Key': u'PublicHostname',
+                                          u'Value': u'sam.example.com'}]},
                u'Type': u'AWS::EC2::Instance'}
 
 
