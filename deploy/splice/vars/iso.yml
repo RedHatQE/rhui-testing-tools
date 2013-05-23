@@ -1,0 +1,6 @@
+# SAM iso for splice testing
+# iso.[src,dest,mount_path] defs to be used with common/iso.yml
+iso:
+  src: /tmp/sam.iso
+  dest: /tmp/sam.iso
+  mount_path: /mnt/sam

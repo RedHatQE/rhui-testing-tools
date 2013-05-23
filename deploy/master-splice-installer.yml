@@ -4,6 +4,9 @@
   - MASTER
   user: root
 
+  vars_files:
+  - splice/vars/iso.yml
+
   tasks:
   - include: common/patch_sudoers.yml
   - include: common/master/packages.yml
@@ -12,3 +15,5 @@
   - include: splice/master/repos.yml
   - include: splice/master/selenium.yml
 
+  # copy (& mount) sam iso
+  - include: common/iso.yml
