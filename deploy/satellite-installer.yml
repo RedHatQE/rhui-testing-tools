@@ -30,6 +30,12 @@
   # install satellite
   - include: satellite/install.yml
 
+  # open firewall
+  - include: common/iptables_ports.yml
+    vars:
+      open_ports:
+      - 443
+
   # fetch cert rpm
   - include: satellite/cert_rpm_fetch.yml
 
