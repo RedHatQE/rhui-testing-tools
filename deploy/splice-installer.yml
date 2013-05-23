@@ -1,0 +1,21 @@
+# setup a SAM node
+- name: setup sam node
+  hosts:
+  - SAM
+  user: root
+
+  vars_files:
+  - splice/vars/iso.yml
+
+  tasks:
+  # copy and mount the sam iso
+  - include: common/iso.yml
+
+  - include: splice/install.yml
+
+  # configure firewall
+  - include: common/iptables_ports.yml
+    vars:
+      open_ports:
+      - 443
+      - 8088
