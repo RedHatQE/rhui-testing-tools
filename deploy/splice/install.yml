@@ -1,9 +1,17 @@
 # install steps for sam
 - name: execute install script
-  action: shell /mnt/sam/install_packages && touch /tmp/sam_installed.mark
+  action: shell ./install_packages && touch /tmp/sam_installed.mark
     chdir=${iso.mount_path}
     creates=/tmp/sam_installed.mark
+  register: sam_install_status
   when_set: ${iso.mount_path}
   tags:
   - sam_install
   - execute_install_script
+
+- name: execute configure script
+  action: shell katello-configure --deployment headpin
+  when: sam_install_status.changed
+  tags:
+  - sam_install
+  - execute_configure_script
