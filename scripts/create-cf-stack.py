@@ -72,8 +72,8 @@ def setup_host_ssh(hostname, key):
                                username="ec2-user",
                                key_filename=key,
                                look_for_keys=False)
-                client.run_with_pty("su -c 'cp -af /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys; chown root.root /root/.ssh/authorized_keys'")
-                client.run_with_pty("su -c \"sed -i 's,disable_root: 1,disable_root: 0,' /etc/cloud/cloud.cfg\"")
+                client.run_with_pty("sudo su -c 'cp -af /home/ec2-user/.ssh/authorized_keys /root/.ssh/authorized_keys; chown root.root /root/.ssh/authorized_keys'")
+                client.run_with_pty("sudo su -c \"sed -i 's,disable_root: 1,disable_root: 0,' /etc/cloud/cloud.cfg\"")
                 client.connect(hostname=hostname,
                                username="root",
                                key_filename=key,
