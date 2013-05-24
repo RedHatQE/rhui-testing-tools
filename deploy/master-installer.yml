@@ -1,0 +1,5 @@
+# setup splice master:
+#  - sam
+#  - satellite
+- include: master-satellite-installer.yml
+- include: master-splice-installer.yml
