@@ -232,14 +232,14 @@ json_dict['Description'] += " RHUA."
 
 
 json_dict['Mappings'] = \
-  {u'F18': {u'ap-northeast-1': {u'AMI': u'ami-5f01bb5e'},
-                u'ap-southeast-1': {u'AMI': u'ami-30aeec62'},
-                u'ap-southeast-2': {u'AMI': u'ami-9ae472a0'},
-                u'eu-west-1': {u'AMI': u'ami-bafcf3ce'},
-                u'sa-east-1': {u'AMI': u'ami-81558d9c'},
-                u'us-east-1': {u'AMI': u'ami-d13758b8'},
-                u'us-west-1': {u'AMI': u'ami-0899b94d'},
-                u'us-west-2': {u'AMI': u'ami-0266ed32'}},
+  {u'F18': {u'ap-northeast-1': {u'AMI': u'ami-33b23b32'},
+                u'ap-southeast-1': {u'AMI': u'ami-4c327c1e'},
+                u'ap-southeast-2': {u'AMI': u'ami-33d24109'},
+                u'eu-west-1': {u'AMI': u'ami-43809137'},
+                u'sa-east-1': {u'AMI': u'ami-08eb4e15'},
+                u'us-east-1': {u'AMI': u'ami-b71078de'},
+                u'us-west-1': {u'AMI': u'ami-674f6122'},
+                u'us-west-2': {u'AMI': u'ami-fd9302cd'}},
    u'RHEL58': {u'ap-northeast-1': {u'AMI': u'ami-60229461'},
                 u'ap-southeast-1': {u'AMI': u'ami-da8dc988'},
                 u'ap-southeast-2': {u'AMI': u'ami-65b7205f'},
