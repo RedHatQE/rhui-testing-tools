@@ -1,0 +1,28 @@
+# SAM & SATELLITE INSTALLER
+- include: satellite-installer.yml
+- include: splice-installer.yml
+
+- name: ssh_keygen for splice root
+  hosts:
+  - SPLICE
+  user: root
+
+  vars_files:
+  - common/vars/ssh_keys.yml
+
+  tasks:
+  - include: common/ssh_keygen.yml
+   
+- name: authorize root splice for satellite
+  hosts:
+  - SATELLITE
+  user: root
+
+  vars_files:
+  - common/vars/ssh_keys.yml
+
+  tasks:
+  - include: common/ssh_authorize_key.yml 
+    vars:
+      ssh_keys_user: root
+      ssh_keys_host: ${hosts[SPLICE]}
