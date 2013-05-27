@@ -12,6 +12,7 @@
   - include: common/iso.yml
 
   - include: splice/install.yml
+  - include: splice/checkin_configure.yml
 
   # configure firewall
   - include: common/iptables_ports.yml
