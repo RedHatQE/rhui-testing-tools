@@ -4,7 +4,7 @@
 
 - name: ssh_keygen for splice root
   hosts:
-  - SPLICE
+  - SAM
   user: root
 
   vars_files:
@@ -25,4 +25,4 @@
   - include: common/ssh_authorize_key.yml 
     vars:
       ssh_keys_user: root
-      ssh_keys_host: ${hosts[SPLICE]}
+      ssh_keys_host: ${groups.SAM[0]}
