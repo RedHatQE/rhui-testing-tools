@@ -6,7 +6,7 @@
 
   vars_files:
     - satellite/vars/iso.yml
-    - satellite/vars/credentials.yml
+    - [/etc/satellite-credentials.yml, satellite/vars/credentials.yml]
 
   tasks:
   - include: common/patch_sudoers.yml
