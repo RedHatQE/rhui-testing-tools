@@ -1,4 +1,11 @@
 # install steps for sam
+- name: disable SELinux
+  action: selilnux
+    state=permissive
+  tags:
+  - sam_install
+  - selinux
+
 - name: execute install script
   action: shell ./install_packages && touch /tmp/sam_installed.mark
     chdir=${iso.mount_path}
