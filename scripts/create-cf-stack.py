@@ -432,7 +432,7 @@ if args.sam:
                                          {u'Key': u'PrivateHostname',
                                           u'Value': u'sam.example.com'},
                                          {u'Key': u'PublicHostname',
-                                          u'Value': u'sam.example.com'}]},
+                                          u'Value': u'sam_pub.example.com'}]},
                u'Type': u'AWS::EC2::Instance'}
 
 
