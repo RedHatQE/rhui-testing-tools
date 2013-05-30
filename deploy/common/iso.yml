@@ -13,6 +13,7 @@
   when_set: ${iso.src}
   when_set: ${iso.dest}
   tags:
+  - iso
   - iso_upload
 
 - name: create mount dir
@@ -21,6 +22,7 @@
     state=directory
   when_set: ${iso.mount_path}
   tags:
+  - iso
   - iso_create_mount_dir
 
 - name: mount iso
@@ -32,4 +34,5 @@
     opts=loop
   when_set: ${iso.mount_path}
   tags:
+  - iso
   - iso_mount
