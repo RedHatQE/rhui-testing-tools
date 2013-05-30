@@ -1,6 +1,6 @@
 # install steps for sam
 - name: disable SELinux
-  action: selilnux
+  action: selinux
     state=permissive
   tags:
   - sam_install
