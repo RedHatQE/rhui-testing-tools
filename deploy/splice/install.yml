@@ -32,8 +32,10 @@
 
 
 - name: execute configure script
-  action: shell katello-configure --deployment headpin
+  action: shell katello-configure --deployment headpin --user-pass ${item}
   when: sam_install_status.changed
+  with_password:
+  - /etc/katello_password
   tags:
   - sam_install
   - execute_configure_script
