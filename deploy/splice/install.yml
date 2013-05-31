@@ -6,6 +6,8 @@
   - sam_install
   - selinux
 
+### TODO: figure out which method should be used
+
 - name: execute install script
   action: shell ./install_packages && touch /tmp/sam_installed.mark
     chdir=${iso.mount_path}
@@ -15,6 +17,19 @@
   tags:
   - sam_install
   - execute_install_script
+
+#- name: install sam
+#  action: yum
+#    name: ${item}
+#    state=present
+#    enablerepo=SAM
+#  with_items:
+#  - katello-headpin-all
+#  - splice
+#  tags:
+#  - sam_install
+#  - packages
+
 
 - name: execute configure script
   action: shell katello-configure --deployment headpin

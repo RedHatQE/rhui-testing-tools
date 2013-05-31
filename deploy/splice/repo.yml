@@ -1,0 +1,10 @@
+# create sam repo based on Satellite 6 distr. ISO
+- name: provide sam repo file
+  action: template
+    src=templates/sam.repo.j2
+    dest=/etc/yum.repos.d/sam.repo
+  when_set: ${iso.mount_path}
+  tags:
+  - repos
+  - sam_repos
+  
