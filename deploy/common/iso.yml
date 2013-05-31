@@ -25,7 +25,32 @@
   - iso
   - iso_create_mount_dir
 
-- name: mount iso
+# TODO: this is a remount; there might be a better way...
+- name: re-mount iso; mount
+  action: mount
+    name=${iso.mount_path}
+    src=${iso.dest}
+    fstype=iso9660
+    state=mounted
+    opts=loop
+  when_set: ${iso.mount_path}
+  tags:
+  - iso
+  - iso_mount
+
+- name: re-mount iso; umount
+  action: mount
+    name=${iso.mount_path}
+    src=${iso.dest}
+    fstype=iso9660
+    state=unmounted
+    opts=loop
+  when_set: ${iso.mount_path}
+  tags:
+  - iso
+  - iso_mount
+
+- name: re-mount iso; mount again
   action: mount
     name=${iso.mount_path}
     src=${iso.dest}
