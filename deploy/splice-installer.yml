@@ -20,3 +20,18 @@
       open_ports:
       - 443
       - 8088
+
+- name: authorize root splice for master for fake sst
+  connection: local 
+  user: root
+  hosts:
+  - MASTER
+
+  vars_files:
+  - common/vars/ssh_keys.yml
+
+  tasks:
+  - include: common/ssh_authorize_key.yml 
+    vars:
+      ssh_keys_user: root
+      ssh_keys_host: ${groups.SAM[0]}
