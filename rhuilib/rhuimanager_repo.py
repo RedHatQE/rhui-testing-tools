@@ -203,3 +203,57 @@ class RHUIManagerRepo:
 
         Expect.enter(connection, 'q')
         return repolist
+
+    @staticmethod
+    def info(connection, repolist):
+        '''
+        detailed information about repositories
+
+        Method returns list of items from rhui-manager info screen. Some of them are variable and these are replaced by "rh_repo" constant.
+        '''
+        RHUIManager.screen(connection, "repo")
+        Expect.enter(connection, "i")
+        RHUIManager.select(connection, repolist)
+        
+        try:
+            pattern = re.compile('.*for more commands: \r\n\r\nName:\s(.*)\r\n-+\r\nrhui\s* \(repo\)\s* =>',
+                    re.DOTALL)
+            ret = Expect.match(connection, pattern, grouplist=[1])[0]
+            print ret
+            res = map(lambda x: x.strip(), ret.split("\r\n"))
+            reslist = ["Name:"]
+            for line in res:
+                reslist.extend(map(lambda y: y.strip(), re.split("\s{3}", line)))
+            print reslist
+            repoinfo = []
+            rh_repo = 0
+            rh_repo_info = 0
+            for line in reslist:
+                # Readling lines
+                if line == '':
+                    continue
+                if rh_repo_info == 1:
+                    line = "rh_repo"
+                    rh_repo_info = 0
+                if line == "Red Hat":
+                    rh_repo = 1
+                if "Relative Path:" in line:
+                    if rh_repo == 1:
+                        rh_repo_info = 1
+                if "Package Count:" in line:
+                    if rh_repo == 1:
+                        rh_repo_info = 1
+                if "Last Sync:" in line:
+                    if rh_repo == 1:
+                        rh_repo_info = 1
+                if "Next Sync:" in line:
+                    if rh_repo == 1:
+                        rh_repo_info = 1
+                repoinfo.append(line)
+            print repoinfo
+       
+        except:
+            repoinfo = []
+
+        Expect.enter(connection, 'q')
+        return repoinfo
