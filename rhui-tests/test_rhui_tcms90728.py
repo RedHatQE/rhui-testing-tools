@@ -42,4 +42,4 @@ class test_rhui_tcms90728(RHUITestcase):
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)"])
         
 if __name__ == "__main__":
-    nose.run(defaultTest=__name__, argv=[__file__, '--with-outputsave'])
+    nose.run(defaultTest=__name__, argv=[__file__, '-v'])
