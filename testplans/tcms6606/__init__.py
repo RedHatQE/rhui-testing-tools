@@ -12,6 +12,7 @@ from test_rhui_tcms90726 import *
 from test_rhui_tcms90727 import *
 from test_rhui_tcms90728 import *
 from test_rhui_tcms90930 import *
+from test_rhui_tcms90931 import *
 from test_rhui_tcms90957 import *
 from test_rhui_tcms90960 import *
 from test_rhui_tcms90961 import *
