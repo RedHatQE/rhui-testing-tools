@@ -19,7 +19,7 @@ class test_rhui_tcms90728(RHUITestcase):
         RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "repo2")
         RHUIManagerRepo.add_rh_repo_by_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)"])
         
-        '''[TCMS#284279 setup] Sync RH repo '''
+        '''[TCMS#90728 setup] Sync RH repo '''
         self._sync_repo(["Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)"])
         
         '''[TCMS#90728 setup] Upload content'''
