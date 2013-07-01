@@ -6,4 +6,5 @@ from test_rhui_tcms267309 import *
 from test_rhui_tcms267489 import *
 from test_rhui_tcms268363 import *
 from test_rhui_tcms284279 import *
+from test_rhui_tcms286332 import *
 
