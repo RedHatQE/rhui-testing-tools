@@ -24,7 +24,7 @@ class test_rhui_tcms90931(RHUITestcase):
         self._sync_repo(["Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(Source RPMs\) \(6Server-x86_64\)"])
 
     def _test(self):
-        '''[TCMS#90931 test] Check the packages list'''
+        '''[TCMS#90931 test] Check repo status'''
         sync = RHUIManagerSync.get_repo_status(self.rs.Instances["RHUA"][0], "Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(Source RPMs\) \(6Server-i386\)")
         sync2 = RHUIManagerSync.get_repo_status(self.rs.Instances["RHUA"][0], "Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(Source RPMs\) \(6Server-x86_64\)")
         nose.tools.assert_equal(sync[2], "Success")
