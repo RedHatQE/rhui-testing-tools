@@ -23,7 +23,8 @@ class RHUIManagerClient:
         Expect.expect(connection, "Number of days the certificate should be valid.*:")
         Expect.enter(connection, validity_days)
         RHUIManager.proceed_with_check(connection, "Repositories to be included in the entitlement certificate:", repolist, ["Custom Entitlements", "Red Hat Repositories"])
-        Expect.expect(connection, "Enter pass phrase for.*:")
+        #Expect.expect(connection, "Enter pass phrase for.*:")
+        Expect.expect(connection, "Entitlement certificate created at.*")
         if cert_pw:
             Expect.enter(connection, cert_pw)
         else:
