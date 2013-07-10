@@ -17,7 +17,7 @@ class RHUIManagerIdentity:
         Expect.enter(connection, "y")
         Expect.expect(connection, "regenerated using rhui-manager.*:")
         Expect.enter(connection, days)
-        #Expect.expect(connection, "Enter pass phrase for.*:")
+        Expect.expect(connection, "Enter pass phrase for.*:")
         if cert_pw:
             Expect.enter(connection, cert_pw)
         else:
