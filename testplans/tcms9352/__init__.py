@@ -8,4 +8,5 @@ from test_rhui_tcms268363 import *
 from test_rhui_tcms284279 import *
 from test_rhui_tcms286332 import *
 from test_rhui_tcms286532 import *
+from test_rhui_tcms288732 import *
 
