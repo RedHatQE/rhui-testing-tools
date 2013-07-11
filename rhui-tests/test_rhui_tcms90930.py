@@ -11,7 +11,7 @@ from rhuilib.rhuimanager_sync import *
 from rhuilib.rhuimanager_entitlements import *
 from rhuilib.pulp_admin import *
 
-class test_rhui_tcms90930(RHUITestcase):
+class test_rhui_tcms90930(RHUITestcase, RHUI_has_RH_cert):
     def _setup(self):
         '''[TCMS#90930 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
