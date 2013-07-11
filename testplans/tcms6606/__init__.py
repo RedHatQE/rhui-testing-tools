@@ -32,3 +32,4 @@ from test_rhui_tcms116077 import *
 from test_rhui_tcms138202 import *
 from test_rhui_tcms138854 import *
 from test_rhui_tcms289024 import *
+from test_rhui_tcms289030 import *
