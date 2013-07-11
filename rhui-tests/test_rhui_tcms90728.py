@@ -7,6 +7,7 @@ from rhuilib.util import *
 from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_repo import *
+from rhuilib.rhuimanager_entitlements import *
 from rhuilib.pulp_admin import *
 
 class test_rhui_tcms90728(RHUITestcase):
