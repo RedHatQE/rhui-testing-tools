@@ -13,6 +13,9 @@ class test_rhui_tcms90726(RHUITestcase):
     def _setup(self):
         '''[TCMS#90726 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
+        
+        '''[TCMS#90726 setup] Upload RH content certificate'''
+        RHUIManagerEntitlements.upload_content_cert(self.rs.Instances["RHUA"][0], self.cert)
 
         '''[TCMS#90726 setup] Create repos'''
         RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "repo1", "repo1", "repo1", "1", "n", "", "n")
@@ -26,6 +29,9 @@ class test_rhui_tcms90726(RHUITestcase):
         '''[TCMS#90726 cleanup] Remove repos'''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo1"])
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["Red Hat Update Infrastructure 2 \(RPMs\) \(6Server-x86_64\)"])
+        
+        '''[TCMS#90726 cleanup] Remove RH certificate from RHUI'''
+        RHUIManager.remove_rh_certs(self.rs.Instances["RHUA"][0])
         
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])
