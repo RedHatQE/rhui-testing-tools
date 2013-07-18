@@ -7,9 +7,10 @@ from rhuilib.util import *
 from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_repo import *
+from rhuilib.rhuimanager_entitlements import *
 from rhuilib.pulp_admin import *
 
-class test_rhui_tcms90726(RHUITestcase):
+class test_rhui_tcms90726(RHUITestcase, RHUI_has_RH_cert):
     def _setup(self):
         '''[TCMS#90726 setup] Do initial rhui-manager run'''
         RHUIManager.initial_run(self.rs.Instances["RHUA"][0])
