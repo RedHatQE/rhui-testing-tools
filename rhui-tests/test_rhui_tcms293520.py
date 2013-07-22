@@ -18,10 +18,10 @@ class test_tcms_293520(RHUITestcase, RHUI_has_RH_cert):
         RHUIManagerEntitlements.upload_content_cert(self.rs.Instances["RHUA"][0], self.cert)
 
         '''[TCMS#293520 setup] Add rh repo '''
-        RHUIManagerRepo.add_rh_repo_by_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\) \(6Server-x86_64\)", "Red Hat Enterprise Linux 6 Server - Optional from RHUI \(RPMs\) \(6Server-i386\)"])
+        RHUIManagerRepo.add_rh_repo_by_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\) \(6Server-x86_64\)", "Red Hat Enterprise Linux 6 Server - Optional from RHUI \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#293520 setup] Sync RH repo '''
-        self._sync_repo(["Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\) \(6Server-x86_64\)", "Red Hat Enterprise Linux 6 Server - Optional from RHUI \(RPMs\) \(6Server-i386\)"])
+        self._sync_repo(["Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\) \(6Server-x86_64\)", "Red Hat Enterprise Linux 6 Server - Optional from RHUI \(RPMs\) \(6Server-x86_64\)"])
 
     def _test(self):
         '''[TCMS#293520 test] Check list of effected packaged in errata'''
@@ -38,7 +38,7 @@ class test_tcms_293520(RHUITestcase, RHUI_has_RH_cert):
 
     def _cleanup(self):
         '''[TCMS#293520 cleanup] Delete RH repo '''
-        RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\) \(6Server-x86_64\)", "Red Hat Enterprise Linux 6 Server - Optional from RHUI \(RPMs\) \(6Server-i386\)"])
+        RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server from RHUI \(RPMs\) \(6Server-x86_64\)", "Red Hat Enterprise Linux 6 Server - Optional from RHUI \(RPMs\) \(6Server-x86_64\)"])
 
         '''[TCMS#293520 cleanup] Remove RH certificate from RHUI '''
         RHUIManager.remove_rh_certs(self.rs.Instances["RHUA"][0])
