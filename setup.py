@@ -19,7 +19,7 @@ setup(name='rhuilib',
     packages=[
         'rhuilib'
         ],
-    data_files=[('/etc', ['etc/rhui-testing.cfg'])] + datafiles,
+    data_files=[('/etc', ['etc/validation.yaml'])] + datafiles,
     classifiers=[
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
             'Programming Language :: Python',
