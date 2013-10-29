@@ -32,6 +32,27 @@ class test_tcms268363(RHUITestcase):
         RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
 
     def _test(self):
+    # we should test here 2 scenarios: 1) unassociating repo, 2) deleting repo
+        '''[TCMS#268363 test] check if the keys exist on CDS'''
+        Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /etc/pki/pulp/content/repo268363/consumer-repo268363.cert && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /etc/pki/pulp/content/repo268363/consumer-repo268363.ca && echo SUCCESS", "[^ ]SUCCESS")
+
+        '''[TCMS#268363 test] Unassociate custom repo '''
+        RHUIManagerCds.unassociate_repo_cds(self.rs.Instances["RHUA"][0], "Cluster1", ["repo268363"])
+
+        '''[TCMS#268363 test] Sync cluster '''
+        RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
+
+        '''[TCMS#268363 test] check if keys are not present on CDS'''
+        Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /etc/pki/pulp/content/repo268363/consumer-repo268363.ca || echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /etc/pki/pulp/content/repo268363/consumer-repo268363.cert || echo SUCCESS", "[^ ]SUCCESS")
+
+        '''[TCMS#268363 test] Associate repo with cluster '''
+        RHUIManagerCds.associate_repo_cds(self.rs.Instances["RHUA"][0], "Cluster1", ["repo268363"])
+
+        '''[TCMS#268363 test] Sync cluster '''
+        RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
+
         '''[TCMS#268363 test] check if the keys exist on CDS'''
         Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /etc/pki/pulp/content/repo268363/consumer-repo268363.cert && echo SUCCESS", "[^ ]SUCCESS")
         Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /etc/pki/pulp/content/repo268363/consumer-repo268363.ca && echo SUCCESS", "[^ ]SUCCESS")
