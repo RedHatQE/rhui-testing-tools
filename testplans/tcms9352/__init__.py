@@ -11,3 +11,4 @@ from test_rhui_tcms286532 import *
 from test_rhui_tcms288732 import *
 from test_rhui_tcms289561 import *
 from test_rhui_tcms293520 import *
+from test_rhui_tcms320814 import *
