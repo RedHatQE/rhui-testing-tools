@@ -26,7 +26,7 @@ class test_tcms_288732(RHUITestcase, RHUI_has_RH_cert):
 
     def _test(self):
         '''[TCMS#288732 test] Check the status of the repo'''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager status | grep \"Red Hat Enterprise Linux 5 Server Beta from RHUI (Debug RPMs) (5Server-x86_64)\" | grep \"SYNC*\" && echo SUCCESS", "[^ ]SUCCESS", 20)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager status | grep \"Red Hat Enterprise Linux 5 Server Beta from RHUI (Debug RPMs) (5Server-x86_64)\" | grep \"SYNCING\" && echo SUCCESS", "[^ ]SUCCESS", 20)
 
     def _cleanup(self):
         '''[TCMS#288732 cleanup] Wait untill repo is synced '''
