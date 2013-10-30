@@ -81,7 +81,7 @@ class RHUITestcase(object):
             RHUIManager.quit(self.rs.Instances["RHUA"][0])
         for repo in repolist:
             reposync = ["In Progress", "", ""]
-            while reposync[0] == "In Progress":
+            while reposync[0] in ["In Progress", "Never"]:
                 time.sleep(10)
                 reposync = RHUIManagerSync.get_repo_status(self.rs.Instances["RHUA"][0], repo)
             nose.tools.assert_equal(reposync[2], "Success")
