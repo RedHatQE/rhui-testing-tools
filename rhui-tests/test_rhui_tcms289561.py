@@ -19,7 +19,7 @@ class test_tcms_289561(RHUITestcase, RHUI_has_RH_cert):
 
     def _test(self):
         '''[TCMS#289561 test] Check the status of the repo'''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager status | grep \"Red Hat Enterprise Linux 5 Server Beta from RHUI (Debug RPMs) (5Server-x86_64)\" | grep \"UNKNOWN\" && echo SUCCESS", "[^ ]SUCCESS", 20)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager status | grep \"Red Hat Enterprise Linux 5 Server Beta from RHUI (Debug RPMs) (5Server-x86_64)\" | grep \"NEVER\" && echo SUCCESS", "[^ ]SUCCESS", 20)
 
     def _cleanup(self):
         '''[TCMS#289561 cleanup] Delete RH repo '''
