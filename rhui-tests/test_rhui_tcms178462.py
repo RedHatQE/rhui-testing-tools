@@ -33,12 +33,12 @@ class test_tcms_178462(RHUITestcase, RHUI_has_RH_cert):
 
     def _test(self):
         '''[TCMS#178462 test] Check cds info screen '''
-        rhui_cds = RhuiCds(name='cds1.example.com',
-                           hostname='cds1.example.com',
+        rhui_cds = RhuiCds(name=self.rs.Instances["CDS"][0].private_hostname,
+                           hostname=self.rs.Instances["CDS"][0].private_hostname,
                            description='RHUI CDS',
                            cluster='Cluster1',
                            repos=['Red Hat Update Infrastructure 2 (RPMs) (6Server-x86_64)'],
-                           client_hostname='cds1.example.com')
+                           client_hostname=self.rs.Instances["CDS"][0].private_hostname)
 
         nose.tools.assert_equal(RHUIManagerCds.info(self.rs.Instances["RHUA"][0], ["Cluster1"]), [rhui_cds])
 

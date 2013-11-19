@@ -26,17 +26,17 @@ class test_tcms_286532(RHUITestcase):
         RHUIManagerRepo.upload_content(self.rs.Instances["RHUA"][0], ["repo286532"], "/etc/rhui/confrpm")
 
         '''[TCMS#248532 setup] Associate repo with cluster '''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "pulp-admin -u admin -p admin cds associate_repo --repoid=repo286532 --hostname=cds1.example.com && echo SUCCESS", "[^ ]SUCCESS", 10)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "pulp-admin -u admin -p admin cds associate_repo --repoid=repo286532 --hostname=" + self.rs.Instances["CDS"][0].private_hostname + " && echo SUCCESS", "[^ ]SUCCESS", 10)
 
         '''[TCMS#248532 setup] Sync cds '''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "pulp-admin -u admin -p admin cds sync --hostname=cds1.example.com && echo SUCCESS", "[^ ]SUCCESS", 20)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "pulp-admin -u admin -p admin cds sync --hostname=" + self.rs.Instances["CDS"][0].private_hostname + " && echo SUCCESS", "[^ ]SUCCESS", 20)
 
         '''[TCMS#248532 setup] Unassociate repo '''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "pulp-admin -u admin -p admin cds unassociate_repo --repoid=repo286532 --hostname=cds1.example.com && echo SUCCESS", "[^ ]SUCCESS", 10)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "pulp-admin -u admin -p admin cds unassociate_repo --repoid=repo286532 --hostname=" + self.rs.Instances["CDS"][0].private_hostname + " && echo SUCCESS", "[^ ]SUCCESS", 10)
 
         '''[TCMS#248532 setup] Sync cds '''
         time.sleep(10)
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "pulp-admin -u admin -p admin cds sync --hostname=cds1.example.com && echo SUCCESS", "[^ ]SUCCESS", 10)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "pulp-admin -u admin -p admin cds sync --hostname=" + self.rs.Instances["CDS"][0].private_hostname + " && echo SUCCESS", "[^ ]SUCCESS", 10)
 
     def _test(self):
 

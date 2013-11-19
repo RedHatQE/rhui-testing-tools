@@ -21,12 +21,12 @@ class test_tcms_178428(RHUITestcase):
 
     def _test(self):
         '''[TCMS#178428 test] check the cds info screen'''
-        rhui_cds = RhuiCds(name='cds1.example.com',
-                           hostname='cds1.example.com',
+        rhui_cds = RhuiCds(name=self.rs.Instances["CDS"][0].private_hostname,
+                           hostname=self.rs.Instances["CDS"][0].private_hostname,
                            description='RHUI CDS',
                            cluster='Cluster1',
                            repos=[],
-                           client_hostname='cds1.example.com')
+                           client_hostname=self.rs.Instances["CDS"][0].private_hostname)
 
         nose.tools.assert_equal(RHUIManagerCds.info(self.rs.Instances["RHUA"][0], ["Cluster1"]), [rhui_cds])
 
