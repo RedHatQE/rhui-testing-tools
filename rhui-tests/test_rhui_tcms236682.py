@@ -21,7 +21,7 @@ class test_tcms_236682(RHUITestcase, RHUI_has_RH_cert):
         Expect.enter(self.rs.Instances["RHUA"][0], "cat " + self.cert + " | sed 's,a,b,' > " + self.cert + ".broken && echo SUCCESS")
         Expect.expect(self.rs.Instances["RHUA"][0], "[^ ]SUCCESS")
         Expect.enter(self.rs.Instances["RHUA"][0], "rhui-manager cert upload --cert " + self.cert + ".broken")
-        Expect.expect(self.rs.Instances["RHUA"][0], "[^ ]The given certificate appears malformed.  See the log file for more information.")
+        Expect.expect(self.rs.Instances["RHUA"][0], "[^ ]Error loading certificate")
 
     def _cleanup(self):
         pass
