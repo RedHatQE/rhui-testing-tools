@@ -27,9 +27,10 @@ class test_rhui_tcms90728(RHUITestcase, RHUI_has_RH_cert):
         self._sync_repo(["Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)"])
         
         '''[TCMS#90728 setup] Upload content'''
-        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-signed-rpm-1-0.1.fc17.noarch.rpm", "/root/custom-signed-rpm-1-0.1.fc17.noarch.rpm")
-        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm", "/root/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
-        RHUIManagerRepo.upload_content(self.rs.Instances["RHUA"][0], ["repo1"], "/root")
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "mkdir /root/rpms && echo SUCCESS", "[^ ]SUCCESS")
+        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-signed-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms/custom-signed-rpm-1-0.1.fc17.noarch.rpm")
+        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
+        RHUIManagerRepo.upload_content(self.rs.Instances["RHUA"][0], ["repo1"], "/root/rpms")
 
     def _test(self):
         '''[TCMS#90728 test] Check the packages list'''
@@ -47,6 +48,9 @@ class test_rhui_tcms90728(RHUITestcase, RHUI_has_RH_cert):
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo2"])
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)"])
         
+        '''[TCMS#90728 cleanup] Remove rpms from RHUI '''
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], " rm -f -r /root/rpms && echo SUCCESS", "[^ ]SUCCESS")
+
         '''[TCMS#90728 cleanup] Remove RH certificate from RHUI'''
         RHUIManager.remove_rh_certs(self.rs.Instances["RHUA"][0])
         
