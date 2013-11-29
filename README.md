@@ -56,3 +56,30 @@ Basic usage:
 7) You can run a whole testplan:
    cd /usr/share/rhui-testing-tools/testplans/tcms6606/
    nosetests -vv
+
+
+To send results to TCMS:
+-----------------------
+1) run testplan with --with-xunit option
+
+2) Scp nosetests.xml file to the local host and run script to report the result ./nitrate-test-result.py -p <testplan ID>  result_file
+
+
+To do test coverage:
+-------------------
+1) When creating a new stack add --coverage option to remote-rhui-installer.sh
+
+2) Run tesplans
+
+3) After that perform following steps:
+
+-on Master
+
+    scp .ssh/id_rsa rhua.example.com:.ssh/
+-on RHUA
+
+    rpm -e python-moncov
+    scp -r cds1.example.com:/usr/lib/python2.6/site-packages/pulp/cds /usr/lib/python2.6/site-packages/pulp/
+    scp -r cds1.example.com:/srv/pulp/cds.wsgi /srv/pulp/
+    mkdir html
+    coverage html -i --include="/usr/bin/rhui-manager,/usr/bin/rhui_configurator,/usr/lib/python2.6/site-packages/rhui/*" -d html/rhui-tools/ ; coverage html -i --include="/usr/bin/goferd,/usr/lib/gofer/*,/usr/lib/python2.6/site-packages/gofer/*" -d html/gofer/ ; coverage html -i --include="/usr/lib/python2.6/site-packages/grinder/*" -d html/grinder/ ; coverage html -i --include="/srv/pulp/cds/*,/usr/bin/pulp-admin,/usr/bin/pulp-migrate,/usr/lib/python2.6/site-packages/pulp/*" -d html/pulp/
