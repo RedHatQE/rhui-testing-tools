@@ -21,10 +21,10 @@ class test_rhui_tcms90728(RHUITestcase, RHUI_has_RH_cert):
         '''[TCMS#90728 setup] Create repos'''
         RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "repo1")
         RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "repo2")
-        RHUIManagerRepo.add_rh_repo_by_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)"])
+        RHUIManagerRepo.add_rh_repo_by_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(RPMs\) \(6Server-i386\)"])
         
         '''[TCMS#90728 setup] Sync RH repo '''
-        self._sync_repo(["Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)"])
+        self._sync_repo(["Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(RPMs\) \(6Server-i386\)"])
         
         '''[TCMS#90728 setup] Upload content'''
         self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-signed-rpm-1-0.1.fc17.noarch.rpm", "/root/custom-signed-rpm-1-0.1.fc17.noarch.rpm")
@@ -37,13 +37,15 @@ class test_rhui_tcms90728(RHUITestcase, RHUI_has_RH_cert):
         nose.tools.assert_equal(RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "repo1", "custom-unsigned"), ["custom-unsigned-rpm-1-0.1.fc17.noarch.rpm"])
         nose.tools.assert_equal(RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "repo1", "test"), [])
         nose.tools.assert_equal(RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "repo2", ""), [])
-        nose.tools.assert_equal(RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)", ""), ["Package Count: 124"])
+        actual_answer = RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(RPMs\) \(6Server-i386\)", "")
+        nose.tools.ok_('Package Count' in actual_answer[0])
+
 
     def _cleanup(self):
         '''[TCMS#90728 cleanup] Remove a repo'''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo1"])
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo2"])
-        RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)"])
+        RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(RPMs\) \(6Server-i386\)"])
         
         '''[TCMS#90728 cleanup] Remove RH certificate from RHUI'''
         RHUIManager.remove_rh_certs(self.rs.Instances["RHUA"][0])
