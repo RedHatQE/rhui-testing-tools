@@ -82,7 +82,7 @@ class RHUIManagerRepo:
         '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "a")
-        Expect.expect(connection, "Import Repositories:.*to abort:", 120)
+        Expect.expect(connection, "Import Repositories:.*to abort:", 180)
         Expect.enter(connection, "1")
         RHUIManager.proceed_without_check(connection)
         RHUIManager.quit(connection, "Content will not be downloaded", 45)
@@ -94,7 +94,7 @@ class RHUIManagerRepo:
         '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "a")
-        Expect.expect(connection, "Import Repositories:.*to abort:", 120)
+        Expect.expect(connection, "Import Repositories:.*to abort:", 180)
         Expect.enter(connection, "2")
         RHUIManager.select(connection, productlist)
         RHUIManager.proceed_with_check(connection, "The following products will be deployed:", productlist)
@@ -107,7 +107,7 @@ class RHUIManagerRepo:
         '''
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "a")
-        Expect.expect(connection, "Import Repositories:.*to abort:", 120)
+        Expect.expect(connection, "Import Repositories:.*to abort:", 180)
         Expect.enter(connection, "3")
         RHUIManager.select(connection, repolist)
         repocheck = list(repolist)
