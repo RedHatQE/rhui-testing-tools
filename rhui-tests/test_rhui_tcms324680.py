@@ -34,7 +34,7 @@ class test_tcms324680(RHUITestcase):
 
     def _test(self):
         '''[TCMS#324680 test] Check the packages list for repo324680'''
-        nose.tools.assert_equal(RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "repo_xxx", ""), ["custom-signed-rpm-1-0.1.fc17.noarch.rpm", "custom-unsigned-rpm-1-0.1.fc17.noarch.rpm"])
+        nose.tools.assert_equal(RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "repo324680", ""), ["custom-signed-rpm-1-0.1.fc17.noarch.rpm", "custom-unsigned-rpm-1-0.1.fc17.noarch.rpm"])
 
     def _cleanup(self):
         '''[TCMS#324680 cleanup] Delete custom repo '''
