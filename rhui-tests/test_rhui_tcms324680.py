@@ -22,14 +22,15 @@ class test_tcms324680(RHUITestcase):
         RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "repo324680")
 
         """[TCMS#324680 setup] Create fake rpm"""
-        Expect.enter(self.rs.Instances["RHUA"][0], "touch /root/fake.rpm && echo SUCCESS")
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "mkdir /root/rpms324680 && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.enter(self.rs.Instances["RHUA"][0], "touch /root/rpms324680/fake.rpm && echo SUCCESS")
 
         """[TCMS#324680 setup] Create rpm files"""
-        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-signed-rpm-1-0.1.fc17.noarch.rpm", "/root/custom-signed-rpm-1-0.1.fc17.noarch.rpm")
-        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm", "/root/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
+        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-signed-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms324680/custom-signed-rpm-1-0.1.fc17.noarch.rpm")
+        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms324680/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
 
         '''[TCMS#324680 setup] Upload content to custom repo324680 in cli mode'''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager packages upload --repo_id repo324680 --packages /root && echo SUCCESS", "[^ ]SUCCESS", 10)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager packages upload --repo_id repo324680 --packages /root/rpms324680 && echo SUCCESS", "[^ ]SUCCESS", 10)
 
     def _test(self):
         '''[TCMS#324680 test] Check the packages list for repo324680'''
@@ -39,8 +40,8 @@ class test_tcms324680(RHUITestcase):
         '''[TCMS#324680 cleanup] Delete custom repo '''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo324680"])
 
-        '''[TCMS#284279 cleanup] Remove fake rpm from RHUI '''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], " rm -f /root/fake.rpm && echo SUCCESS", "[^ ]SUCCESS")
+        '''[TCMS#284279 cleanup] Remove rpms from RHUI '''
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], " rm -f -r /root/rpms324680 && echo SUCCESS", "[^ ]SUCCESS")
 
 
 if __name__ == "__main__":

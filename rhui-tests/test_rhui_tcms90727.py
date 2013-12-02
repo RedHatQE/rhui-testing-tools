@@ -18,13 +18,13 @@ class test_rhui_tcms90727(RHUITestcase):
         RHUIManagerRepo.add_custom_repo(self.rs.Instances["RHUA"][0], "repo1")
         
         """[TCMS#90727 setup] Create rpm and non-rpm files"""
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "mkdir /root/rpms && echo SUCCESS", "[^ ]SUCCESS")
-        Expect.enter(self.rs.Instances["RHUA"][0], "touch /root/rpms/test && echo SUCCESS")
-        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-signed-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms/custom-signed-rpm-1-0.1.fc17.noarch.rpm")
-        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "mkdir /root/rpms90727 && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.enter(self.rs.Instances["RHUA"][0], "touch /root/rpms90727/test && echo SUCCESS")
+        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-signed-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms90727/custom-signed-rpm-1-0.1.fc17.noarch.rpm")
+        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms90727/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
         
         '''[TCMS#90727 setup] Upload content'''
-        RHUIManagerRepo.upload_content(self.rs.Instances["RHUA"][0], ["repo1"], "/root/rpms")
+        RHUIManagerRepo.upload_content(self.rs.Instances["RHUA"][0], ["repo1"], "/root/rpms90727")
 
     def _test(self):
         '''[TCMS#90727 test] Check the packages list'''
@@ -35,7 +35,7 @@ class test_rhui_tcms90727(RHUITestcase):
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo1"])
 
         '''[TCMS#90727 cleanup] Remove fake rpm from RHUI '''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], " rm -f -r /root/rpms && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], " rm -f -r /root/rpms90727 && echo SUCCESS", "[^ ]SUCCESS")
         
 if __name__ == "__main__":
     nose.run(defaultTest=__name__, argv=[__file__, '-v'])

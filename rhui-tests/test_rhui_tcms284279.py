@@ -48,22 +48,22 @@ class test_tcms284279(RHUITestcase, RHUI_has_RH_cert):
         RHUIManager.quit(self.rs.Instances["RHUA"][0], "", 200)
 
         """[TCMS#284279 setup] Create rpm files"""
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "mkdir /root/rpms && echo SUCCESS", "[^ ]SUCCESS")
-        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-signed-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms/custom-signed-rpm-1-0.1.fc17.noarch.rpm")
-        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "mkdir /root/rpms284279 && echo SUCCESS", "[^ ]SUCCESS")
+        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-signed-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms284279/custom-signed-rpm-1-0.1.fc17.noarch.rpm")
+        self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm", "/root/rpms284279/custom-unsigned-rpm-1-0.1.fc17.noarch.rpm")
 
         '''[TCMS#284279 setup] Upload content to custom repo_xxx '''
-        RHUIManagerRepo.upload_content(self.rs.Instances["RHUA"][0], ["repo_xxx"], "/root/rpms")
+        RHUIManagerRepo.upload_content(self.rs.Instances["RHUA"][0], ["repo_xxx"], "/root/rpms284279")
 
         """[TCMS#284279 setup] Create fake rpm"""
-        Expect.enter(self.rs.Instances["RHUA"][0], "touch /root/rpms/fake.rpm && echo SUCCESS")
+        Expect.enter(self.rs.Instances["RHUA"][0], "touch /root/rpms284279/fake.rpm && echo SUCCESS")
 
         '''[TCMS#284279 setup] Upload content to custom repo_yyy'''
         RHUIManager.screen(self.rs.Instances["RHUA"][0], "repo")
         Expect.enter(self.rs.Instances["RHUA"][0], "u")
         RHUIManager.select(self.rs.Instances["RHUA"][0], ["repo_yyy"])
         Expect.expect(self.rs.Instances["RHUA"][0], "will be uploaded:")
-        Expect.enter(self.rs.Instances["RHUA"][0], "/root/rpms/fake.rpm")
+        Expect.enter(self.rs.Instances["RHUA"][0], "/root/rpms284279/fake.rpm")
         Expect.expect(self.rs.Instances["RHUA"][0], "error: not an rpm package")
         Expect.enter(self.rs.Instances["RHUA"][0], "q")
 
@@ -92,7 +92,7 @@ class test_tcms284279(RHUITestcase, RHUI_has_RH_cert):
         RHUIManager.remove_rh_certs(self.rs.Instances["RHUA"][0])
 
         '''[TCMS#284279 cleanup] Remove rpms from RHUI '''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], " rm -f -r /root/rpms && echo SUCCESS", "[^ ]SUCCESS")
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], " rm -f -r /root/rpms284279 && echo SUCCESS", "[^ ]SUCCESS")
 
 
 if __name__ == "__main__":
