@@ -38,11 +38,7 @@ class test_rhui_tcms90728(RHUITestcase, RHUI_has_RH_cert):
         nose.tools.assert_equal(RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "repo1", "custom-unsigned"), ["custom-unsigned-rpm-1-0.1.fc17.noarch.rpm"])
         nose.tools.assert_equal(RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "repo1", "test"), [])
         nose.tools.assert_equal(RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "repo2", ""), [])
-<<<<<<< HEAD
-        actual_answer = RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "Red Hat Enterprise Linux 6 Server - Supplementary from RHUI \(RPMs\) \(6Server-i386\)", "")
-=======
         actual_answer = RHUIManagerRepo.check_for_package(self.rs.Instances["RHUA"][0], "Red Hat Enterprise Linux 6 Server - Optional Beta from RHUI\(Debug RPMs\) \(6Server-i386\)", "")
->>>>>>> 627ae38fbfac41c4c3950a869e271087e42724a0
         nose.tools.ok_('Package Count' in actual_answer[0])
 
 
