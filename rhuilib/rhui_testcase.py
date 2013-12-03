@@ -62,6 +62,10 @@ class RHUITestcase(object):
             # Trying to check the status
             Expect.enter(self.rs.Instances["RHUA"][0], "b")
             RHUIManager.quit(self.rs.Instances["RHUA"][0])
+        self._sync_wait_cds(cdslist)
+
+    def _sync_wait_cds(self, cdslist):
+        # waits for the cds sync conclusion
         for cds in cdslist:
             cdssync = ["UP", "In Progress", "", ""]
             while cdssync[1] == "In Progress":
@@ -85,8 +89,6 @@ class RHUITestcase(object):
                 time.sleep(10)
                 reposync = RHUIManagerSync.get_repo_status(self.rs.Instances["RHUA"][0], repo)
             nose.tools.assert_equal(reposync[2], "Success")
-
-
 class RHUI_has_RH_rpm(object):
     @classmethod
     def check(self, rs):
