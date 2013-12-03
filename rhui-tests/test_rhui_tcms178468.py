@@ -54,8 +54,8 @@ class test_tcms_178468(RHUITestcase):
         '''[TCMS#178468 setup] Upload content to custom repo '''
         RHUIManagerRepo.upload_content(self.rs.Instances["RHUA"][0], [self.repo], "/etc/rhui/confrpm")
 
-        '''[TCMS#178468 setup] Sync cdses having uploaded content'''
-        RHUIManagerSync.sync_cds(self.rs.Instances["RHUA"][0], [self.cds.hostname])
+        '''[TCMS#178468 setup] Sync cds having uploaded content'''
+        self._sync_cds(self.rs.Instances["RHUA"][0], [self.cds.hostname])
 
     def _test(self):
         self.cds = Cds(self.rs.Instances["CDS"][0])
@@ -66,8 +66,8 @@ class test_tcms_178468(RHUITestcase):
         '''[TCMS#178468 test] Un-associate a custom repo from a cluster'''
         RHUIManagerCds.unassociate_repo_cds(self.rs.Instances["RHUA"][0], self.cluster, [self.repo])
 
-        '''[TCMS#178468 test] Sync cdses having unassociated repo'''
-        RHUIManagerSync.sync_cds(self.rs.Instances["RHUA"][0], [self.cds.hostname])
+        '''[TCMS#178468 test] Sync cds having unassociated repo'''
+        self._sync_cds(self.rs.Instances["RHUA"][0], [self.cds.hostname])
 
         '''[TCMS#178468 test] assert repo contents is present on the CDS no more'''
         nose.tools.ok_(self.repo not in self.cds.get_reponames())
