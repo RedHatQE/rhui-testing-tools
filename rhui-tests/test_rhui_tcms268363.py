@@ -30,6 +30,7 @@ class test_tcms268363(RHUITestcase):
 
         '''[TCMS#268363 setup] Sync cluster '''
         RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
+        self._sync_wait_cds([self.rs.Instances["CDS"][0].private_hostname])
 
     def _test(self):
     # we should test here 2 scenarios: 1) unassociating repo, 2) deleting repo
@@ -42,6 +43,7 @@ class test_tcms268363(RHUITestcase):
 
         '''[TCMS#268363 test] Sync cluster '''
         RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
+        self._sync_wait_cds([self.rs.Instances["CDS"][0].private_hostname])
 
         '''[TCMS#268363 test] check if keys are not present on CDS'''
         Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /etc/pki/pulp/content/repo268363/consumer-repo268363.ca || echo SUCCESS", "[^ ]SUCCESS")
@@ -52,6 +54,7 @@ class test_tcms268363(RHUITestcase):
 
         '''[TCMS#268363 test] Sync cluster '''
         RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
+        self._sync_wait_cds([self.rs.Instances["CDS"][0].private_hostname])
 
         '''[TCMS#268363 test] check if the keys exist on CDS'''
         Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /etc/pki/pulp/content/repo268363/consumer-repo268363.cert && echo SUCCESS", "[^ ]SUCCESS")
@@ -62,6 +65,7 @@ class test_tcms268363(RHUITestcase):
 
         '''[TCMS#268363 test] Sync cluster '''
         RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
+        self._sync_wait_cds([self.rs.Instances["CDS"][0].private_hostname])
 
         '''[TCMS#268363 test] check if keys are not present on CDS'''
         Expect.ping_pong(self.rs.Instances["CDS"][0], "test -f /etc/pki/pulp/content/repo268363/consumer-repo268363.ca || echo SUCCESS", "[^ ]SUCCESS")

@@ -27,8 +27,8 @@ class test_rhui_tcms267309(RHUITestcase):
         '''[TCMS#69086 test] upload unsigned rpm to custom repo'''
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager packages upload --repo_id repo267309 --packages /etc/rhui/confrpm && echo SUCCESS", "[^ ]SUCCESS", 10)
 
-        '''[TCMS#267309 setup] Sync cluster '''
-        RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
+        '''[TCMS#267309 setup] Sync CDS '''
+        self._sync_cds([self.rs.Instances["CDS"][0].private_hostname])
 
     def _test(self):
         '''[TCMS#267309 test] Check repo content on cds '''
@@ -40,8 +40,8 @@ class test_rhui_tcms267309(RHUITestcase):
         '''[TCMS#267309 cleanup] Delete custom repo '''
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo267309"])
 
-        '''[TCMS#267309 setup] Sync cluster '''
-        RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
+        '''[TCMS#267309 setup] Sync CDS '''
+        self.sync_cds([self.rs.Instances["CDS"][0].private_hostname])
 
         '''[TCMS#267309 test] Stop httpd on CDS'''
         Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS", 30)

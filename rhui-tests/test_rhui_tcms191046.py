@@ -44,6 +44,7 @@ class test_tcms_191046(RHUITestcase, RHUI_has_RH_rpm):
 
         '''[TCMS#191046 setup] Sync cluster '''
         RHUIManagerSync.sync_cluster(self.rs.Instances["RHUA"][0], ["Cluster1"])
+        self._sync_wait_cds([self.rs.Instances["CDS"][0].private_hostname])
 
         '''[TCMS#191046 setup] Generate entitlement certificate '''
         RHUIManagerClient.generate_ent_cert(self.rs.Instances["RHUA"][0], "Cluster1", ["repo1"], "cert-repo1", "/root/", validity_days="", cert_pw=None)
