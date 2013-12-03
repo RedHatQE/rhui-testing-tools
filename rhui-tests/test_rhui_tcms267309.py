@@ -41,7 +41,7 @@ class test_rhui_tcms267309(RHUITestcase):
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo267309"])
 
         '''[TCMS#267309 setup] Sync CDS '''
-        self.sync_cds([self.rs.Instances["CDS"][0].private_hostname])
+        self._sync_cds([self.rs.Instances["CDS"][0].private_hostname])
 
         '''[TCMS#267309 test] Stop httpd on CDS'''
         Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS", 30)
