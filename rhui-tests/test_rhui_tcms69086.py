@@ -46,7 +46,7 @@ class test_tcms_69086(RHUITestcase):
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "rhui-manager packages upload --repo_id repo_tcms69086 --packages /root/repo_tcms69086-3.1/build/RPMS/noarch/repo_tcms69086-3.1-1.noarch.rpm && echo SUCCESS", "[^ ]SUCCESS", 10)
 
         '''[TCMS#69086 test] Sync cds '''
-        self.sync_cds(self.rs.Instances["RHUA"][0], [self.rs.Instances["CDS"][0].private_hostname])
+        self._sync_cds([self.rs.Instances["CDS"][0].private_hostname])
 
         '''[TCMS#69086 test] trying to install updated rpm on the client'''
         Expect.ping_pong(self.rs.Instances["CLI"][0], "yum install -y repo_tcms69086 && echo SUCCESS", "[^ ]SUCCESS", 60)
