@@ -9,7 +9,7 @@ class RHUIManagerRepo:
     Represents -= Repository Management =- RHUI screen
     '''
     @staticmethod
-    def add_custom_repo(connection, reponame, displayname="", path="", checksum_alg="1", entitlement="y", entitlement_path="", redhat_gpg="y", custom_gpg=None):
+    def add_custom_repo(connection, reponame, displayname="", path="", checksum_alg="2", entitlement="y", entitlement_path="", redhat_gpg="y", custom_gpg=None):
         '''
         create a new custom repository
         '''
