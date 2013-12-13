@@ -550,7 +550,7 @@ for i in con_ec2.get_all_instances():
                 hostsfile.write(private_ip + "\t" + private_hostname + "\n")
             if public_hostname and public_ip:
                 hostsfile.write(public_ip + "\t" + public_hostname + "\n")
-yamlconfig = {'Instances': instances_detail[:]}
+yamlconfig = {'Instances': sorted(instances_detail[:], lambda x, y: cmp(str(x['Name']), str(y['Name'])))}
 yamlfile.write(yaml.safe_dump(yamlconfig))
 yamlfile.close()
 hostsfile.close()
