@@ -47,7 +47,7 @@ class test_rhui_tcms267309(RHUITestcase):
         Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS", 30)
 
         '''[TCMS#267309 test] Delete orphaned packages '''
-        Expect.ping_pong(self.rs.Instances["CDS"][0], "echo Y | pulp-purge-packages 2>&1 && echo SUCCESS", "[^ ]SUCCESS", 30)
+        Expect.ping_pong(self.rs.Instances["CDS"][0], "echo Y | pulp-purge-packages 2>&1 && echo SUCCESS", "[^ ]SUCCESS", 900)
 
         '''[TCMS#248535 cleanup] Start httpd on CDS'''
         Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd start ||: && echo SUCCESS", "[^ ]SUCCESS", 30)
