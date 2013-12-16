@@ -41,7 +41,7 @@ class test_tcms_251851(RHUITestcase, RHUI_has_RH_cert):
         Expect.ping_pong(self.rs.Instances["RHUA"][0], "rm -f /var/lib/pulp/repos/content/dist/rhel/rhui/server/6/6Server/x86_64/rhui/2/source/SRPMS/rh-rhui-tools-2.1.17-1.el6_3.src.rpm && echo SUCCESS", "[^ ]SUCCESS")
 
         '''[TCMS#251851 test] Check for pulp-purge-packages output '''
-        Expect.ping_pong(self.rs.Instances["RHUA"][0], "echo Y | pulp-purge-packages 2>&1 | grep \"rh-rhui-tools.*deleted\" && echo SUCCESS", "[^ ]SUCCESS", 10)
+        Expect.ping_pong(self.rs.Instances["RHUA"][0], "echo Y | pulp-purge-packages 2>&1 | grep \"rh-rhui-tools.*deleted\" && echo SUCCESS", "[^ ]SUCCESS", 900)
 
     def _cleanup(self):
         '''[TCMS#251851 cleanup] Change num_old_pkgs_keep setting, restart pulp-server'''

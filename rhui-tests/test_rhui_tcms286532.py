@@ -54,14 +54,14 @@ class test_tcms_286532(RHUITestcase):
         '''[TCMS#286532 test] Stop httpd on CDS'''
         Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS", 30)
 
-        '''[TCMS#286532 test] Delete orphaned packages '''
-        Expect.ping_pong(self.rs.Instances["CDS"][0], "echo Y | pulp-purge-packages 2>&1 && echo SUCCESS", "[^ ]SUCCESS", 30)
-
-        '''[TCMS#286532 cleanup] Start httpd on CDS'''
-        Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd start ||: && echo SUCCESS", "[^ ]SUCCESS", 30)
-
-        '''[TCMS#286532 cleanup] Remove cds '''
-        RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname])
+        try:
+            '''[TCMS#286532 test] Delete orphaned packages '''
+            Expect.ping_pong(self.rs.Instances["CDS"][0], "echo Y | pulp-purge-packages 2>&1 && echo SUCCESS", "[^ ]SUCCESS", 900)
+        finally:
+            '''[TCMS#286532 cleanup] Start httpd on CDS'''
+            Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd start ||: && echo SUCCESS", "[^ ]SUCCESS", 30)
+            '''[TCMS#286532 cleanup] Remove cds '''
+            RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname])
 
 
 if __name__ == "__main__":
