@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+""" Nitrate reporter """
 
 import argparse
 import logging
@@ -50,12 +51,12 @@ class NitrateMaintainer(object):
             raise ValueError("neither run nor plan ids specified")
         if test_run_id:
             self.test_run = nitrate.TestRun(id=test_run_id)
-            logging.debug("loaded test run: %s" % self.test_run)
+            logging.debug("loaded test run: %s", self.test_run)
         else:
             test_plan = nitrate.TestPlan(id=test_plan_id)
-            logging.debug("loaded plan: %s" % test_plan)
+            logging.debug("loaded plan: %s", test_plan)
             self.test_run = nitrate.TestRun(testplan=test_plan)
-            logging.debug("created test run: %s" % self.test_run)
+            logging.debug("created test run: %s", self.test_run)
         # initialize a result-to-testcase map; this is used for updating
         # a test result record as the parsing goes on
         self.result_map = dict(
@@ -63,40 +64,41 @@ class NitrateMaintainer(object):
         )
         for result in self.test_run:
             self.result_map[result.testcase] = result
-            logging.debug("run %s" % result.__dict__)
+            logging.debug("run %s", result.__dict__)
             # initialize notes as well
+        self.test_case = None
 
     def sync(self):
         """synchronize stuff with nitrate server"""
         if not self.in_test:
             return
-        logging.debug("updating %s" % self.result_map[self.test_case].__dict__)
+        logging.debug("updating %s", self.result_map[self.test_case].__dict__)
         self.case_run.update()
 
     def reset(self, test_case=None):
         """reset self state"""
         self.test_case = test_case
-        logging.debug("state reset to: %s" % self.test_case)
+        logging.debug("state reset to: %s", self.test_case)
 
     def reset_to_id(self, test_id):
         """reset current state to a test_case loaded by the id"""
-        logging.debug("resetting to id: %s" % test_id)
+        logging.debug("resetting to id: %s", test_id)
         # synchronize previous case run if any
         self.sync()
         try:
             test_case = nitrate.TestCase(id=test_id)
             if self.test_case == test_case:
-                logging.debug("already at the same id %d" % test_id)
+                logging.debug("already at the same id %d", test_id)
             else:
                 # new case id
                 if test_case in self.result_map:
-                    logging.debug("new test_case loaded for id %d" % test_id)
+                    logging.debug("new test_case loaded for id %d", test_id)
                     self.reset(test_case)
                 else:
-                    logging.info("skipped; id %d not in plan" % test_id)
+                    logging.info("skipped; id %d not in plan", test_id)
                     self.reset()
         except nitrate.NitrateError as e:
-            logging.warning("unmatched test id: %s; error: %s" % (test_id, e))
+            logging.warning("unmatched test id: %s; error: %s", test_id, e)
             self.reset()
 
     def __del__(self):
@@ -117,6 +119,7 @@ class NitrateMaintainer(object):
 
     @property
     def status(self):
+        """ get status """
         if not self.in_test:
             return None
         return self.case_run.status
@@ -126,14 +129,10 @@ class NitrateMaintainer(object):
         """update current case run status"""
         if not self.in_test:
             # can't set status if not in test case
-            logging.warning(
-                "setting status skipped; no test case available (%s)" % status
-            )
+            logging.warning("setting status skipped; no test case available (%s)", status)
             return
         self.case_run.status = status
-        logging.debug(
-            "case run %s marked with status: %s" % (self.case_run, status)
-        )
+        logging.debug("case run %s marked with status: %s", self.case_run, status)
 
     def add_note(self, note=""):
         """add a note to current case run"""
@@ -141,9 +140,7 @@ class NitrateMaintainer(object):
             return
         if not self.in_test:
             # can't add note if not in test case
-            logging.warning(
-                "adding note %s skipped; no test case available" % note
-            )
+            logging.warning("adding note %s skipped; no test case available", note)
             return
         try:
             self.case_run.notes += str(note)
@@ -208,6 +205,7 @@ class Translator(object):
             'system-out': self.system_out_end
         }
         self.test = None
+        self.text = None
         self.data_reset()
         self.nitrate = nitrate
         self.parser = expat.ParserCreate()
@@ -215,24 +213,25 @@ class Translator(object):
         self.parser.EndElementHandler = self.end
         self.parser.CharacterDataHandler = self.data
         with open(result_path) as result_file:
-            logging.debug("Reading results file: %s" % result_path)
+            logging.debug("Reading results file: %s", result_path)
             self.parser.ParseFile(result_file)
 
     def start(self, name, args):
-        logging.debug("Start element <%s %s>" % (name, args))
+        logging.debug("Start element <%s %s>", name, args)
         if not name in self.start_element_map:
             logging.debug("...skipped")
             return
         self.start_element_map[name](args)
 
     def end(self, name):
-        logging.debug("End element <%s/>" % name)
+        logging.debug("End element <%s/>", name)
         if not name in self.end_element_map:
             logging.debug("...skipped")
             return
         self.end_element_map[name]()
 
-    def testsuite_start(self, args):
+    @staticmethod
+    def testsuite_start(args):
         msg = """
         Testsuite Stats
         Name:     %(name)s
@@ -254,10 +253,10 @@ class Translator(object):
 
     def testcase_end(self):
         if self.test is not None and self.test.id is None:
-            logging.info("skipping non-tcms: %s" % self.test)
+            logging.info("skipping non-tcms: %s", self.test)
             return
         # sync to nitrate
-        logging.info("got: %s" % self.test)
+        logging.info("got: %s", self.test)
         if not self.nitrate:
             logging.debug("skipping nitrate sync")
             return

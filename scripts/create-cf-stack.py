@@ -1,11 +1,12 @@
 #! /usr/bin/python -tt
 
+""" Create CloudFormation stack """
+
 from paramiko import SSHClient
 from boto import cloudformation
 from boto import regioninfo
 from boto import ec2
 import argparse
-import ConfigParser
 import time
 import logging
 import sys
@@ -16,29 +17,32 @@ import tempfile
 import paramiko
 import yaml
 
+# pylint: disable=W0621
 
 class SyncSSHClient(SSHClient):
     '''
     Special class for sync'ed commands execution over ssh
     '''
     def run_sync(self, command):
-        logging.debug("RUN_SYNC '%s'" % command)
+        """ Run sync """
+        logging.debug("RUN_SYNC '%s'", command)
         stdin, stdout, stderr = self.exec_command(command)
         status = stdout.channel.recv_exit_status()
         if status:
-            logging.debug("RUN_SYNC status: %i" % status)
+            logging.debug("RUN_SYNC status: %i", status)
         else:
             logging.debug("RUN_SYNC failed!")
         return stdin, stdout, stderr
 
     def run_with_pty(self, command):
-        logging.debug("RUN_WITH_PTY '%s'" % command)
+        """ Run with PTY """
+        logging.debug("RUN_WITH_PTY '%s'", command)
         chan = self.get_transport().open_session()
         chan.get_pty()
         chan.exec_command(command)
         status = chan.recv_exit_status()
-        logging.debug("RUN_WITH_PTY recv: %s" % chan.recv(16384))
-        logging.debug("RUN_WITH_PTY status: %i" % status)
+        logging.debug("RUN_WITH_PTY recv: %s", chan.recv(16384))
+        logging.debug("RUN_WITH_PTY status: %i", status)
         chan.close()
         return status
 
@@ -55,12 +59,12 @@ def setup_host_ssh(hostname, key):
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     while ntries > 0:
         try:
-            logging.debug("Trying to connect to %s as root" % hostname)
+            logging.debug("Trying to connect to %s as root", hostname)
             client.connect(hostname=hostname,
                            username="root",
                            key_filename=key,
                            look_for_keys=False)
-            stdin, stdout, stderr = client.run_sync("whoami")
+            _, stdout, _ = client.run_sync("whoami")
             output = stdout.read()
             logging.debug("OUTPUT for 'whoami': " + output)
             if output != "root\n":
@@ -95,7 +99,7 @@ def setup_master(client):
     '''
     try:
         client.run_sync("rm -f /root/.ssh/id_rsa{,.pub}; ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa")
-        stdin, stdout, stderr = client.run_sync("cat /root/.ssh/id_rsa.pub")
+        _, stdout, _ = client.run_sync("cat /root/.ssh/id_rsa.pub")
         output = stdout.read()
         logging.debug("Generated ssh master key: " + output)
         return output
@@ -202,7 +206,7 @@ try:
     ec2_secret_key = valid_config["ec2"]["ec2-secret-key"]
 
 except Exception as e:
-    logging.error("got '%s' error processing: %s" % (e, args.config))
+    logging.error("got '%s' error processing: %s", e, args.config)
     logging.error("Please, check your config or and try again")
     sys.exit(1)
 
@@ -373,7 +377,7 @@ for i in range(1, args.cds + 1):
                            u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
                            u'Tags': [{u'Key': u'Name',
                                       u'Value': {u'Fn::Join': [u'_',
-                                                               [u'CDS%i' %i,
+                                                               [u'CDS%i' % i,
                                                                 {u'Ref': u'KeyName'}]]}},
                                      {u'Key': u'Role', u'Value': u'CDS'},
                                      {u'Key': u'PrivateHostname',
@@ -440,7 +444,7 @@ if not region:
     sys.exit(1)
 
 if args.fakecf:
-    from fakecf.fakecf import *
+    from fakecf.fakecf import FakeCF
     con_cf = FakeCF(aws_access_key_id=ec2_key,
                     aws_secret_access_key=ec2_secret_key,
                     region=args.region)

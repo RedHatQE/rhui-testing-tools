@@ -1,5 +1,7 @@
 #! /usr/bin/python -tt
 
+""" RHUI installer script """
+
 from paramiko import SSHClient, AutoAddPolicy
 import argparse
 import sys

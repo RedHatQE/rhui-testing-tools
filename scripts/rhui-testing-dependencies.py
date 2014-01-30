@@ -1,6 +1,7 @@
 #! /usr/bin/python -tt
 
-import os
+""" Install required RPMs from S3 """
+
 import sys
 import subprocess
 
