@@ -1,58 +1,71 @@
+""" RHUI testcase """
+
 import os
 import nose
 import logging
+import time
 
 from patchwork import structure
-from patchwork.expect import *
-from rhuilib.rhuimanager import *
-from rhuilib.rhuimanager_sync import *
+from patchwork.expect import Expect, ExpectFailed
+from rhuilib.rhuimanager import RHUIManager
+from rhuilib.rhuimanager_sync import RHUIManagerSync
+from rhuilib.util import Util
 
 
 class RHUITestcase(object):
+    """ RHUI testcase """
+    # pylint: disable=E1101
+
     @classmethod
-    def setupAll(typeinstance):
+    def setupAll(cls):
+        """ Setup """
         if "RHUI_TEST_DEBUG" is os.environ and os.environ["RHUI_TEST_DEBUG"] != "":
             loglevel = logging.DEBUG
         else:
             loglevel = logging.INFO
         logging.basicConfig(level=loglevel, format='%(asctime)s %(levelname)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-        typeinstance.rs = structure.Structure()
-        typeinstance.rs.setup_from_yamlfile(yamlfile="/etc/rhui-testing.yaml", output_shell=True)
-        typelist = [typeinstance]
-        for cls in typelist:
-            logging.debug("Exploring class " + str(cls))
-            logging.debug("Adding base classes: " + str(list(cls.__bases__)) + " to typelist")
-            for new_cls in list(cls.__bases__):
+        cls.rs = structure.Structure()
+        cls.rs.setup_from_yamlfile(yamlfile="/etc/rhui-testing.yaml", output_shell=True)
+        typelist = [cls]
+        for class_name in typelist:
+            logging.debug("Exploring class " + str(class_name))
+            logging.debug("Adding base classes: " + str(list(class_name.__bases__)) + " to typelist")
+            for new_cls in list(class_name.__bases__):
                 if not new_cls in typelist:
                     logging.debug("Appending " + str(new_cls) + " to classlist")
                     typelist.append(new_cls)
-            logging.debug("Checking for 'check' method of " + str(cls))
-            if hasattr(cls, "check"):
-                logging.debug("Calling 'check' for " + str(cls))
-                cls.check(typeinstance.rs)
+            logging.debug("Checking for 'check' method of " + str(class_name))
+            if hasattr(class_name, "check"):
+                logging.debug("Calling 'check' for " + str(class_name))
+                class_name.check(cls.rs)
 
     @classmethod
-    def teardownAll(typeinstance):
-        typeinstance.rs.__del__()
+    def teardownAll(cls):
+        """ Teardown """
+        cls.rs.__del__()
 
     def __init__(self):
         if hasattr(self, "_init"):
             self._init()
 
     def test_01_setup(self):
+        """ Setup """
         if hasattr(self, "_setup"):
             self._setup()
 
     def test_02_test(self):
+        """ Test """
         if hasattr(self, "_test"):
             self._test()
 
     def test_03_cleanup(self):
+        """ Cleanup """
         if hasattr(self, "_cleanup"):
             self.rs.reconnect_all()
             self._cleanup()
 
     def _sync_cds(self, cdslist):
+        """ Sync cds """
         if (not "RHUA" in self.rs.Instances.keys()) or len(self.rs.Instances["RHUA"]) < 1:
             raise nose.exc.SkipTest("can't test without RHUA!")
         try:
@@ -65,6 +78,7 @@ class RHUITestcase(object):
         self._sync_wait_cds(cdslist)
 
     def _sync_wait_cds(self, cdslist):
+        """ Sync CDS and wait """
         # waits for the cds sync conclusion
         for cds in cdslist:
             cdssync = ["UP", "In Progress", "", ""]
@@ -74,6 +88,7 @@ class RHUITestcase(object):
             nose.tools.assert_equal(cdssync[3], "Success")
 
     def _sync_repo(self, repolist):
+        """ Sync repo """
         if (not "RHUA" in self.rs.Instances.keys()) or len(self.rs.Instances["RHUA"]) < 1:
             raise nose.exc.SkipTest("can't test without RHUA!")
         try:
@@ -92,91 +107,107 @@ class RHUITestcase(object):
 
 
 class RHUI_has_RH_rpm(object):
+    """ Has RH-signed RPM """
     @classmethod
-    def check(self, rs):
+    def check(cls, rs):
+        """ Check """
         if not 'rhrpm' in rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH-signed RPM")
-        self.rhrpm = rs.config['rhrpm']
-        (self.rhrpmnvr, self.rhrpmname) = Util.get_rpm_details(self.rhrpm)
+        cls.rhrpm = rs.config['rhrpm']
+        (cls.rhrpmnvr, cls.rhrpmname) = Util.get_rpm_details(cls.rhrpm)
 
 
 class RHUI_has_RH_cert(object):
+    """ Has RH cert """
     @classmethod
-    def check(self, rs):
+    def check(cls, rs):
+        """ Check """
         if not 'rhcert' in rs.config.keys():
             raise nose.exc.SkipTest("can't test without RH certificate")
-        self.cert = rs.config['rhcert']
+        cls.cert = rs.config['rhcert']
 
 
 class RHUI_has_two_CDSes(object):
+    """ Has two CDSes """
     @classmethod
-    def check(self, rs):
+    def check(cls, rs):
+        """ Check """
         if (not "CDS" in rs.Instances.keys()) or len(rs.Instances["CDS"]) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CDSes!")
 
 
 class RHUI_has_three_CDSes(object):
+    """ Has three CDSes """
     @classmethod
-    def check(self, rs):
+    def check(cls, rs):
+        """ Check """
         if (not "CDS" in rs.Instances.keys()) or len(rs.Instances["CDS"]) < 3:
             raise nose.exc.SkipTest("can't test without having at least three CDSes!")
 
 
 class RHUI_has_two_CLIs_RHEL6(object):
+    """ Has two RHEL6 CLIs """
     @classmethod
-    def check(typeinstance, rs):
+    def check(cls, rs):
+        """ Check """
         if (not "CLI" in rs.Instances.keys()) or len(rs.Instances["CLI"]) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CLIs!")
-        typeinstance.rhel6client1 = None
-        typeinstance.rhel6client2 = None
+        cls.rhel6client1 = None
+        cls.rhel6client2 = None
         for cli in rs.Instances["CLI"]:
             if 'OS' in cli.parameters.keys():
-                if not typeinstance.rhel6client1 and cli.parameters['OS'] == "RHEL6":
-                    typeinstance.rhel6client1 = cli
-                elif not typeinstance.rhel6client2 and cli.parameters['OS'] == "RHEL6":
-                    typeinstance.rhel6client2 = cli
-        if not typeinstance.rhel6client1:
+                if not cls.rhel6client1 and cli.parameters['OS'] == "RHEL6":
+                    cls.rhel6client1 = cli
+                elif not cls.rhel6client2 and cli.parameters['OS'] == "RHEL6":
+                    cls.rhel6client2 = cli
+        if not cls.rhel6client1:
             raise nose.exc.SkipTest("No RHEL6 clients (two required), skipping test")
-        if not typeinstance.rhel6client2:
+        if not cls.rhel6client2:
             raise nose.exc.SkipTest("Only one RHEL6 client (two required), skipping test")
 
 
 class RHUI_has_RHEL6_CLI(object):
+    """ Has RHEL6 CLIs """
     @classmethod
-    def check(typeinstance, rs):
+    def check(cls, rs):
+        """ Check """
         if (not "CLI" in rs.Instances.keys()) or len(rs.Instances["CLI"]) < 1:
             raise nose.exc.SkipTest("can't test without having at least one CLI!")
-        typeinstance.rhel6client = None
+        cls.rhel6client = None
         for cli in rs.Instances["CLI"]:
             if 'OS' in cli.parameters.keys():
                 if cli.parameters['OS'] == "RHEL6":
-                    typeinstance.rhel6client = cli
+                    cls.rhel6client = cli
                     break
-        if not typeinstance.rhel6client:
+        if not cls.rhel6client:
             raise nose.exc.SkipTest("No RHEL6 clients, skipping test")
 
 
 class RHUI_has_RHEL5_and_RHEL6_CLIs(object):
+    """ Has two RHEL5 and RHEL6 CLIs """
     @classmethod
-    def check(typeinstance, rs):
+    def check(cls, rs):
+        """ Check """
         if (not "CLI" in rs.Instances.keys()) or len(rs.Instances["CLI"]) < 2:
             raise nose.exc.SkipTest("can't test without having at least two CLIs!")
-        typeinstance.rhel5client = None
-        typeinstance.rhel6client = None
+        cls.rhel5client = None
+        cls.rhel6client = None
         for cli in rs.Instances["CLI"]:
             if 'OS' in cli.parameters.keys():
-                if not typeinstance.rhel6client and cli.parameters['OS'] == "RHEL6":
-                    typeinstance.rhel6client = cli
-                elif not typeinstance.rhel5client and cli.parameters['OS'] == "RHEL5":
-                    typeinstance.rhel5client = cli
-        if not typeinstance.rhel6client:
+                if not cls.rhel6client and cli.parameters['OS'] == "RHEL6":
+                    cls.rhel6client = cli
+                elif not cls.rhel5client and cli.parameters['OS'] == "RHEL5":
+                    cls.rhel5client = cli
+        if not cls.rhel6client:
             raise nose.exc.SkipTest("No RHEL6 clients, skipping test")
-        if not typeinstance.rhel5client:
+        if not cls.rhel5client:
             raise nose.exc.SkipTest("No RHEL5 clients, skipping test")
 
 
 class RHUI_has_PROXY(object):
+    """ Has proxy """
     @classmethod
-    def check(self, rs):
+    def check(cls, rs):
+        """ Check """
         if (not "PROXY" in rs.Instances.keys()) or len(rs.Instances["PROXY"]) < 1:
             raise nose.exc.SkipTest("can't test without proxy!")

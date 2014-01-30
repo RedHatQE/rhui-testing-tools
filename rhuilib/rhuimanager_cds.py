@@ -1,16 +1,18 @@
+""" RHUIManager CDS functions """
+
 import re
 
-from patchwork.expect import *
-from rhuilib.rhuimanager import *
-from cds import RhuiCds
+from patchwork.expect import Expect, ExpectFailed
+from rhuilib.rhuimanager import RHUIManager
+from rhuilib.cds import RhuiCds
 
 
-class RHUIManagerCds:
+class RHUIManagerCds(object):
     '''
     Represents -= Content Delivery Server (CDS) Management =- RHUI screen
     '''
     @staticmethod
-    def _add_cds_part1(connection, clustername, cdsname, hostname="", displayname=""):
+    def _add_cds_part1(connection, cdsname, hostname="", displayname=""):
         '''
         service function for add_cds
         '''
@@ -24,6 +26,9 @@ class RHUIManagerCds:
 
     @staticmethod
     def _select_cluster(connection, clustername, create_new=True):
+        '''
+        select cluster
+        '''
         try:
             select = Expect.match(connection, re.compile(".*\s+([0-9]+)\s*-\s*" + clustername + "\s*\r\n.*to abort:.*", re.DOTALL))
             Expect.enter(connection, select[0])
@@ -40,14 +45,15 @@ class RHUIManagerCds:
         register (add) a new CDS instance
         '''
         RHUIManager.screen(connection, "cds")
-        RHUIManagerCds._add_cds_part1(connection, clustername, cdsname, hostname, displayname)
-        state = Expect.expect_list(connection, [(re.compile(".*Enter a CDS cluster name:.*", re.DOTALL), 1), (re.compile(".*Select a CDS cluster or enter a new one:.*", re.DOTALL), 2)])
+        RHUIManagerCds._add_cds_part1(connection, cdsname, hostname, displayname)
+        state = Expect.expect_list(connection, [(re.compile(".*Enter a CDS cluster name:.*", re.DOTALL), 1),
+                                                (re.compile(".*Select a CDS cluster or enter a new one:.*", re.DOTALL), 2)])
         if state == 1:
             Expect.enter(connection, clustername)
         else:
             Expect.enter(connection, 'b')
             Expect.expect(connection, "rhui \(cds\) =>")
-            RHUIManagerCds._add_cds_part1(connection, clustername, cdsname, hostname, displayname)
+            RHUIManagerCds._add_cds_part1(connection, cdsname, hostname, displayname)
             RHUIManagerCds._select_cluster(connection, clustername)
         # We need to compare the output before proceeding
         checklist = ["Hostname: " + cdsname]
@@ -88,7 +94,8 @@ class RHUIManagerCds:
         Expect.enter(connection, "s")
         RHUIManager.select_one(connection, clustername)
         RHUIManager.select(connection, repolist)
-        RHUIManager.proceed_with_check(connection, "The following repositories will be associated with the " + clustername + " cluster:", repolist, ["Red Hat Repositories", "Custom Repositories"])
+        RHUIManager.proceed_with_check(connection, "The following repositories will be associated with the " + clustername + " cluster:",
+                                       repolist, ["Red Hat Repositories", "Custom Repositories"])
         RHUIManager.quit(connection)
 
     @staticmethod
@@ -100,7 +107,8 @@ class RHUIManagerCds:
         Expect.enter(connection, "u")
         RHUIManager.select_one(connection, clustername)
         RHUIManager.select(connection, repolist)
-        RHUIManager.proceed_with_check(connection, "The following repositories will be unassociated from the " + clustername + " cluster:", repolist, ["Red Hat Repositories", "Custom Repositories"])
+        RHUIManager.proceed_with_check(connection, "The following repositories will be unassociated from the " + clustername + " cluster:",
+                                       repolist, ["Red Hat Repositories", "Custom Repositories"])
         RHUIManager.quit(connection)
 
     @staticmethod

@@ -1,8 +1,11 @@
-from patchwork.expect import *
-from rhuilib.rhuimanager import *
+""" RHUIManager Identity functions """
+
+from patchwork.expect import Expect
+from rhuilib.rhuimanager import RHUIManager
+from rhuilib.util import Util
 
 
-class RHUIManagerIdentity:
+class RHUIManagerIdentity(object):
     '''
     Represents -= Identity Certificate Management =- RHUI screen
     '''

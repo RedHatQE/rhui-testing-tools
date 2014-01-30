@@ -1,8 +1,10 @@
-from patchwork.expect import *
-from rhuilib.rhuimanager import *
+""" RHUIManager Entitlements functions """
+
+from patchwork.expect import Expect
+from rhuilib.rhuimanager import RHUIManager
 
 
-class RHUIManagerEntitlements:
+class RHUIManagerEntitlements(object):
     '''
     Represents -= Entitlements Manager =- RHUI screen
     '''

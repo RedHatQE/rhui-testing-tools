@@ -1,3 +1,5 @@
+""" Repo container """
+
 class Repo(object):
     """A Repo attributes container"""
     def __init__(self,
@@ -30,7 +32,7 @@ class Repo(object):
 class PulpRepo(Repo):
     """a Repo as the Pulp keeps track of it"""
     def __init__(self,
-            id=None,
+            repoid=None,
             name=None,
             package_count=None,
             url=None
@@ -39,7 +41,7 @@ class PulpRepo(Repo):
                 name=name,
                 package_count=package_count
                 )
-        self.id = id
+        self.id = repoid
         self.url = url
 
     def __eq__(self, other):

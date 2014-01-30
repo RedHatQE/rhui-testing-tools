@@ -1,8 +1,10 @@
-from patchwork.expect import *
-from rhuilib.rhuimanager import *
+""" RHUIManager Users functions """
+
+from patchwork.expect import Expect
+from rhuilib.rhuimanager import RHUIManager
 
 
-class RHUIManagerUsers:
+class RHUIManagerUsers(object):
     '''
     Represents -= User Manager =- RHUI screen
     '''

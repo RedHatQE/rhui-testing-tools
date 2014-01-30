@@ -1,4 +1,4 @@
-
+""" Cds container """
 
 class Cds(object):
     """A CDS attributes container"""

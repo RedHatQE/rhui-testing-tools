@@ -1,16 +1,22 @@
+""" Utility functions """
+
+
 import os
 import tempfile
 import time
+import random
+import string
 
-from patchwork.expect import *
+from patchwork.expect import Expect, ExpectFailed
 
 
-class Util:
+class Util(object):
     '''
     Utility functions for instances
     '''
     @staticmethod
     def uncolorify(instr):
+        """ Remove colorification """
         res = instr.replace("\x1b", "")
         res = res.replace("[91m", "")
         res = res.replace("[92m", "")
@@ -41,7 +47,7 @@ class Util:
         Expect.expect(connection, "root@")
 
         Expect.enter(connection, "gpg --gen-key --no-random-seed-file --batch /tmp/gpgkey")
-        for i in range(1, 200):
+        for _ in xrange(1, 200):
             Expect.enter(connection, ''.join(random.choice(string.ascii_lowercase) for x in range(200)))
             time.sleep(1)
             try:
@@ -66,12 +72,12 @@ class Util:
         Transfer RPM package from RHUA host to the instance and install it
         @param rpmpath: path to RPM package on RHUA node
         '''
-        tf = tempfile.NamedTemporaryFile(delete=False)
-        tf.close()
-        rhua_connection.sftp.get(rpmpath, tf.name)
-        connection.sftp.put(tf.name, tf.name + ".rpm")
-        os.unlink(tf.name)
-        Expect.ping_pong(connection, "rpm -i " + tf.name + ".rpm" + " && echo SUCCESS", "[^ ]SUCCESS", 60)
+        tfile = tempfile.NamedTemporaryFile(delete=False)
+        tfile.close()
+        rhua_connection.sftp.get(rpmpath, tfile.name)
+        connection.sftp.put(tfile.name, tfile.name + ".rpm")
+        os.unlink(tfile.name)
+        Expect.ping_pong(connection, "rpm -i " + tfile.name + ".rpm" + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     @staticmethod
     def get_ca_password(connection, pwdfile="/etc/rhui/pem/ca.pwd"):
@@ -79,12 +85,11 @@ class Util:
         Read CA password from file
         @param pwdfile: file with the password (defaults to /etc/rhui/pem/ca.pwd)
         '''
-        tf = tempfile.NamedTemporaryFile(delete=False)
-        tf.close()
-        connection.sftp.get("/etc/rhui/pem/ca.pwd", tf.name)
-        fd = open(tf.name, 'r')
-        password = fd.read()
-        fd.close()
+        tfile = tempfile.NamedTemporaryFile(delete=False)
+        tfile.close()
+        connection.sftp.get(pwdfile, tfile.name)
+        with open(tfile.name, 'r') as filed:
+            password = filed.read()
         if password[-1:] == '\n':
             password = password[:-1]
         return password
@@ -103,12 +108,14 @@ class Util:
 
     @staticmethod
     def wildcard(hostname):
+        """ Hostname wildcard """
         hostname_particles = hostname.split('.')
         hostname_particles[0] = "*"
         return ".".join(hostname_particles)
 
     @staticmethod
-    def generate_answers(rhuisetup, version="1.0", generate_certs=True, proxy_host=None, proxy_port="3128", proxy_user="rhua", proxy_password=None, capassword=None, answersfile_name="/etc/rhui/answers"):
+    def generate_answers(rhuisetup, version="1.0", generate_certs=True, proxy_host=None, proxy_port="3128",
+                         proxy_user="rhua", proxy_password=None, capassword=None, answersfile_name="/etc/rhui/answers"):
         ''' Generate answers file ant put it to RHUA node'''
         answersfile = tempfile.NamedTemporaryFile(delete=False)
         answersfile.write("[general]\n")

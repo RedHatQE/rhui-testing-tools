@@ -1,10 +1,12 @@
+""" RHUIManager Repo functions """
+
 import re
 
-from patchwork.expect import *
-from rhuilib.rhuimanager import *
+from patchwork.expect import Expect, ExpectFailed
+from rhuilib.rhuimanager import RHUIManager
 
 
-class RHUIManagerRepo:
+class RHUIManagerRepo(object):
     '''
     Represents -= Repository Management =- RHUI screen
     '''
@@ -41,7 +43,7 @@ class RHUIManagerRepo:
             if entitlement_path != "":
                 checklist.append("Entitlement: " + entitlement_path)
             else:
-                educated_guess, replace_count = re.subn("(i386|x86_64)","$basearch", path_real)
+                educated_guess, replace_count = re.subn("(i386|x86_64)", "$basearch", path_real)
                 if replace_count > 1:
                     # bug 815975
                     educated_guess = path_real
@@ -153,9 +155,9 @@ class RHUIManagerRepo:
         RHUIManager.select_one(connection, reponame)
         Expect.expect(connection, "\(blank line for no filter\):")
         Expect.enter(connection, package)
-        
+
         pattern = re.compile('.*only\.\r\n(.*)\r\n-+\r\nrhui\s* \(repo\)\s* =>',
-                re.DOTALL)
+                             re.DOTALL)
         ret = Expect.match(connection, pattern, grouplist=[1])[0]
         reslist = map(lambda x: x.strip(), ret.split("\r\n"))
         print reslist
@@ -214,10 +216,10 @@ class RHUIManagerRepo:
         RHUIManager.screen(connection, "repo")
         Expect.enter(connection, "i")
         RHUIManager.select(connection, repolist)
-        
+
         try:
             pattern = re.compile('.*for more commands: \r\n\r\nName:\s(.*)\r\n-+\r\nrhui\s* \(repo\)\s* =>',
-                    re.DOTALL)
+                                 re.DOTALL)
             ret = Expect.match(connection, pattern, grouplist=[1])[0]
             print ret
             res = map(lambda x: x.strip(), ret.split("\r\n"))
@@ -251,7 +253,7 @@ class RHUIManagerRepo:
                         rh_repo_info = 1
                 repoinfo.append(line)
             print repoinfo
-       
+
         except:
             repoinfo = []
 

@@ -1,9 +1,11 @@
-from patchwork.expect import *
-from rhuilib.util import *
-from rhuilib.rhuimanager import *
+""" RHUIManager Client functions """
+
+from patchwork.expect import Expect
+from rhuilib.util import Util
+from rhuilib.rhuimanager import RHUIManager
 
 
-class RHUIManagerClient:
+class RHUIManagerClient(object):
     '''
     Represents -= Client Entitlement Management =- RHUI screen
     '''
@@ -22,7 +24,8 @@ class RHUIManagerClient:
         Expect.enter(connection, dirname)
         Expect.expect(connection, "Number of days the certificate should be valid.*:")
         Expect.enter(connection, validity_days)
-        RHUIManager.proceed_with_check(connection, "Repositories to be included in the entitlement certificate:", repolist, ["Custom Entitlements", "Red Hat Repositories"])
+        RHUIManager.proceed_with_check(connection, "Repositories to be included in the entitlement certificate:",
+                                       repolist, ["Custom Entitlements", "Red Hat Repositories"])
         Expect.expect(connection, "Enter pass phrase for.*:")
         if cert_pw:
             Expect.enter(connection, cert_pw)

@@ -1,7 +1,9 @@
+""" pulp-admin functions """
+
 import re
-from patchwork.expect import Expect, ExpectFailed
-from cds import PulpCds
-from repo import PulpRepo
+from patchwork.expect import Expect
+from rhuilib.cds import PulpCds
+from rhuilib.repo import PulpRepo
 
 
 class PulpAdmin(object):
@@ -32,7 +34,7 @@ class PulpAdmin(object):
                 "\s*\r\n\+-+\+(\r\n)+(.*)\[.*@.*\][\$#]", re.DOTALL), 2)
 
     @staticmethod
-    def output_info_pattern(command):
+    def output_info_pattern():
         """
         command is incorporated;
         returns a tuple (pattern, group_id); group_id points to the group
@@ -75,7 +77,7 @@ class PulpAdmin(object):
         command
         """
         command = "cds info --id %s" % cds_id
-        pattern_tuple = PulpAdmin.output_info_pattern(command)
+        pattern_tuple = PulpAdmin.output_info_pattern()
         lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
         return PulpAdmin._cds_lines_parser(lines)[0]
@@ -138,7 +140,7 @@ class PulpAdmin(object):
         return the output of the repo id command parsed into PulpRepo object
         """
         command = "repo info --id %s" % repo_id
-        pattern_tuple = PulpAdmin.output_info_pattern(command)
+        pattern_tuple = PulpAdmin.output_info_pattern()
         lines = PulpAdmin.command_output(connection, command, pattern_tuple,
                 username, password)
         return PulpAdmin._repo_lines_parser(lines)[0]
@@ -156,7 +158,7 @@ class PulpAdmin(object):
             if words[0] == 'Id':
                 # Id means a start of a new repo record
                 # push current repo and create a fresh one
-                repo = PulpRepo(id=words[1])
+                repo = PulpRepo(repoid=words[1])
                 repos.append(repo)
             if words[0] == 'Name':
                 repo.name = " ".join(words[1:])

@@ -1,10 +1,13 @@
+""" RHUIManager Sync functions """
+
 import re
 
-from patchwork.expect import *
-from rhuilib.rhuimanager import *
+from patchwork.expect import Expect
+from rhuilib.rhuimanager import RHUIManager
+from rhuilib.util import Util
 
 
-class RHUIManagerSync:
+class RHUIManagerSync(object):
     '''
     Represents -= Synchronization Status =- RHUI screen
     '''

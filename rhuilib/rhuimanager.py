@@ -1,9 +1,11 @@
 import re
-from patchwork.expect import *
-from rhuilib.util import *
+import logging
+
+from patchwork.expect import Expect, ExpectFailed
+from rhuilib.util import Util
 
 
-class RHUIManager:
+class RHUIManager(object):
     '''
     Basic functions to manage rhui-manager.
     '''
@@ -91,7 +93,9 @@ class RHUIManager:
         Do rhui-manager initial run
         '''
         Expect.enter(connection, "rhui-manager")
-        state = Expect.expect_list(connection, [(re.compile(".*Full path to the new signing CA certificate:.*", re.DOTALL), 1), (re.compile(".*RHUI Username:.*",re.DOTALL),2),(re.compile(".*rhui \(home\) =>.*", re.DOTALL), 3)])
+        state = Expect.expect_list(connection, [(re.compile(".*Full path to the new signing CA certificate:.*", re.DOTALL), 1),
+                                                (re.compile(".*RHUI Username:.*", re.DOTALL),2),
+                                                (re.compile(".*rhui \(home\) =>.*", re.DOTALL), 3)])
         if state in [1, 2]:
             if state == 1:
                 # Need to answer sone first-run questions
