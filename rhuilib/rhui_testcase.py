@@ -183,6 +183,23 @@ class RHUI_has_RHEL6_CLI(object):
             raise nose.exc.SkipTest("No RHEL6 clients, skipping test")
 
 
+class RHUI_has_RHEL7_CLI(object):
+    """ Has RHEL7 CLIs """
+    @classmethod
+    def check(cls, rs):
+        """ Check """
+        if (not "CLI" in rs.Instances.keys()) or len(rs.Instances["CLI"]) < 1:
+            raise nose.exc.SkipTest("can't test without having at least one CLI!")
+        cls.rhel7client = None
+        for cli in rs.Instances["CLI"]:
+            if 'OS' in cli.parameters.keys():
+                if cli.parameters['OS'] == "RHEL7":
+                    cls.rhel7client = cli
+                    break
+        if not cls.rhel7client:
+            raise nose.exc.SkipTest("No RHEL7 clients, skipping test")
+
+
 class RHUI_has_RHEL5_and_RHEL6_CLIs(object):
     """ Has two RHEL5 and RHEL6 CLIs """
     @classmethod

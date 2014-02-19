@@ -146,6 +146,7 @@ argparser.add_argument('--rhuirhelversion', help='RHEL version for RHUI setup (R
 
 argparser.add_argument('--rhel5', help='number of RHEL5 clients', type=int, default=0)
 argparser.add_argument('--rhel6', help='number of RHEL6 clients', type=int, default=1)
+argparser.add_argument('--rhel7', help='number of RHEL7 clients', type=int, default=0)
 argparser.add_argument('--cds', help='number of CDSes instances', type=int, default=1)
 argparser.add_argument('--proxy', help='create RHUA<->CDN proxy', action='store_const', const=True, default=False)
 argparser.add_argument('--config',
@@ -221,6 +222,8 @@ if args.rhel5 > 0:
     json_dict['Description'] += " %s RHEL5 clients" % args.rhel5
 if args.rhel6 > 0:
     json_dict['Description'] += " %s RHEL6 clients" % args.rhel6
+if args.rhel7 > 0:
+    json_dict['Description'] += " %s RHEL7 clients" % args.rhel7
 if args.proxy:
     json_dict['Description'] += " PROXY"
 
@@ -264,7 +267,16 @@ json_dict['Mappings'] = \
                 u'sa-east-1': {u'AMI': u'ami-8bb76c96'},
                 u'us-east-1': {u'AMI': u'ami-d94bdcb0'},
                 u'us-west-1': {u'AMI': u'ami-fc9cbfb9'},
-                u'us-west-2': {u'AMI': u'ami-5e57dd6e'}}
+                u'us-west-2': {u'AMI': u'ami-5e57dd6e'}},
+   u'RHEL70': {u'ap-northeast-1': {u'AMI': u'ami-c7d0b0c6'},
+                u'ap-southeast-1': {u'AMI': u'ami-7cb6e22e'},
+                u'ap-southeast-2': {u'AMI': u'ami-63b22d59'},
+                u'eu-west-1': {u'AMI': u'ami-846a84f3'},
+                u'sa-east-1': {u'AMI': u'ami-7d862760'},
+                u'us-east-1': {u'AMI': u'ami-5b183532'},
+                u'us-west-1': {u'AMI': u'ami-70447435'},
+                u'us-west-2': {u'AMI': u'ami-aa94f19a'}}
+
    }
 
 json_dict['Parameters'] = \
@@ -388,29 +400,31 @@ for i in range(1, args.cds + 1):
                                       u'Value': u'cds%i_pub.example.com' % i}]},
            u'Type': u'AWS::EC2::Instance'}
 
-for i in range(1, args.rhel5 + args.rhel6 + 1):
-    if i > args.rhel5:
-        os = "RHEL64"
-    else:
-        os = "RHEL59"
-    json_dict['Resources']["cli%i" % i] = \
-        {u'Properties': {u'ImageId': {u'Fn::FindInMap': [os,
-                                                           {u'Ref': u'AWS::Region'},
-                                                           u'AMI']},
-                           u'InstanceType': u'm1.small',
-                           u'KeyName': {u'Ref': u'KeyName'},
-                           u'SecurityGroups': [{u'Ref': u'CLIsecuritygroup'}],
-                           u'Tags': [{u'Key': u'Name',
-                                      u'Value': {u'Fn::Join': [u'_',
-                                                               [u'RHUI_CLI%i' % i,
-                                                                {u'Ref': u'KeyName'}]]}},
-                                     {u'Key': u'Role', u'Value': u'CLI'},
-                                     {u'Key': u'PrivateHostname',
-                                      u'Value': u'cli%i.example.com' % i},
-                                     {u'Key': u'PublicHostname',
-                                      u'Value': u'cli%i_pub.example.com' % i},
-                                     {u'Key': u'OS', u'Value': u'%s' % os[:5]}]},
-           u'Type': u'AWS::EC2::Instance'}
+os_dict = {5: "RHEL59", 6: "RHEL64", 7: "RHEL70"}
+for i in (5,6,7):
+    num_cli_ver = args.__getattribute__("rhel%i" % i)
+    if num_cli_ver:
+        for j in range(0, num_cli_ver):
+            os =os_dict[i]
+
+            json_dict['Resources']["cli%i" % i] = \
+                {u'Properties': {u'ImageId': {u'Fn::FindInMap': [os,
+                                                                   {u'Ref': u'AWS::Region'},
+                                                                   u'AMI']},
+                                   u'InstanceType': u'm3.medium' if os == "RHEL70"  else u'm1.small',
+                                   u'KeyName': {u'Ref': u'KeyName'},
+                                   u'SecurityGroups': [{u'Ref': u'CLIsecuritygroup'}],
+                                   u'Tags': [{u'Key': u'Name',
+                                              u'Value': {u'Fn::Join': [u'_',
+                                                                       [u'RHUI_CLI%i' % i,
+                                                                        {u'Ref': u'KeyName'}]]}},
+                                             {u'Key': u'Role', u'Value': u'CLI'},
+                                             {u'Key': u'PrivateHostname',
+                                              u'Value': u'cli%i.example.com' % i},
+                                             {u'Key': u'PublicHostname',
+                                              u'Value': u'cli%i_pub.example.com' % i},
+                                             {u'Key': u'OS', u'Value': u'%s' % os[:5]}]},
+                   u'Type': u'AWS::EC2::Instance'}
 
 if args.vpcid and args.subnetid:
     # Setting VpcId and SubnetId

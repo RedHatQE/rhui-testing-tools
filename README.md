@@ -20,7 +20,7 @@ Basic usage:
     with rpm installed:
         create-cf-stack.py --region eu-west-1
 
-    use --rhel5, --rhel6, --cds, --proxy parameters to specify required configuration
+    use --rhel5, --rhel6, --rhel7, --cds, --proxy parameters to specify required configuration
 
     /etc/validation.yaml is used as config file. An example:
     ec2: {ec2-key: AAAAAAAAAAAAAAAAAAAA, ec2-secret-key: B0B0B0B0B0B0B0B0B0B0a1a1a1a1a1a1a1a1a1a1}
