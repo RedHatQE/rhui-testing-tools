@@ -3,7 +3,7 @@ RHUI testing tools
 
 Contents:
 --------
-Scipts (scripts/, placed under /usr/bin in rpm):
+Scripts (scripts/, placed under /usr/bin in rpm):
     create-cf-stack.py: creates CloudForamtion stack of resources (cnf/ contains examples)
     remote-rhui-installer.sh: run remote RHUI installer
     rhui-installer.py: RHUI installer (must be run on 'Master' node)
