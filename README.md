@@ -33,6 +33,11 @@ Basic usage:
 
     use --rhel5, --rhel6, --rhel7, --cds, --proxy parameters to specify required configuration
 
+1a) (Optional) In case it is your first time using EC2 cloud, you need to create key chain pair in webui of AWS:
+    - Go to AWS webui, select your region and on dashboard page choose "Key Pairs"
+    - There select Create Key Pair - you will be asked for name and than you will be offered a download of pem file.
+    - You will need this name and path to this file changed in validation.yaml.
+
     /etc/validation.yaml is used as config file. Change ec2-key and ec2-secret-key values to your keys. An example:
     ec2: {ec2-key: AAAAAAAAAAAAAAAAAAAA, ec2-secret-key: B0B0B0B0B0B0B0B0B0B0a1a1a1a1a1a1a1a1a1a1}
     ssh:
