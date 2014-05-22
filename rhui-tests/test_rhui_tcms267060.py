@@ -5,7 +5,7 @@ import nose
 from rhuilib.rhuimanager_identity import *
 from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
-from patchwork.expect import *
+from stitches.expect import *
 
 
 class test_tcms267060(RHUITestcase):

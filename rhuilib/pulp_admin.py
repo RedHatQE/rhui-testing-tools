@@ -1,7 +1,7 @@
 """ pulp-admin functions """
 
 import re
-from patchwork.expect import Expect
+from stitches.expect import Expect
 from rhuilib.cds import PulpCds
 from rhuilib.repo import PulpRepo
 

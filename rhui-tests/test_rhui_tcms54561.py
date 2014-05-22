@@ -2,7 +2,7 @@
 
 import nose
 
-from patchwork.expect import *
+from stitches.expect import *
 from rhuilib.rhui_testcase import *
 
 

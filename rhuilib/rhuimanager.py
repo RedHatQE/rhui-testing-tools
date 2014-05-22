@@ -1,7 +1,7 @@
 import re
 import logging
 
-from patchwork.expect import Expect, ExpectFailed
+from stitches.expect import Expect, ExpectFailed
 from rhuilib.util import Util
 
 

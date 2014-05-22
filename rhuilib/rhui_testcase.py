@@ -5,8 +5,8 @@ import nose
 import logging
 import time
 
-from patchwork import structure
-from patchwork.expect import Expect, ExpectFailed
+from stitches import structure
+from stitches.expect import Expect, ExpectFailed
 from rhuilib.rhuimanager import RHUIManager
 from rhuilib.rhuimanager_sync import RHUIManagerSync
 from rhuilib.util import Util

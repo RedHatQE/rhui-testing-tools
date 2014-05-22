@@ -2,7 +2,7 @@
 
 import re
 
-from patchwork.expect import Expect, ExpectFailed
+from stitches.expect import Expect, ExpectFailed
 from rhuilib.rhuimanager import RHUIManager
 from rhuilib.cds import RhuiCds
 

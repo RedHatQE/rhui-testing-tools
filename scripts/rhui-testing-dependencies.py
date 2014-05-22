@@ -7,7 +7,7 @@ import subprocess
 
 from rhuilib.s3 import download_from_s3
 
-for rpm in ["python-patchwork-", "python-pinocchio-"]:
+for rpm in ["python-stitches-", "python-pinocchio-"]:
     rpmfile = download_from_s3(rpm)
     if rpmfile != "":
         ret = subprocess.call(["yum", "-y", "install", rpmfile])

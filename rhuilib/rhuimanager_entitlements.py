@@ -1,6 +1,6 @@
 """ RHUIManager Entitlements functions """
 
-from patchwork.expect import Expect
+from stitches.expect import Expect
 from rhuilib.rhuimanager import RHUIManager
 
 

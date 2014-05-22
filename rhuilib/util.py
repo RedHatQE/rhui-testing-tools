@@ -7,7 +7,7 @@ import time
 import random
 import string
 
-from patchwork.expect import Expect, ExpectFailed
+from stitches.expect import Expect, ExpectFailed
 
 
 class Util(object):

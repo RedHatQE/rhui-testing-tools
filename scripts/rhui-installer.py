@@ -15,7 +15,7 @@ import yaml
 import subprocess
 import threading
 
-from patchwork import structure
+from stitches import structure
 
 from rhuilib.s3 import download_from_s3
 from rhuilib.util import Util

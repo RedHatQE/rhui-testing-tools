@@ -2,7 +2,7 @@
 
 import re
 
-from patchwork.expect import Expect
+from stitches.expect import Expect
 from rhuilib.rhuimanager import RHUIManager
 from rhuilib.util import Util
 

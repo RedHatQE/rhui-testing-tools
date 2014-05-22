@@ -3,7 +3,7 @@
 import nose
 import re
 
-from patchwork.expect import *
+from stitches.expect import *
 from rhuilib.rhui_testcase import *
 from rhuilib.rhuimanager import *
 from rhuilib.rhuimanager_cds import *

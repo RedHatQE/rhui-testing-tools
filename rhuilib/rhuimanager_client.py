@@ -1,6 +1,6 @@
 """ RHUIManager Client functions """
 
-from patchwork.expect import Expect
+from stitches.expect import Expect
 from rhuilib.util import Util
 from rhuilib.rhuimanager import RHUIManager
 
