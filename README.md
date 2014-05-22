@@ -11,6 +11,17 @@ Scripts (scripts/, placed under /usr/bin in rpm):
 RHUI tests (rhui-tests/, placed under /usr/share/rhui-testing-tools/rhui-tests in rpm):
     test-rhui-workflow-simple.py: simple workflow (basic test)
 
+Requirements for running:
+------------------------
+1) You need to install python modules and rhui-testing-tools before using them:
+2) In case you dont have it, install PIP tool:
+   sudo yum install python-pip
+3) Install boto (aws python interface):
+   pip install boto
+4) Install Python Yaml support:
+   sudo yum install PyYAML
+5) Install rhui-testing-tools - run in directory where this README is placed:
+   python setup.py install
 
 Basic usage:
 -----------
@@ -22,7 +33,7 @@ Basic usage:
 
     use --rhel5, --rhel6, --rhel7, --cds, --proxy parameters to specify required configuration
 
-    /etc/validation.yaml is used as config file. An example:
+    /etc/validation.yaml is used as config file. Change ec2-key and ec2-secret-key values to your keys. An example:
     ec2: {ec2-key: AAAAAAAAAAAAAAAAAAAA, ec2-secret-key: B0B0B0B0B0B0B0B0B0B0a1a1a1a1a1a1a1a1a1a1}
     ssh:
       ap-northeast-1: [user-ap-northeast-1, /home/user/.pem/ap-northeast-1-iam.pem]
