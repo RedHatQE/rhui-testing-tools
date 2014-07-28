@@ -404,10 +404,9 @@ os_dict = {5: "RHEL59", 6: "RHEL64", 7: "RHEL70"}
 for i in (5,6,7):
     num_cli_ver = args.__getattribute__("rhel%i" % i)
     if num_cli_ver:
-        for j in range(0, num_cli_ver):
-            os =os_dict[i]
-
-            json_dict['Resources']["cli%i" % i] = \
+        for j in range(1, num_cli_ver + 1):
+            os = os_dict[i]
+            json_dict['Resources']["cli%inr%i" % (i, j)] = \
                 {u'Properties': {u'ImageId': {u'Fn::FindInMap': [os,
                                                                    {u'Ref': u'AWS::Region'},
                                                                    u'AMI']},
@@ -416,13 +415,13 @@ for i in (5,6,7):
                                    u'SecurityGroups': [{u'Ref': u'CLIsecuritygroup'}],
                                    u'Tags': [{u'Key': u'Name',
                                               u'Value': {u'Fn::Join': [u'_',
-                                                                       [u'RHUI_CLI%i' % i,
+                                                                       [u'RHUI_CLI%i_%i' % (i, j),
                                                                         {u'Ref': u'KeyName'}]]}},
                                              {u'Key': u'Role', u'Value': u'CLI'},
                                              {u'Key': u'PrivateHostname',
-                                              u'Value': u'cli%i.example.com' % i},
+                                              u'Value': u'cli%i_%i.example.com' % (i, j)},
                                              {u'Key': u'PublicHostname',
-                                              u'Value': u'cli%i_pub.example.com' % i},
+                                              u'Value': u'cli%i_%ipub.example.com' % (i, j)},
                                              {u'Key': u'OS', u'Value': u'%s' % os[:5]}]},
                    u'Type': u'AWS::EC2::Instance'}
 
