@@ -160,7 +160,7 @@ argparser.add_argument('--dry-run', action='store_const', const=True,
 argparser.add_argument('--parameters', metavar='<expr>', nargs="*",
                        help="space-separated NAME=VALUE list of parametars")
 argparser.add_argument('--region',
-                       default="us-east-1", help='use specified region')
+                       default="eu-west-1", help='use specified region')
 argparser.add_argument('--timeout', type=int,
                        default=10, help='stack creation timeout')
 
