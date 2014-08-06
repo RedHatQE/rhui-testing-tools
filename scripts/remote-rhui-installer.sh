@@ -67,4 +67,11 @@ rcopy /root "$ISO" "$RPM"
 
 rexec yum install -q -y /root/`basename $RPM`
 rexec rhui-testing-dependencies.py
+# setting time
+rexec ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+rexec yum install -y ntp
+rexec systemctl enable ntpd
+rexec ntpd -gq
+rexec systemctl start ntpd
+
 rexec rhui-installer.py --iso /root/`basename $ISO` $OARGS

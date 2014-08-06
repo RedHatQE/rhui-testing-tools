@@ -128,6 +128,12 @@ class RHUI_Instance(Instance):
         self.run_sync("iptables -I INPUT -p tcp --destination-port 443 -j ACCEPT", True)
         self.run_sync("iptables -I INPUT -p tcp --destination-port 5674 -j ACCEPT", True)
         self.run_sync("service iptables save", True)
+        # setting time
+        self.run_sync("ln -sf /usr/share/zoneinfo/UTC /etc/localtime", True)
+        self.run_sync("yum install -y ntp", True)
+        self.run_sync("ntpd -gq", True)
+        self.run_sync("service ntpd start", True)
+        self.run_sync("ntpd -q", True)
 
     def set_confrpm_name(self, name):
         if name[-1:] == "\n":
@@ -262,7 +268,12 @@ class CLI(Instance):
     Class to represent CLI instance
     '''
     def setup(self):
-        pass
+        # setting time
+        self.run_sync("ln -sf /usr/share/zoneinfo/UTC /etc/localtime", True)
+        self.run_sync("yum install -y ntp", True)
+        self.run_sync("ntpd -gq", True)
+        self.run_sync("service ntpd start", True)
+        self.run_sync("ntpd -q", True)
 
 
 class PROXY(Instance):
@@ -271,6 +282,14 @@ class PROXY(Instance):
     '''
     def setup(self, rhua):
         logger.info("Setting up PROXY instance " + self.hostname + " for RHUA " + rhua.hostname)
+        # setting time
+        self.run_sync("ln -sf /usr/share/zoneinfo/UTC /etc/localtime", True)
+        self.run_sync("yum install -y ntp", True)
+        self.run_sync("systemctl enable ntpd", True)
+        self.run_sync("ntpd -gq", True)
+        self.run_sync("systemctl start ntpd", True)
+        self.run_sync("ntpd -q", True)
+        
         self.run_sync("yum -y install squid httpd-tools", True)
         self.run_sync("htpasswd -bc /etc/squid/passwd rhua " + rhua.proxy_password, True)
         self.run_sync("echo 'auth_param basic program /usr/lib64/squid/ncsa_auth /etc/squid/passwd' > /etc/squid/squid.conf.new", True)
