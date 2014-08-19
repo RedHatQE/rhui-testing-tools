@@ -130,8 +130,9 @@ class RHUI_Instance(Instance):
         self.run_sync("service iptables save", True)
         # setting time
         self.run_sync("yum install -y ntp", True)
-        self.run_sync("ntpd -gq", True)
         self.run_sync("service ntpd start", True)
+        self.run_sync("ntpd -gq", True)
+        self.run_sync("service ntpd restart", True)
         self.run_sync("chkconfig ntpd on", True)
 
     def set_confrpm_name(self, name):
@@ -269,8 +270,9 @@ class CLI(Instance):
     def setup(self):
         # setting time
         self.run_sync("yum install -y ntp", True)
-        self.run_sync("ntpd -gq", True)
         self.run_sync("service ntpd start", True)
+        self.run_sync("ntpd -gq", True)
+        self.run_sync("service ntpd restart", True)
         self.run_sync("chkconfig ntpd on", True)
 
 
@@ -292,8 +294,9 @@ class PROXY(Instance):
         self.run_sync("service iptables save", True)
         # setting time
         self.run_sync("yum install -y ntp", True)
-        self.run_sync("ntpd -gq", True)
         self.run_sync("service ntpd start", True)
+        self.run_sync("ntpd -gq", True)
+        self.run_sync("service ntpd restart", True)
         self.run_sync("chkconfig ntpd on", True)
 
 
