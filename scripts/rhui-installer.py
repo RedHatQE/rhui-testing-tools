@@ -131,7 +131,7 @@ class RHUI_Instance(Instance):
         # setting time
         self.run_sync("yum install -y ntp", True)
         self.run_sync("service ntpd start", True)
-        self.run_sync("ntpd -gq", True)
+        self.run_sync("ntpd -gq ||:", True)
         self.run_sync("service ntpd restart", True)
         self.run_sync("chkconfig ntpd on", True)
 
@@ -271,7 +271,7 @@ class CLI(Instance):
         # setting time
         self.run_sync("yum install -y ntp", True)
         self.run_sync("service ntpd start", True)
-        self.run_sync("ntpd -gq", True)
+        self.run_sync("ntpd -gq ||:", True)
         self.run_sync("service ntpd restart", True)
         self.run_sync("chkconfig ntpd on", True)
 
@@ -295,7 +295,7 @@ class PROXY(Instance):
         # setting time
         self.run_sync("yum install -y ntp", True)
         self.run_sync("service ntpd start", True)
-        self.run_sync("ntpd -gq", True)
+        self.run_sync("ntpd -gq ||:", True)
         self.run_sync("service ntpd restart", True)
         self.run_sync("chkconfig ntpd on", True)
 
