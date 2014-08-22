@@ -20,8 +20,7 @@ class test_tcms_191046(RHUITestcase, RHUI_has_RH_rpm):
         RHUIManagerCds.add_cds(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][0].private_hostname)
 
         '''[TCMS#191046 setup] Remove rhui configuration rpm from client '''
-        for cli in self.rs.Instances["CLI"]:
-            Util.remove_conf_rpm(cli)
+        Util.remove_conf_rpm(self.rs.Instances["CLI"][0])
 
         '''[TCMS#191046 setup] Create custom repo '''
         self.rs.Instances["RHUA"][0].sftp.put("/usr/share/rhui-testing-tools/testing-data/public.key", "/root/public.key")
@@ -56,30 +55,30 @@ class test_tcms_191046(RHUITestcase, RHUI_has_RH_rpm):
         Util.install_rpm_from_rhua(self.rs.Instances["RHUA"][0], self.rs.Instances["CLI"][0], "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
 
         '''[TCMS#191046 setup] Installing RH rpm to the client '''
-        Expect.ping_pong(self. rs.Instances["CLI"][0], "yum install -y " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.Instances["CLI"][0], "yum install -y " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def _test(self):
         '''[TCMS#191046 test] Installing signed rpm to the client '''
-        Expect.ping_pong(self. rs.Instances["CLI"][0], "yum install -y custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.Instances["CLI"][0], "yum install -y custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#191046 test] Installing unsigned rpm to the client '''
-        Expect.ping_pong(self. rs.Instances["CLI"][0], "yum install -y --nogpgcheck custom-unsigned-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.Instances["CLI"][0], "yum install -y --nogpgcheck custom-unsigned-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def _cleanup(self):
         '''[TCMS#191046 cleanup] Removing RH rpm from the client '''
-        Expect.ping_pong(self. rs.Instances["CLI"][0], "rpm -e " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.Instances["CLI"][0], "rpm -e " + self.rhrpmname + " && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#191046 cleanup] Removing signed rpm from the client '''
-        Expect.ping_pong(self. rs.Instances["CLI"][0], "rpm -e custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.Instances["CLI"][0], "rpm -e custom-signed-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#191046 cleanup] Removing unsigned rpm from the client '''
-        Expect.ping_pong(self. rs.Instances["CLI"][0], "rpm -e custom-unsigned-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.Instances["CLI"][0], "rpm -e custom-unsigned-rpm && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#191046 cleanup] Removing configuration rpm from the client '''
         Util.remove_conf_rpm(self.rs.Instances["CLI"][0])
 
         '''[TCMS#191046 cleanup] Removing gpg key from the client '''
-        Expect.ping_pong(self. rs.Instances["CLI"][0], "rpm -e gpg-pubkey-b6963d12-5080038c && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.Instances["CLI"][0], "rpm -e gpg-pubkey-b6963d12-5080038c && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#191046 cleanup] Remove cds '''
         RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname])

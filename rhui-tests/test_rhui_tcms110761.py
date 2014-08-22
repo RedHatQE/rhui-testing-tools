@@ -66,7 +66,7 @@ class test_tcms_110761(RHUITestcase, RHUI_has_two_CDSes):
         RHUIManagerRepo.delete_repo(self.rs.Instances["RHUA"][0], ["repo1"])
 
         '''[TCMS#110761 cleanup] Removing gpg key from the client '''
-        Expect.ping_pong(self. rs.Instances["CLI"][0], "rpm -e gpg-pubkey-b6963d12-5080038c && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rs.Instances["CLI"][0], "rpm -e gpg-pubkey-b6963d12-5080038c && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#110761 cleanup] Remove rhui configuration rpm from client'''
         Util.remove_conf_rpm(self.rs.Instances["CLI"][0])

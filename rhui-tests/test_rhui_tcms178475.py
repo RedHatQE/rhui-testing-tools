@@ -13,7 +13,7 @@ from rhuilib.rhuimanager_entitlements import *
 from rhuilib.cds import RhuiCds
 
 
-class test_tcms_178475(RHUITestcase, RHUI_has_RH_cert):
+class test_tcms_178475(RHUITestcase, RHUI_has_RH_cert, RHUI_has_RHEL6_CLI):
     def _setup(self):
 
         '''[TCMS#178475 setup] Do initial rhui-manager run'''
@@ -38,7 +38,7 @@ class test_tcms_178475(RHUITestcase, RHUI_has_RH_cert):
         self._sync_cds([self.rs.Instances["CDS"][0].private_hostname])
 
         '''[TCMS#178475 setup] Remove rhui configuration rpm from RHUA '''
-        Util.remove_conf_rpm(self.rs.Instances["CLI"][0])
+        Util.remove_conf_rpm(self.rhel6client)
 
     def _test(self):
         '''[TCMS#178475 test] Generate entitlement certificate '''
@@ -48,14 +48,14 @@ class test_tcms_178475(RHUITestcase, RHUI_has_RH_cert):
         RHUIManagerClient.create_conf_rpm(self.rs.Instances["RHUA"][0], "Cluster1", self.rs.Instances["CDS"][0].public_hostname, "/root", "/root/cert-repo1.crt", "/root/cert-repo1.key", "repo1", "3.0")
 
         '''[TCMS#178475 test] Install configuration rpm to client '''
-        Util.install_rpm_from_rhua(self.rs.Instances["RHUA"][0], self.rs.Instances["CLI"][0], "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
+        Util.install_rpm_from_rhua(self.rs.Instances["RHUA"][0], self.rhel6client, "/root/repo1-3.0/build/RPMS/noarch/repo1-3.0-1.noarch.rpm")
 
         '''[TCMS#178475 test] Installing RH rpm from RH repo to the client '''
-        Expect.ping_pong(self.rs.Instances["CLI"][0], "yum install -y pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rhel6client, "yum install -y pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
 
     def _cleanup(self):
         '''[TCMS#178475 cleanup] Removing RH rpm from RH repo from the client '''
-        Expect.ping_pong(self.rs.Instances["CLI"][0], "rpm -e pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
+        Expect.ping_pong(self.rhel6client, "rpm -e pymongo && echo SUCCESS", "[^ ]SUCCESS", 60)
 
         '''[TCMS#178475 cleanup] Remove cdses '''
         RHUIManagerCds.delete_cds(self.rs.Instances["RHUA"][0], "Cluster1", [self.rs.Instances["CDS"][0].private_hostname])
