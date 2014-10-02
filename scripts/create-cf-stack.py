@@ -150,7 +150,7 @@ argparser.add_argument('--rhel7', help='number of RHEL7 clients', type=int, defa
 argparser.add_argument('--cds', help='number of CDSes instances', type=int, default=1)
 argparser.add_argument('--proxy', help='create RHUA<->CDN proxy', action='store_const', const=True, default=False)
 argparser.add_argument('--config',
-                       default="/etc/validation.yaml", help='use supplied yaml config file')
+                       default="/etc/rhui-validation.yaml", help='use supplied yaml config file')
 argparser.add_argument('--debug', action='store_const', const=True,
                        default=False, help='debug mode')
 argparser.add_argument('--fakecf', action='store_const', const=True,
