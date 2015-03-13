@@ -19,7 +19,7 @@ setup(name='rhuilib',
     packages=[
         'rhuilib'
         ],
-    data_files=[('/etc', ['etc/rhui_auto.yaml'])] + datafiles,
+    data_files=[('/etc', ['etc/rhui_ec2.yaml'])] + datafiles,
     classifiers=[
             'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
             'Programming Language :: Python',

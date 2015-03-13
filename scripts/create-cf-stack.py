@@ -150,7 +150,7 @@ argparser.add_argument('--rhel7', help='number of RHEL7 clients', type=int, defa
 argparser.add_argument('--cds', help='number of CDSes instances', type=int, default=1)
 argparser.add_argument('--proxy', help='create RHUA<->CDN proxy', action='store_const', const=True, default=False)
 argparser.add_argument('--config',
-                       default="/etc/rhui-validation.yaml", help='use supplied yaml config file')
+                       default="/etc/rhui_ec2.yaml", help='use supplied yaml config file')
 argparser.add_argument('--debug', action='store_const', const=True,
                        default=False, help='debug mode')
 argparser.add_argument('--fakecf', action='store_const', const=True,
@@ -228,54 +228,46 @@ if args.proxy:
     json_dict['Description'] += " PROXY"
 
 json_dict['Mappings'] = \
-  {u'F20': {u'ap-northeast-1': {u'AMI': u'ami-8fd0b38e'},
-                u'ap-southeast-1': {u'AMI': u'ami-92cd99c0'},
-                u'ap-southeast-2': {u'AMI': u'ami-eb4cd3d1'},
-                u'eu-west-1': {u'AMI': u'ami-c00fe6b7'},
-                u'sa-east-1': {u'AMI': u'ami-056ecf18'},
-                u'us-east-1': {u'AMI': u'ami-1337187a'},
-                u'us-west-1': {u'AMI': u'ami-54e3d311'},
-                u'us-west-2': {u'AMI': u'ami-ea7612da'}},
-   u'RHEL58': {u'ap-northeast-1': {u'AMI': u'ami-60229461'},
-                u'ap-southeast-1': {u'AMI': u'ami-da8dc988'},
-                u'ap-southeast-2': {u'AMI': u'ami-65b7205f'},
-                u'eu-west-1': {u'AMI': u'ami-47615833'},
-                u'sa-east-1': {u'AMI': u'ami-f46cb3e9'},
-                u'us-east-1': {u'AMI': u'ami-fb0ddc92'},
-                u'us-west-1': {u'AMI': u'ami-c5bde480'},
-                u'us-west-2': {u'AMI': u'ami-3e0a870e'}},
-   u'RHEL59': {u'ap-northeast-1': {u'AMI': u'ami-397cc638'},
-                u'ap-southeast-1': {u'AMI': u'ami-7486c426'},
-                u'ap-southeast-2': {u'AMI': u'ami-33d14709'},
-                u'eu-west-1': {u'AMI': u'ami-c00906b4'},
-                u'sa-east-1': {u'AMI': u'ami-412bf35c'},
-                u'us-east-1': {u'AMI': u'ami-4f53dd26'},
-                u'us-west-1': {u'AMI': u'ami-74d7f731'},
-                u'us-west-2': {u'AMI': u'ami-72b93242'}},
-   u'RHEL63': {u'ap-northeast-1': {u'AMI': u'ami-5453e055'},
-                u'ap-southeast-1': {u'AMI': u'ami-24e5a376'},
-                u'ap-southeast-2': {u'AMI': u'ami-8f8413b5'},
-                u'eu-west-1': {u'AMI': u'ami-8bf2f7ff'},
-                u'sa-east-1': {u'AMI': u'ami-4807d955'},
-                u'us-east-1': {u'AMI': u'ami-cc5af9a5'},
-                u'us-west-1': {u'AMI': u'ami-51f4ae14'},
-                u'us-west-2': {u'AMI': u'ami-8a25a9ba'}},
-   u'RHEL64': {u'ap-northeast-1': {u'AMI': u'ami-8f11958e'},
-                u'ap-southeast-1': {u'AMI': u'ami-3a367b68'},
-                u'ap-southeast-2': {u'AMI': u'ami-8c1f89b6'},
-                u'eu-west-1': {u'AMI': u'ami-22c8c156'},
-                u'sa-east-1': {u'AMI': u'ami-8bb76c96'},
-                u'us-east-1': {u'AMI': u'ami-d94bdcb0'},
-                u'us-west-1': {u'AMI': u'ami-fc9cbfb9'},
-                u'us-west-2': {u'AMI': u'ami-5e57dd6e'}},
-   u'RHEL70': {u'ap-northeast-1': {u'AMI': u'ami-c7d0b0c6'},
-                u'ap-southeast-1': {u'AMI': u'ami-7cb6e22e'},
-                u'ap-southeast-2': {u'AMI': u'ami-63b22d59'},
-                u'eu-west-1': {u'AMI': u'ami-846a84f3'},
-                u'sa-east-1': {u'AMI': u'ami-7d862760'},
-                u'us-east-1': {u'AMI': u'ami-5b183532'},
-                u'us-west-1': {u'AMI': u'ami-70447435'},
-                u'us-west-2': {u'AMI': u'ami-aa94f19a'}}
+  {u'Fedora': {
+                u'ap-northeast-1': {u'AMI': u'ami-20d6cd21'},
+                u'ap-southeast-1': {u'AMI': u'ami-06edc754'},
+                u'ap-southeast-2': {u'AMI': u'ami-ddf480e7'},
+                u'eu-west-1': {u'AMI': u'ami-b7c846c0'},
+                u'eu-central-1': {u'AMI': u'ami-5cd9ea41'},
+                u'sa-east-1': {u'AMI': u'ami-650cb078'},
+                u'us-east-1': {u'AMI': u'ami-acd999c4'},
+                u'us-west-1': {u'AMI': u'ami-15326925'},
+                u'us-west-2': {u'AMI': u'ami-dce3fb99'}},
+   u'RHEL7': {
+                u'us-east-1': {u'AMI': u'ami-10663b78'},
+                u'eu-central-1': {u'AMI': u'ami-defdcfc3'},
+                u'us-west-1': {u'AMI': u'ami-9b40a5df'},
+                u'eu-west-1': {u'AMI': u'ami-27158350'},
+                u'ap-northeast-1': {u'AMI': u'ami-adb458ad'},
+                u'us-west-2': {u'AMI': u'ami-4bbf9e7b'},
+                u'ap-southeast-2': {u'AMI': u'ami-dddaace7'},
+                u'sa-east-1': {u'AMI': u'ami-0fe25b12'},
+                u'ap-southeast-1': {u'AMI': u'ami-d81c2b8a'},},
+    u'RHEL6': {
+                u'us-east-1': {u'AMI': u'ami-d2d06aba'},
+                u'ap-southeast-2': {u'AMI': u'ami-57e38e6d'},
+                u'eu-west-1': {u'AMI': u'ami-96fd53e1'},
+                u'us-west-1': {u'AMI': u'ami-6dccd928'},
+                u'ap-northeast-1': {u'AMI': u'ami-9f56669e'},
+                u'ap-southeast-1': {u'AMI': u'ami-34133266'},
+                u'sa-east-1': {u'AMI': u'ami-9f5ce882'},
+                u'us-west-2': {u'AMI': u'ami-5bbcf36b'},
+                u'eu-central-1': {u'AMI': u'ami-84f7c199'},},
+    u'RHEL5': {
+                u'us-east-1': {u'AMI': u'ami-3068da58'},
+                u'eu-west-1': {u'AMI': u'ami-ec94369b'},
+                u'us-west-1': {u'AMI': u'ami-995953dc'},
+                u'sa-east-1': {u'AMI': u'ami-834efb9e'},
+                u'ap-northeast-1': {u'AMI': u'ami-fdc8fdfc'},
+                u'ap-southeast-2': {u'AMI': u'ami-45ee8c7f'},
+                u'ap-southeast-1': {u'AMI': u'ami-5a567008'},
+                u'us-west-2': {u'AMI': u'ami-c599d4f5'},
+                u'eu-central-1': {u'AMI': u'ami-c4d9efd9'},},
 
    }
 
@@ -326,10 +318,10 @@ json_dict['Resources'] = \
                         u'Type': u'AWS::EC2::SecurityGroup'}}
 
 json_dict['Resources']["master"] = \
-{u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'F20',
+{u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'Fedora',
                                                              {u'Ref': u'AWS::Region'},
                                                              u'AMI']},
-                             u'InstanceType': u'm1.small',
+                             u'InstanceType': u't2.micro',
                              u'KeyName': {u'Ref': u'KeyName'},
                              u'SecurityGroups': [{u'Ref': u'MASTERsecuritygroup'}],
                              u'Tags': [{u'Key': u'Name',
@@ -348,7 +340,7 @@ json_dict['Resources']["rhua"] = \
  {u'Properties': {u'ImageId': {u'Fn::FindInMap': [args.rhuirhelversion,
                                                            {u'Ref': u'AWS::Region'},
                                                            u'AMI']},
-                           u'InstanceType': u'm1.large',
+                           u'InstanceType': u'm3.large',
                            u'KeyName': {u'Ref': u'KeyName'},
                            u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
                            u'Tags': [{u'Key': u'Name',
@@ -386,7 +378,7 @@ for i in range(1, args.cds + 1):
         {u'Properties': {u'ImageId': {u'Fn::FindInMap': [args.rhuirhelversion,
                                                            {u'Ref': u'AWS::Region'},
                                                            u'AMI']},
-                           u'InstanceType': u'm1.large',
+                           u'InstanceType': u'm3.large',
                            u'KeyName': {u'Ref': u'KeyName'},
                            u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
                            u'Tags': [{u'Key': u'Name',
@@ -400,7 +392,7 @@ for i in range(1, args.cds + 1):
                                       u'Value': u'cds%i_pub.example.com' % i}]},
            u'Type': u'AWS::EC2::Instance'}
 
-os_dict = {5: "RHEL59", 6: "RHEL64", 7: "RHEL70"}
+os_dict = {5: "RHEL5", 6: "RHEL6", 7: "RHEL7"}
 for i in (5,6,7):
     num_cli_ver = args.__getattribute__("rhel%i" % i)
     if num_cli_ver:
@@ -410,7 +402,7 @@ for i in (5,6,7):
                 {u'Properties': {u'ImageId': {u'Fn::FindInMap': [os,
                                                                    {u'Ref': u'AWS::Region'},
                                                                    u'AMI']},
-                                   u'InstanceType': u'm3.medium' if os == "RHEL70"  else u'm1.small',
+                                   u'InstanceType': u'm1.small' if os == "RHEL5"  else u't2.micro',
                                    u'KeyName': {u'Ref': u'KeyName'},
                                    u'SecurityGroups': [{u'Ref': u'CLIsecuritygroup'}],
                                    u'Tags': [{u'Key': u'Name',

@@ -32,7 +32,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc LICENSE README.md
 %attr(0755, root, root) %{_bindir}/*.py
 %attr(0755, root, root) %{_bindir}/*.sh
-%config(noreplace) %attr(0600, root, root) %{_sysconfdir}/rhui_auto.yaml
+%config(noreplace) %attr(0600, root, root) %{_sysconfdir}/rhui_ec2.yaml
 %{python_sitelib}/*.egg-info
 %{python_sitelib}/rhuilib/*.py
 %{python_sitelib}/rhuilib/*.pyc
