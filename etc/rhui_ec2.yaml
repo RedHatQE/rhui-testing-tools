@@ -1,0 +1,10 @@
+ec2: {ec2-key: AAAAAAAAAAAAAAAAAAAA, ec2-secret-key: B0B0B0B0B0B0B0B0B0B0a1a1a1a1a1a1a1a1a1a1}
+ssh:
+  ap-northeast-1: [user-ap-northeast-1, /home/user/.pem/ap-northeast-1-iam.pem]
+  ap-southeast-1: [user-ap-southeast-1, /home/user/.pem/ap-southeast-1-iam.pem]
+  ap-southeast-2: [user-ap-southeast-2, /home/user/.pem/ap-southeast-2-iam.pem]
+  eu-west-1: [user-eu-west-1, /home/user/.pem/eu-west-1-iam.pem]
+  sa-east-1: [user-sa-east-1, /home/user/.pem/sa-east-1-iam.pem]
+  us-east-1: [user-us-east-1, /home/user/.pem/us-east-1-iam.pem]
+  us-west-1: [user-us-west-1, /home/user/.pem/us-west-1-iam.pem]
+  us-west-2: [user-us-west-2, /home/user/.pem/us-west-2-iam.pem]
