@@ -284,20 +284,19 @@ class PROXY(Instance):
         logger.info("Setting up PROXY instance " + self.hostname + " for RHUA " + rhua.hostname)
         self.run_sync("yum -y install squid httpd-tools", True)
         self.run_sync("htpasswd -bc /etc/squid/passwd rhua " + rhua.proxy_password, True)
-        self.run_sync("echo 'auth_param basic program /usr/lib64/squid/ncsa_auth /etc/squid/passwd' > /etc/squid/squid.conf.new", True)
+        self.run_sync("echo 'auth_param basic program /usr/lib64/squid/basic_ncsa_auth /etc/squid/passwd' > /etc/squid/squid.conf.new", True)
         self.run_sync("echo 'acl auth proxy_auth REQUIRED' >> /etc/squid/squid.conf.new", True)
         self.run_sync("cat /etc/squid/squid.conf | sed 's,allow localnet,allow auth,' >> /etc/squid/squid.conf.new", True)
         self.run_sync("mv -f /etc/squid/squid.conf.new /etc/squid/squid.conf", True)
-        self.run_sync("service squid start", True)
-        self.run_sync("chkconfig squid on", True)
+        self.run_sync("systemctl start squid", True)
+        self.run_sync("systemctl enable squid", True)
         self.run_sync("iptables -I INPUT -s " + rhua.hostname + " -p tcp --destination-port 3128 -j ACCEPT", True)
-        self.run_sync("service iptables save", True)
         # setting time
         self.run_sync("yum install -y ntp", True)
-        self.run_sync("service ntpd start", True)
+        self.run_sync("systemctl start ntpd", True)
         self.run_sync("ntpd -gq ||:", True)
-        self.run_sync("service ntpd restart", True)
-        self.run_sync("chkconfig ntpd on", True)
+        self.run_sync("systemctl restart ntpd", True)
+        self.run_sync("systemctl enable ntpd", True)
 
 
 def wait_for_threads(name):

@@ -142,7 +142,7 @@ def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys, setup_
 
 
 argparser = argparse.ArgumentParser(description='Create CloudFormation stack and run the testing')
-argparser.add_argument('--rhuirhelversion', help='RHEL version for RHUI setup (RHEL63, RHEL64)', default="RHEL64")
+argparser.add_argument('--rhuirhelversion', help='RHEL version for RHUI setup (RHEL6, RHEL6)', default="RHEL6")
 
 argparser.add_argument('--rhel5', help='number of RHEL5 clients', type=int, default=0)
 argparser.add_argument('--rhel6', help='number of RHEL6 clients', type=int, default=1)
@@ -321,9 +321,15 @@ json_dict['Resources']["master"] = \
 {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'Fedora',
                                                              {u'Ref': u'AWS::Region'},
                                                              u'AMI']},
-                             u'InstanceType': u't2.micro',
+                             u'InstanceType': u't2.medium',
                              u'KeyName': {u'Ref': u'KeyName'},
                              u'SecurityGroups': [{u'Ref': u'MASTERsecuritygroup'}],
+                             u'BlockDeviceMappings' : [
+                                      {
+                                        "DeviceName" : "/dev/sda1",
+                                        "Ebs" : { "VolumeSize" : "16" }
+                                      },
+                             ],
                              u'Tags': [{u'Key': u'Name',
                                         u'Value': {u'Fn::Join': [u'_',
                                                                  [u'RHUI_Master',
@@ -356,12 +362,18 @@ json_dict['Resources']["rhua"] = \
 
 if args.proxy:
     json_dict['Resources']["proxy"] = \
-     {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u"RHEL64",
+     {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u"Fedora",
                                                             {u'Ref': u'AWS::Region'},
                                                             u'AMI']},
-                            u'InstanceType': u'm1.small',
+                            u'InstanceType': u't2.medium',
                             u'KeyName': {u'Ref': u'KeyName'},
                             u'SecurityGroups': [{u'Ref': u'PROXYsecuritygroup'}],
+                            u'BlockDeviceMappings' : [
+                                      {
+                                        "DeviceName" : "/dev/sda1",
+                                        "Ebs" : { "VolumeSize" : "16" }
+                                      },
+                            ],
                             u'Tags': [{u'Key': u'Name',
                                        u'Value': {u'Fn::Join': [u'_',
                                                                 [u'PROXY',
@@ -402,7 +414,7 @@ for i in (5,6,7):
                 {u'Properties': {u'ImageId': {u'Fn::FindInMap': [os,
                                                                    {u'Ref': u'AWS::Region'},
                                                                    u'AMI']},
-                                   u'InstanceType': u'm1.small' if os == "RHEL5"  else u't2.micro',
+                                   u'InstanceType': u'm3.medium' if os == "RHEL5"  else u't2.micro',
                                    u'KeyName': {u'Ref': u'KeyName'},
                                    u'SecurityGroups': [{u'Ref': u'CLIsecuritygroup'}],
                                    u'Tags': [{u'Key': u'Name',
