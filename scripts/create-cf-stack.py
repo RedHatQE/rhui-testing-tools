@@ -19,6 +19,7 @@ import yaml
 
 # pylint: disable=W0621
 
+
 class SyncSSHClient(SSHClient):
     '''
     Special class for sync'ed commands execution over ssh
@@ -92,6 +93,8 @@ def setup_host_ssh(hostname, key):
         time.sleep(10)
     if ntries == 0:
         logging.error("Failed to setup ssh to " + hostname + " using " + key + " key")
+    client.get_transport().set_keepalive(10)
+    sftp.get_channel().get_transport().set_keepalive(10)
     return (client, sftp)
 
 
@@ -99,7 +102,9 @@ def setup_master(client):
     '''
     Create ssh key on master node.
     '''
+    logging.info('setting up master: %s', client._transport.sock.getpeername())
     try:
+        logging.info('generating master ssh keypair')
         client.run_sync("rm -f /root/.ssh/id_rsa{,.pub}; ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa")
         _, stdout, _ = client.run_sync("cat /root/.ssh/id_rsa.pub")
         output = stdout.read()
@@ -108,6 +113,8 @@ def setup_master(client):
     except Exception, e:
         logging.error('Caught exception in setup_master: ' + str(e.__class__) + ': ' + str(e))
         return None
+    finally:
+        logging.info('setting up master %s: all done', client._transport.sock.getpeername())
 
 
 def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys, setup_script):
@@ -118,27 +125,35 @@ def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys, setup_
     - Write /etc/hosts
     - Write /etc/rhui-testing.yaml
     '''
+    logging.info('setting up slave: %s', hostname)
     try:
+        logging.info('configuring hosts file')
         client.run_sync("touch /tmp/hosts")
         sftp.put(hostsfile, "/tmp/hosts")
         client.run_sync("cat /etc/hosts >> /tmp/hosts")
         client.run_sync("sort -u /tmp/hosts > /etc/hosts")
-        sftp.put(yamlfile, "/etc/rhui-testing.yaml")
+        logging.info('dumping rhui-testing.yaml')
         client.run_sync("touch /etc/rhui-testing.yaml")
+        sftp.put(yamlfile, "/etc/rhui-testing.yaml")
         if hostname:
+            logging.info('setting hostname to %s', hostname)
             client.run_sync("hostname " + hostname)
             client.run_sync("sed -i 's,^HOSTNAME=.*$,HOSTNAME=" + hostname + ",' /etc/sysconfig/network")
         for key in master_keys:
             if key:
+                logging.info('allowing ssh key: %s', key.split()[-1])
                 client.run_sync("cat /root/.ssh/authorized_keys > /root/.ssh/authorized_keys.new")
                 client.run_sync("echo '" + key + "' >> /root/.ssh/authorized_keys.new")
                 client.run_sync("sort -u /root/.ssh/authorized_keys.new | grep -v '^$' > /root/.ssh/authorized_keys")
         if setup_script:
+            logging.info('running setup script')
             sftp.put(setup_script, "/root/instance_setup_script")
             client.run_sync("chmod 755 /root/instance_setup_script")
             client.run_sync("/root/instance_setup_script")
     except Exception, e:
         logging.error('Caught exception in setup_slave: ' + str(e.__class__) + ': ' + str(e))
+    finally:
+        logging.info('slave setup done: %s', hostname)
 
 
 argparser = argparse.ArgumentParser(description='Create CloudFormation stack and run the testing')
@@ -579,13 +594,17 @@ yamlfile.close()
 hostsfile.close()
 logging.debug(instances_detail)
 master_keys = []
+result = []
 for instance in instances_detail:
     if instance["public_ip"]:
         ip = instance["public_ip"]
-        logging.info("Instance with public ip created: " + instance["role"] + ":" + instance["public_hostname"] + ":" + ip)
+        result_item = dict(role=str(instance['role']), hostname=str(instance['public_hostname']), ip=str(ip))
+        logging.info("Instance with public ip created: %s", result_item)
     else:
         ip = instance["private_ip"]
-        logging.info("Instance with private ip created: " + instance["role"] + ":" + instance["private_hostname"] + ":" + ip)
+        result_item = dict(role=str(instance['role']), hostname=str(instance['private_hostname']), ip=str(ip))
+        logging.info("Instance with private ip created: %s", result_item)
+    result.append(result_item)
     (instance["client"], instance["sftp"]) = setup_host_ssh(ip, ssh_key)
     if instance["role"] == "Master":
         master_keys.append(setup_master(instance["client"]))
@@ -595,6 +614,7 @@ for instance in instances_detail:
         hostname = instance["private_hostname"]
     else:
         hostname = instance["public_hostname"]
+    instance['hostname'] = hostname
     setup_script = None
     if instance["role"] == "Master" and args.mastersetup:
         setup_script = args.mastersetup
@@ -603,3 +623,27 @@ for instance in instances_detail:
 
     setup_slave(instance["client"], instance["sftp"], hostname,
                 hostsfile.name, yamlfile.name, master_keys, setup_script)
+
+# --- close the channels
+for instance in instances_detail:
+    logging.debug('closing instance %s channel', instance['hostname'])
+    try:
+        instance['client'].close()
+    except Exception as e:
+        logging.warning('closing %s client channel: %s', instance['hostname'], e)
+    finally:
+        logging.debug('client %s channel closed', instance['hostname'])
+    logging.debug('closing client %s sftp channel', instance['hostname'])
+    try:
+        instance['sftp'].close()
+    except Exception as e:
+        logging.warning('closing %s sftp channel: %s', instance['hostname'], e)
+    finally:
+        logging.debug('client %s sftp channel closed', instance['hostname'])
+
+# --- dump the result
+print '# --- instances created ---'
+yaml.dump(result, sys.stdout)
+# miserable hack --- cannot make paramiko not hang upon exit
+import os
+os.system('kill %d' % os.getpid())
