@@ -134,6 +134,16 @@ class RHUI_Instance(Instance):
         self.run_sync("ntpd -gq ||:", True)
         self.run_sync("service ntpd restart", True)
         self.run_sync("chkconfig ntpd on", True)
+        # patch: rh-common-channel has a conflicting pulp version
+        self.run_sync('''python -c "import ConfigParser; ''' \
+                        '''cfn = ConfigParser.ConfigParser(); ''' \
+                        '''cfn.read('/etc/yum.repos.d/redhat-rhui.repo'); ''' \
+                        ''''rhui-REGION-rhel-server-rh-common' in cfn.sections() and ''' \
+                        '''cfn.set('rhui-REGION-rhel-server-rh-common', 'enabled', 0); ''' \
+                        '''cfn.write(open('/etc/yum.repos.d/redhat-rhui.repo', 'w'))"''')
+        self.run_sync('yum clean all')
+
+
 
     def set_confrpm_name(self, name):
         if name[-1:] == "\n":
