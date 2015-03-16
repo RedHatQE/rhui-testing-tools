@@ -303,9 +303,9 @@ json_dict['Resources'] = \
                                                                      u'IpProtocol': u'tcp',
                                                                      u'ToPort': u'22'},
                                                                     {u'CidrIp': u'0.0.0.0/0',
-                                                                     u'FromPort': u'27017',
+                                                                     u'FromPort': u'6379',
                                                                      u'IpProtocol': u'tcp',
-                                                                     u'ToPort': u'27017'}]},
+                                                                     u'ToPort': u'6379'}]},
                           u'Type': u'AWS::EC2::SecurityGroup'},
  u'PROXYsecuritygroup': {u'Properties': {u'GroupDescription': u'PROXY security group',
                                          u'SecurityGroupIngress': [{u'CidrIp': u'0.0.0.0/0',
@@ -646,4 +646,4 @@ print '# --- instances created ---'
 yaml.dump(result, sys.stdout)
 # miserable hack --- cannot make paramiko not hang upon exit
 import os
-os.system('kill %d' % os.getpid())
+#os.system('kill %d' % os.getpid())

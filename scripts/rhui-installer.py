@@ -160,20 +160,12 @@ class RHUI_Instance(Instance):
 
     def install_coverage(self, master_hostname):
         logger.debug("Will install python coverage")
-        coverrpm = download_from_s3("python-coverage-")
-        moncovrpm = download_from_s3("python-moncov-")
-        if coverrpm != "" and moncovrpm != "":
-            self.sftp.put("/root/" + coverrpm, "/root/" + coverrpm)
-            self.run_sync("yum -y install /root/" + coverrpm, True)
-
-            self.sftp.put("/root/" + moncovrpm, "/root/" + moncovrpm)
-            self.run_sync("yum -y install /root/" + moncovrpm, True)
-
-            self.run_sync("sed -i s,localhost,%s, /etc/coveragerc" % master_hostname, True)
-            self.run_sync("sed -i s,localhost,%s, /etc/moncov.yaml" % master_hostname, True)
-            logger.debug("Coverage installed")
-        else:
-            logger.debug("Could not find python-coverage or python-moncov in S3")
+        self.run_sync("yum -y groupinstall 'Development tools'", True)
+        self.run_sync("yum -y install python-devel libxml2-devel libxslt-devel", True)
+        self.run_sync("easy_install pip", True)
+        self.run_sync("pip install -U moncov")
+        self.run_sync("sed -i s,localhost,%s, /etc/moncov.yaml" % master_hostname, True)
+        logger.debug("Coverage installed")
 
 
 class RHUA(RHUI_Instance):
@@ -436,18 +428,13 @@ if len(proxy) == 0:
     logger.info("No PROXY found, will do standard setup")
 
 if args.coverage:
-    subprocess.check_output(["yum", "-y", "install", "mongodb-server"])
-    subprocess.check_output(["sed", "-i", "s,bind_ip = .*$,bind_ip = 0.0.0.0,", "/etc/mongodb.conf"])
-    subprocess.check_output(["mkdir", "/var/lib/mongodb/journal"])
-    subprocess.check_output(["chown", "mongodb.mongodb", "/var/lib/mongodb/journal"])
-    for i in range(3):
-        # Nasty hack to precreate mongo journals
-        subprocess.check_output(["dd", "if=/dev/zero", "of=/var/lib/mongodb/journal/prealloc.%s" % i, "bs=1M", "count=1K"])
-        subprocess.check_output(["chmod", "600", "/var/lib/mongodb/journal/prealloc.%s" % i])
-        subprocess.check_output(["chown", "mongodb.mongodb", "/var/lib/mongodb/journal/prealloc.%s" % i])
-    subprocess.check_output(["systemctl", "start", "mongod.service"])
-    subprocess.check_output(["iptables", "-I", "INPUT", "-p", "tcp", "--destination-port", "27017", "-j", "ACCEPT"])
-    subprocess.check_output(["/usr/libexec/iptables/iptables.init", "save"])
+    subprocess.check_output(["yum", "-y", "groupinstall", "'Development tools'"])
+    subprocess.check_output(["yum", "-y", "install", "python-devel", "libxml2-devel", "libxslt-devel", "redis"])
+    subprocess.check_output(["easy_install", "pip"])
+    subprocess.check_output(["pip", "install", "-U", "moncov"])
+    subprocess.check_output(["moncov", "reset"])
+    subprocess.check_output(["sed", "-i", r"s,^\s*bind.*$,bind 0.0.0.0,", "/etc/redis.conf"])
+    subprocess.check_output(["systemctl", "start", "redis.service"])
 
 for proxy_instance in proxy:
     proxy_instance.setup(rhua[0])
