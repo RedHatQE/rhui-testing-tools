@@ -1,6 +1,7 @@
 #! /usr/bin/python -tt
 
 """ RHUI installer script """
+import pdb
 
 from paramiko import SSHClient, AutoAddPolicy
 import argparse
@@ -26,7 +27,7 @@ class UpdateThread(threading.Thread):
     Instance updater
     '''
     def __init__(self, connection):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, name='UpdateThread')
         self.connection = connection
 
     def run(self):
@@ -85,7 +86,7 @@ class StorageThread(threading.Thread):
     Storage creator
     '''
     def __init__(self, connection):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, name='StorageThread')
         self.connection = connection
 
     def run(self):
@@ -167,7 +168,6 @@ class RHUI_Instance(Instance):
         self.run_sync("sed -i s,localhost,%s, /etc/moncov.yaml" % master_hostname, True)
         logger.debug("Coverage installed")
 
-
 class RHUA(RHUI_Instance):
     '''
     Class to represent RHUA instance
@@ -228,7 +228,7 @@ class CdsThread(threading.Thread):
     CDS installer thread
     '''
     def __init__(self, connection, rhua, master_hostname):
-        threading.Thread.__init__(self)
+        threading.Thread.__init__(self, name='CdsThread')
         self.connection = connection
         self.rhua = rhua
         self.master_hostname = master_hostname
@@ -304,13 +304,13 @@ class PROXY(Instance):
 def wait_for_threads(name):
     try:
         # waiting for storage threads
-        threads_exist = True
-        while threads_exist:
-            threads_exist = False
-            for thread in threading.enumerate():
-                if thread is not threading.currentThread() and thread.name.startswith(name):
-                    threads_exist = True
-                    thread.join(2)
+        threads = [True,]
+        while any(threads):
+            threads = [thread for thread in threading.enumerate() if \
+                    thread is not threading.currentThread() and thread.name.startswith(name)]
+            for thread in threads:
+                logger.debug('joining: %s', thread.name)
+                thread.join(2)
     except KeyboardInterrupt:
         print "Got CTRL-C, exiting"
         for thread in threading.enumerate():
