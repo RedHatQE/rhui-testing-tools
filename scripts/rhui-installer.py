@@ -428,7 +428,7 @@ if len(proxy) == 0:
     logger.info("No PROXY found, will do standard setup")
 
 if args.coverage:
-    subprocess.check_output(["yum", "-y", "groupinstall", "'Development tools'"])
+    subprocess.check_output(["yum", "-y", "groupinstall", "Development tools"])
     subprocess.check_output(["yum", "-y", "install", "python-devel", "libxml2-devel", "libxslt-devel", "redis"])
     subprocess.check_output(["easy_install", "pip"])
     subprocess.check_output(["pip", "install", "-U", "moncov"])
