@@ -184,6 +184,8 @@ argparser.add_argument('--subnetid', help='Subnet id (for VPC)')
 
 argparser.add_argument('--instancesetup', help='Instance setup script for all instances except master node')
 argparser.add_argument('--mastersetup', help='Instance setup script for master node')
+argparser.add_argument('--r3', action='store_const', const=True, default=False,
+                        help='use r3.xlarge instances to squeeze out more network and cpu performance (requires vpcid and subnetid)')
 
 args = argparser.parse_args()
 
@@ -203,6 +205,9 @@ else:
 
 if (args.vpcid and not args.subnetid) or (args.subnetid and not args.vpcid):
     logging.error("vpcid and subnetid parameters should be set together!")
+    sys.exit(1)
+if (args.r3 and not args.vpcid):
+    logging.error("r3 requires setting vpcid and subnetid")
     sys.exit(1)
 
 if args.instancesetup:
@@ -336,7 +341,7 @@ json_dict['Resources']["master"] = \
 {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'Fedora',
                                                              {u'Ref': u'AWS::Region'},
                                                              u'AMI']},
-                             u'InstanceType': u't2.medium',
+                             u'InstanceType': args.r3 and u'r3.xlarge' or u't2.medium',
                              u'KeyName': {u'Ref': u'KeyName'},
                              u'SecurityGroups': [{u'Ref': u'MASTERsecuritygroup'}],
                              u'BlockDeviceMappings' : [
@@ -361,9 +366,15 @@ json_dict['Resources']["rhua"] = \
  {u'Properties': {u'ImageId': {u'Fn::FindInMap': [args.rhuirhelversion,
                                                            {u'Ref': u'AWS::Region'},
                                                            u'AMI']},
-                           u'InstanceType': u'm3.large',
+                           u'InstanceType': args.r3 and u'r3.xlarge' or u'm3.large',
                            u'KeyName': {u'Ref': u'KeyName'},
                            u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
+                           u'BlockDeviceMappings' : [
+                                      {
+                                        "DeviceName" : "/dev/sdb",
+                                        "Ebs" : { "VolumeSize" : "300" }
+                                      },
+                             ],
                            u'Tags': [{u'Key': u'Name',
                                       u'Value': {u'Fn::Join': [u'_',
                                                                [u'RHUA',
@@ -405,7 +416,13 @@ for i in range(1, args.cds + 1):
         {u'Properties': {u'ImageId': {u'Fn::FindInMap': [args.rhuirhelversion,
                                                            {u'Ref': u'AWS::Region'},
                                                            u'AMI']},
-                           u'InstanceType': u'm3.large',
+                           u'InstanceType': args.r3 and u'r3.xlarge' or u'm3.large',
+                           u'BlockDeviceMappings' : [
+                                      {
+                                        "DeviceName" : "/dev/sdb",
+                                        "Ebs" : { "VolumeSize" : "300" }
+                                      },
+                             ],
                            u'KeyName': {u'Ref': u'KeyName'},
                            u'SecurityGroups': [{u'Ref': u'RHUIsecuritygroup'}],
                            u'Tags': [{u'Key': u'Name',
@@ -646,4 +663,4 @@ print '# --- instances created ---'
 yaml.dump(result, sys.stdout)
 # miserable hack --- cannot make paramiko not hang upon exit
 import os
-#os.system('kill %d' % os.getpid())
+os.system('kill %d' % os.getpid())
