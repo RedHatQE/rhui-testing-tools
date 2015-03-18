@@ -452,3 +452,6 @@ for cli_instance in cli:
     cli_instance.setup()
 
 wait_for_threads("CdsThread")
+# miserable hack --- cannot make paramiko not hang upon exit
+import os
+os.system('kill %d' % os.getpid())
