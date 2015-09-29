@@ -4,27 +4,64 @@ import logging
 from stitches.expect import Expect, ExpectFailed
 from rhuilib.util import Util
 
+SELECT_PATTERN = re.compile('^  (x|-)  (\d+) :')
+PROCEED_PATTERN = re.compile('.*Proceed\? \(y/n\).*', re.DOTALL)
+CONFIRM_PATTERN_STRING = "Enter value \([\d]+-[\d]+\) to toggle selection, 'c' to confirm selections, or '\?' for more commands: "
+
+class NotSelectLine(ValueError):
+    """
+    to be risen when the line isn't actually a selection line
+    """
 
 class RHUIManager(object):
     '''
     Basic functions to manage rhui-manager.
     '''
+
     @staticmethod
-    def select(connection, value_list):
+    def selected_line(line):
+        """
+        return True/False, item list index
+        """
+        match = SELECT_PATTERN.match(line)
+        if match is None:
+            raise NotSelectLine(line)
+        return match.groups()[0] == 'x', int(match.groups()[1])
+
+    @staticmethod
+    def list_lines(connection, prompt='', enter_l=True):
         '''
-        Select list of values (multiple choice)
+        list items on screen returning a list of lines seen
+        eats prompt!!!
         '''
-        for value in value_list:
-            match = Expect.match(connection, re.compile(".*-\s+([0-9]+)\s*:[^\n]*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
-            Expect.enter(connection, match[0])
-            match = Expect.match(connection, re.compile(".*x\s+([0-9]+)\s*:[^\n]*\s+" + value + "\s*\n.*for more commands:.*", re.DOTALL))
+        if enter_l:
             Expect.enter(connection, "l")
+        match = Expect.match(connection, re.compile("(.*)" + prompt, re.DOTALL))
+        return match[0].split('\r\n')
+
+    @staticmethod
+    def select_items(connection, *items):
+        '''
+        Select list of items (multiple choice)
+        '''
+        for item in items:
+            index = 0
+            selected = False
+            lines = RHUIManager.list_lines(connection, prompt=CONFIRM_PATTERN_STRING, enter_l=False)
+            selected, index = item.selected(lines)
+            if not selected:
+                # insert the on-screen index nr to trigger item selection
+                Expect.enter(connection, str(index))
+                lines = RHUIManager.list_lines(connection, prompt=CONFIRM_PATTERN_STRING, enter_l=False)
+                selected, index = item.selected(lines)
+                assert selected, 'item #%s %s not selected' % (index, item)
+        # confirm selection
         Expect.enter(connection, "c")
 
     @staticmethod
-    def select_one(connection, value):
+    def select_one(connection, item):
         '''
-        Select one value (single choice)
+        Select one item (single choice)
         '''
         match = Expect.match(connection, re.compile(".*([0-9]+)\s+-\s+" + value + "\s*\n.*to abort:.*", re.DOTALL))
         Expect.enter(connection, match[0])
@@ -84,6 +121,8 @@ class RHUIManager(object):
             key = "e"
         elif screen_name == "entitlements":
             key = "n"
+        elif screen_name == "haproxy":
+            key = "l"
         Expect.enter(connection, key)
         Expect.expect(connection, "rhui \(" + screen_name + "\) =>")
 
