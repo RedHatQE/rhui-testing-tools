@@ -15,11 +15,12 @@ RHUI tests (rhui-tests/, placed under /usr/share/rhui-testing-tools/rhui-tests i
 
 Requirements for running:
 ------------------------
-1. You need to install python modules and rhui-testing-tools before using them:
-2. In case you dont have it, install PIP tool: `sudo yum install python-pip`
-3. Install boto (aws python interface): `pip install boto`
-4. Install Python Yaml support: `sudo yum install PyYAML`
-5. Install rhui-testing-tools - run in directory where this README is placed: `python setup.py install`
+You need to install python modules and rhui-testing-tools before using them:
+
+1. In case you dont have it, install PIP tool: `sudo yum install python-pip`
+2. Install boto (aws python interface): `pip install boto`
+3. Install Python Yaml support: `sudo yum install PyYAML`
+4. Install rhui-testing-tools - run in directory where this README is placed: `sudo python setup.py install`
 
 Basic usage:
 -----------
