@@ -98,34 +98,34 @@ def setup_host_ssh(hostname, key):
     return (client, sftp)
 
 
-def setup_master(client):
+def setup_main(client):
     '''
-    Create ssh key on master node.
+    Create ssh key on main node.
     '''
-    logging.info('setting up master: %s', client._transport.sock.getpeername())
+    logging.info('setting up main: %s', client._transport.sock.getpeername())
     try:
-        logging.info('generating master ssh keypair')
+        logging.info('generating main ssh keypair')
         client.run_sync("rm -f /root/.ssh/id_rsa{,.pub}; ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa")
         _, stdout, _ = client.run_sync("cat /root/.ssh/id_rsa.pub")
         output = stdout.read()
-        logging.debug("Generated ssh master key: " + output)
+        logging.debug("Generated ssh main key: " + output)
         return output
     except Exception, e:
-        logging.error('Caught exception in setup_master: ' + str(e.__class__) + ': ' + str(e))
+        logging.error('Caught exception in setup_main: ' + str(e.__class__) + ': ' + str(e))
         return None
     finally:
-        logging.info('setting up master %s: all done', client._transport.sock.getpeername())
+        logging.info('setting up main %s: all done', client._transport.sock.getpeername())
 
 
-def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys, setup_script):
+def setup_subordinate(client, sftp, hostname, hostsfile, yamlfile, main_keys, setup_script):
     '''
-    Setup slave node.
-    - Allow connections from masters
+    Setup subordinate node.
+    - Allow connections from mains
     - Set hostname
     - Write /etc/hosts
     - Write /etc/rhui-testing.yaml
     '''
-    logging.info('setting up slave: %s', hostname)
+    logging.info('setting up subordinate: %s', hostname)
     try:
         logging.info('configuring hosts file')
         client.run_sync("touch /tmp/hosts")
@@ -139,7 +139,7 @@ def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys, setup_
             logging.info('setting hostname to %s', hostname)
             client.run_sync("hostname " + hostname)
             client.run_sync("sed -i 's,^HOSTNAME=.*$,HOSTNAME=" + hostname + ",' /etc/sysconfig/network")
-        for key in master_keys:
+        for key in main_keys:
             if key:
                 logging.info('allowing ssh key: %s', key.split()[-1])
                 client.run_sync("cat /root/.ssh/authorized_keys > /root/.ssh/authorized_keys.new")
@@ -151,9 +151,9 @@ def setup_slave(client, sftp, hostname, hostsfile, yamlfile, master_keys, setup_
             client.run_sync("chmod 755 /root/instance_setup_script")
             client.run_sync("/root/instance_setup_script")
     except Exception, e:
-        logging.error('Caught exception in setup_slave: ' + str(e.__class__) + ': ' + str(e))
+        logging.error('Caught exception in setup_subordinate: ' + str(e.__class__) + ': ' + str(e))
     finally:
-        logging.info('slave setup done: %s', hostname)
+        logging.info('subordinate setup done: %s', hostname)
 
 
 argparser = argparse.ArgumentParser(description='Create CloudFormation stack and run the testing')
@@ -182,8 +182,8 @@ argparser.add_argument('--timeout', type=int,
 argparser.add_argument('--vpcid', help='VPCid')
 argparser.add_argument('--subnetid', help='Subnet id (for VPC)')
 
-argparser.add_argument('--instancesetup', help='Instance setup script for all instances except master node')
-argparser.add_argument('--mastersetup', help='Instance setup script for master node')
+argparser.add_argument('--instancesetup', help='Instance setup script for all instances except main node')
+argparser.add_argument('--mainsetup', help='Instance setup script for main node')
 argparser.add_argument('--r3', action='store_const', const=True, default=False,
                         help='use r3.xlarge instances to squeeze out more network and cpu performance (requires vpcid and subnetid)')
 
@@ -215,9 +215,9 @@ if args.instancesetup:
     instancesetup = fd.read()
     fd.close()
 
-if args.mastersetup:
-    fd = open(args.mastersetup, 'r')
-    mastersetup = fd.read()
+if args.mainsetup:
+    fd = open(args.mainsetup, 'r')
+    mainsetup = fd.read()
     fd.close()
 
 try:
@@ -337,7 +337,7 @@ json_dict['Resources'] = \
                                                                    u'ToPort': u'5674'}]},
                         u'Type': u'AWS::EC2::SecurityGroup'}}
 
-json_dict['Resources']["master"] = \
+json_dict['Resources']["main"] = \
 {u'Properties': {u'ImageId': {u'Fn::FindInMap': [u'Fedora',
                                                              {u'Ref': u'AWS::Region'},
                                                              u'AMI']},
@@ -352,14 +352,14 @@ json_dict['Resources']["master"] = \
                              ],
                              u'Tags': [{u'Key': u'Name',
                                         u'Value': {u'Fn::Join': [u'_',
-                                                                 [u'RHUI_Master',
+                                                                 [u'RHUI_Main',
                                                                   {u'Ref': u'KeyName'}]]}},
                                        {u'Key': u'Role',
-                                        u'Value': u'Master'},
+                                        u'Value': u'Main'},
                                        {u'Key': u'PrivateHostname',
-                                        u'Value': u'master.example.com'},
+                                        u'Value': u'main.example.com'},
                                        {u'Key': u'PublicHostname',
-                                        u'Value': u'master_pub.example.com'}]},
+                                        u'Value': u'main_pub.example.com'}]},
              u'Type': u'AWS::EC2::Instance'}
 
 json_dict['Resources']["rhua"] = \
@@ -480,8 +480,8 @@ if args.vpcid and args.subnetid:
             }
 else:
 #    json_dict['Outputs'] = \
-#    {u'IPMaster': {u'Description': u'master.example.com IP',
-#               u'Value': {u'Fn::GetAtt': [u'master', u'PublicIP']}}}
+#    {u'IPMain': {u'Description': u'main.example.com IP',
+#               u'Value': {u'Fn::GetAtt': [u'main', u'PublicIP']}}}
     pass
 json_dict['Outputs'] = {}
 
@@ -610,7 +610,7 @@ yamlfile.write(yaml.safe_dump(yamlconfig))
 yamlfile.close()
 hostsfile.close()
 logging.debug(instances_detail)
-master_keys = []
+main_keys = []
 result = []
 for instance in instances_detail:
     if instance["public_ip"]:
@@ -623,8 +623,8 @@ for instance in instances_detail:
         logging.info("Instance with private ip created: %s", result_item)
     result.append(result_item)
     (instance["client"], instance["sftp"]) = setup_host_ssh(ip, ssh_key)
-    if instance["role"] == "Master":
-        master_keys.append(setup_master(instance["client"]))
+    if instance["role"] == "Main":
+        main_keys.append(setup_main(instance["client"]))
 
 for instance in instances_detail:
     if instance["private_hostname"]:
@@ -633,13 +633,13 @@ for instance in instances_detail:
         hostname = instance["public_hostname"]
     instance['hostname'] = hostname
     setup_script = None
-    if instance["role"] == "Master" and args.mastersetup:
-        setup_script = args.mastersetup
-    if instance["role"] != "Master" and args.instancesetup:
+    if instance["role"] == "Main" and args.mainsetup:
+        setup_script = args.mainsetup
+    if instance["role"] != "Main" and args.instancesetup:
         setup_script = args.instancesetup
 
-    setup_slave(instance["client"], instance["sftp"], hostname,
-                hostsfile.name, yamlfile.name, master_keys, setup_script)
+    setup_subordinate(instance["client"], instance["sftp"], hostname,
+                hostsfile.name, yamlfile.name, main_keys, setup_script)
 
 # --- close the channels
 for instance in instances_detail:

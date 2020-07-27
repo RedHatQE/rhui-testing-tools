@@ -159,13 +159,13 @@ class RHUI_Instance(Instance):
             self.run_sync("mount " + self.ephemeral_device + " " + mountpoint, True)
             self.run_sync("echo " + self.ephemeral_device + "\t" + mountpoint + "\text3\tdefaults\t0 0 >> /etc/fstab", True)
 
-    def install_coverage(self, master_hostname):
+    def install_coverage(self, main_hostname):
         logger.debug("Will install python coverage")
         self.run_sync("yum -y groupinstall 'Development tools'", True)
         self.run_sync("yum -y install python-devel libxml2-devel libxslt-devel", True)
         self.run_sync("easy_install pip", True)
         self.run_sync("pip install -U moncov")
-        self.run_sync("sed -i s,localhost,%s, /etc/moncov.yaml" % master_hostname, True)
+        self.run_sync("sed -i s,localhost,%s, /etc/moncov.yaml" % main_hostname, True)
         logger.debug("Coverage installed")
 
 class RHUA(RHUI_Instance):
@@ -176,7 +176,7 @@ class RHUA(RHUI_Instance):
         RHUI_Instance.__init__(self, hostname, private_ip, public_ip, iso)
         self.proxy_password = ''.join(random.choice(string.ascii_lowercase) for x in range(8))
 
-    def setup(self, cds_list, proxy_list, master_hostname):
+    def setup(self, cds_list, proxy_list, main_hostname):
         logger.info("Setting up RHUA instance " + self.hostname)
         capassword = ''.join(random.choice(string.ascii_lowercase) for x in range(10))
         RHUI_Instance.setup(self)
@@ -206,7 +206,7 @@ class RHUA(RHUI_Instance):
             server.set_confrpm_name(rpmname)
         # Installing coverage
         if args.coverage:
-            self.install_coverage(master_hostname)
+            self.install_coverage(main_hostname)
         # Installing RHUA
         logger.debug("Installing RHUI conf rpm")
         self.run_sync("rpm -e " + self.hostname)
@@ -227,11 +227,11 @@ class CdsThread(threading.Thread):
     '''
     CDS installer thread
     '''
-    def __init__(self, connection, rhua, master_hostname):
+    def __init__(self, connection, rhua, main_hostname):
         threading.Thread.__init__(self, name='CdsThread')
         self.connection = connection
         self.rhua = rhua
-        self.master_hostname = master_hostname
+        self.main_hostname = main_hostname
 
     def run(self):
         logger.info("Setting up CDS instance " + self.connection.hostname + " associated with RHUA " + self.rhua.hostname)
@@ -250,7 +250,7 @@ class CdsThread(threading.Thread):
         # Installing coverage
         if args.coverage:
             self.connection.run_sync("yum -y install /mnt/Packages/pymongo-* /mnt/Packages/python-bson-*")
-            self.connection.install_coverage(self.master_hostname)
+            self.connection.install_coverage(self.main_hostname)
         self.connection.run_sync("rpm -i " + rpmfile.name)
         logger.info("CDS " + self.connection.hostname + " setup finished")
 
@@ -259,8 +259,8 @@ class CDS(RHUI_Instance):
     '''
     Class to represent CDS instance
     '''
-    def setup(self, rhua, master_hostname):
-        cthread = CdsThread(self, rhua, master_hostname)
+    def setup(self, rhua, main_hostname):
+        cthread = CdsThread(self, rhua, main_hostname)
         cthread.start()
         cthread.name = "CdsThread-%s" % hostname
 
@@ -367,7 +367,7 @@ rhua = []
 cds = []
 cli = []
 proxy = []
-master_hostname = "localhost"
+main_hostname = "localhost"
 try:
     fd = open(args.yamlfile, "r")
     yamlconfig = yaml.load(fd)
@@ -397,8 +397,8 @@ try:
             instance = PROXY(hostname, private_ip, public_ip)
             proxy.append(instance)
         elif role == "MASTER":
-            logger.debug("Skipping master node " + hostname)
-            master_hostname = private_ip
+            logger.debug("Skipping main node " + hostname)
+            main_hostname = private_ip
         else:
             logger.info("host with unknown role " + role + " " + hostname + ", skipping")
     fd.close()
@@ -443,10 +443,10 @@ wait_for_threads("UpdateThread")
 
 wait_for_threads("StorageThread")
 
-rhua[0].setup(cds, proxy, master_hostname)
+rhua[0].setup(cds, proxy, main_hostname)
 
 for cds_instance in cds:
-    cds_instance.setup(rhua[0], master_hostname)
+    cds_instance.setup(rhua[0], main_hostname)
 
 for cli_instance in cli:
     cli_instance.setup()

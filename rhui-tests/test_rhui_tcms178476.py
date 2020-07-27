@@ -50,20 +50,20 @@ class test_tcms_178476(RHUITestcase, RHUI_has_two_CDSes):
         '''[TCMS#178476 test] Test client with 2 cdses up '''
         Expect.ping_pong(self. rs.Instances["CLI"][0], "yum clean metadata && yum check-update && echo SUCCESS", "[^ ]SUCCESS")
 
-        '''[TCMS#178476 test] Test client with only slave cds up '''
-        # disabling httpd on master
+        '''[TCMS#178476 test] Test client with only subordinate cds up '''
+        # disabling httpd on main
         Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS")
         Expect.ping_pong(self.rs.Instances["CLI"][0], "yum clean metadata && yum check-update && echo SUCCESS", "[^ ]SUCCESS")
 
-        '''[TCMS#178476 test] Test client with only master cds up '''
-        # enabling httpd on master, disabling on slave
+        '''[TCMS#178476 test] Test client with only main cds up '''
+        # enabling httpd on main, disabling on subordinate
         Expect.ping_pong(self.rs.Instances["CDS"][0], "service httpd start && echo SUCCESS", "[^ ]SUCCESS")
         Expect.ping_pong(self.rs.Instances["CDS"][1], "service httpd stop && echo SUCCESS", "[^ ]SUCCESS")
         Expect.ping_pong(self.rs.Instances["CLI"][0], "yum clean metadata && yum check-update && echo SUCCESS", "[^ ]SUCCESS")
 
     def _cleanup(self):
         '''[TCMS#178476 cleanup] Recover from tests '''
-        # enabling httpd on slave
+        # enabling httpd on subordinate
         Expect.ping_pong(self.rs.Instances["CDS"][1], "service httpd start && echo SUCCESS", "[^ ]SUCCESS")
 
         '''[TCMS#178476 cleanup] Remove cdses '''
