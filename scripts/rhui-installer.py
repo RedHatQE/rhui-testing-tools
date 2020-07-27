@@ -396,7 +396,7 @@ try:
             logger.info("Adding PROXY instance " + hostname)
             instance = PROXY(hostname, private_ip, public_ip)
             proxy.append(instance)
-        elif role == "MASTER":
+        elif role == "MAIN":
             logger.debug("Skipping main node " + hostname)
             main_hostname = private_ip
         else:

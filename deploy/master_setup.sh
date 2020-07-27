@@ -1,7 +1,7 @@
 #! /bin/bash -ex
 
 # logging setup
-exec > /tmp/master_setup.log
+exec > /tmp/main_setup.log
 exec 2>&1
 
 # prerequisities

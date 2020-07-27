@@ -8,7 +8,7 @@ Dependencies to be able to install ansible from git:
 * python-jinja2
 * PyYAML
 
-Deploying RHUI; assuming one stands in the directory _rhui-testing-tools/deploy_ on the _master node_
+Deploying RHUI; assuming one stands in the directory _rhui-testing-tools/deploy_ on the _main node_
 * make sure to copy a RHUI Iso file into _/tmp/rhui.iso_
 * ansible-playbook -i common/modules/rhui_inventory.py rhui-installer.yml 
 

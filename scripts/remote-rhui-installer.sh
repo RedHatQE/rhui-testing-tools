@@ -1,7 +1,7 @@
 #! /bin/bash -e
 
 usage() {
-    echo "Usage: `basename $0` -h | <master hostname> <keyfile> <RHUI ISO>"
+    echo "Usage: `basename $0` -h | <main hostname> <keyfile> <RHUI ISO>"
     echo "        <rhui-testing-tools rpm> [--coverage|--nostorage|--updateos]"
 }
 

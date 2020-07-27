@@ -302,7 +302,7 @@ json_dict['Resources'] = \
                                                                   u'IpProtocol': u'tcp',
                                                                   u'ToPort': u'22'}]},
                        u'Type': u'AWS::EC2::SecurityGroup'},
- u'MASTERsecuritygroup': {u'Properties': {u'GroupDescription': u'MASTER security group',
+ u'MAINsecuritygroup': {u'Properties': {u'GroupDescription': u'MAIN security group',
                                           u'SecurityGroupIngress': [{u'CidrIp': u'0.0.0.0/0',
                                                                      u'FromPort': u'22',
                                                                      u'IpProtocol': u'tcp',
@@ -343,7 +343,7 @@ json_dict['Resources']["main"] = \
                                                              u'AMI']},
                              u'InstanceType': args.r3 and u'r3.xlarge' or u'm3.large',
                              u'KeyName': {u'Ref': u'KeyName'},
-                             u'SecurityGroups': [{u'Ref': u'MASTERsecuritygroup'}],
+                             u'SecurityGroups': [{u'Ref': u'MAINsecuritygroup'}],
                              u'BlockDeviceMappings' : [
                                       {
                                         "DeviceName" : "/dev/sda1",

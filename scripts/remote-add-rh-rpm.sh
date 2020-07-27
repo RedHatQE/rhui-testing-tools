@@ -7,7 +7,7 @@ KEY=$2
 RPM=$3
 
 usage() {
-    echo "Usage: $0 <master hostname> <keyfile>  <RH rpm for testing>"
+    echo "Usage: $0 <main hostname> <keyfile>  <RH rpm for testing>"
     exit 1
 }
 

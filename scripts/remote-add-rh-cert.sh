@@ -7,7 +7,7 @@ KEY=$2
 CERT=$3
 
 usage() {
-    echo "Usage: $0 <master hostname> <keyfile>  <RH cert for testing>"
+    echo "Usage: $0 <main hostname> <keyfile>  <RH cert for testing>"
     exit 1
 }
 

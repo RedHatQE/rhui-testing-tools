@@ -1,8 +1,8 @@
-# the inventory should provide MASTER group containing the master node public
+# the inventory should provide MAIN  group containing the main node public
 # address
-- name: setup master node
+- name: setup main node
   hosts:
-  - MASTER
+  - MAIN
   user: root
 
   vars:

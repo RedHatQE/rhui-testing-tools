@@ -7,7 +7,7 @@ Scripts (scripts/, placed under /usr/bin in rpm):
 
    * `create-cf-stack.py` - to create CloudForamtion stack of resources (cnf/ contains examples)
    * `remote-rhui-installer.sh` - to run remote RHUI installer
-   * `rhui-installer.py` - RHUI installer (must be run on 'Master' node)
+   * `rhui-installer.py` - RHUI installer (must be run on 'Main' node)
 
 RHUI tests (rhui-tests/, placed under /usr/share/rhui-testing-tools/rhui-tests in rpm):
 
@@ -55,14 +55,14 @@ Basic usage:
 
 3. Run remote rhui installer:
 
-    * without rpm: `scripts/remote-rhui-installer.sh <master ip> <your-region-ssh-key> <RHUI iso> <rhui-testing-tools.rpm>`
-    * with rpm installed: `remote-rhui-installer.sh <master ip> <your-region-ssh-key> <RHUI iso> <rhui-testing-tools.rpm>`
+    * without rpm: `scripts/remote-rhui-installer.sh <main ip> <your-region-ssh-key> <RHUI iso> <rhui-testing-tools.rpm>`
+    * with rpm installed: `remote-rhui-installer.sh <main ip> <your-region-ssh-key> <RHUI iso> <rhui-testing-tools.rpm>`
 
     You can get rhui-testing-tools RPM [here](https://rhuiqerpm.s3.amazonaws.com/index.html).
 
 4. Add rh entitlement certificate and (optionally) rh-sighned RPM with `scripts/remote-add-rh-cert.sh` and `scripts/remote-add-rh-rpm.sh` scripts
 
-5. Go to master `ssh -i <your-region-ssh-key> <master ip>`
+5. Go to main `ssh -i <your-region-ssh-key> <main ip>`
 
 6. Run simple workflow `python /usr/share/rhui-testing-tools/rhui-tests/test_rhui_workflow_simple.py`
 
@@ -84,7 +84,7 @@ To do test coverage:
 
 3. After that perform following steps:
 
-   * on Master `scp .ssh/id_rsa rhua.example.com:.ssh/`
+   * on Main `scp .ssh/id_rsa rhua.example.com:.ssh/`
    * on RHUA
 ```
     rpm -e python-moncov
